@@ -1,0 +1,56 @@
+name: 스펙 변경
+description: API 요청·응답, 테이블, 모듈 간 인터페이스, 오류 형식을 바꿀 때
+title: "[스펙] "
+labels: ["spec-change"]
+body:
+  - type: markdown
+    attributes:
+      value: 다른 담당자나 프런트의 코드에 영향을 주는 변경이에요. PM2(민경완)에게 먼저 말하고, 요구사항명세서를 고친 뒤 docs/ 사본을 맞춰요.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 무엇을 바꾸나요
+      multiple: true
+      options:
+        - API (/api/**) 요청 · 응답
+        - 테이블 (product, discount_rule)
+        - 모듈 간 인터페이스 (Service 메서드)
+        - 오류 code · 응답 형식
+        - 계산 규칙
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: 대상
+      placeholder: 예) POST /api/quotes 응답 items[].unitPrice, StoreService.findNearby
+    validations:
+      required: true
+  - type: textarea
+    id: before-after
+    attributes:
+      label: 바꾸기 전 → 후
+      description: 필드 이름, 타입, 경로를 그대로 적어 주세요.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: 왜 바꾸나요
+    validations:
+      required: true
+  - type: textarea
+    id: affected
+    attributes:
+      label: 영향받는 사람
+      description: 확인하면 체크해 주세요.
+      value: |
+        - [ ] 이서현 (공통 · 상품)
+        - [ ] 함석원 (결제액 계산 · DB)
+        - [ ] 노건우 (매장 · 재고)
+        - [ ] 한예림 (AI · 상품 데이터)
+        - [ ] 프런트 (강태현 · 민경완)
+        - [ ] 요구사항명세서 수정 완료 (PM2 민경완)
+    validations:
+      required: true

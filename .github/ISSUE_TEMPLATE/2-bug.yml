@@ -1,0 +1,46 @@
+name: 버그
+description: 동작이 잘못됐을 때
+title: "[모듈] "
+labels: ["type:fix"]
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: 어디서 났나요
+      multiple: true
+      options:
+        - common
+        - product
+        - quote
+        - db
+        - store
+        - category
+        - data
+        - 모르겠음
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      placeholder: |
+        1. cd backend && ./gradlew bootRun
+        2. POST /api/quotes (요청 본문 붙이기)
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 결과
+      description: 계산 결과라면 손계산 값을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 실제 결과
+      description: 오류 응답, 로그를 붙여 주세요. API 키가 들어가지 않게 해요.
+      render: text
+    validations:
+      required: true

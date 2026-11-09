@@ -1,0 +1,56 @@
+name: 작업
+description: FR 구현, 설정 작업
+title: "[FR-xx] "
+labels: ["type:feat"]
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: 모듈
+      multiple: true
+      options:
+        - common
+        - product
+        - quote
+        - db
+        - store
+        - category
+        - data
+        - docs
+    validations:
+      required: true
+  - type: input
+    id: fr
+    attributes:
+      label: FR 번호
+      description: docs/reference/requirements.md 의 ID. 없으면 비워 둬요
+      placeholder: 예) FR-04
+  - type: textarea
+    id: goal
+    attributes:
+      label: 무엇을 하나요
+      placeholder: 예) POST /api/quotes 에서 행사 → 통신사 → 결제 → 적립 4단계로 최종 결제액을 계산한다
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 할 일
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준
+      description: 요구사항명세서의 수용 기준을 옮겨 적어도 돼요
+      placeholder: 예) 검증 예시가 모두 단위 테스트로 통과한다
+    validations:
+      required: true
+  - type: input
+    id: depends
+    attributes:
+      label: 함께 보는 사람 · 선행 이슈
+      placeholder: 예) 노건우(StoreService 임시 구현 필요), #7
