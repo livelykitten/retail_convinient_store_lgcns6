@@ -137,7 +137,7 @@ describe('경로 지도 계약', () => {
         render(<MapView position={{ x: 127, y: 37 }} destination={destination} locationError="" locating={false} locate={vi.fn()} clear={vi.fn()} />);
         await waitFor(() => expect(api.walking).toHaveBeenCalled());
         await waitFor(() => expect(screen.queryByRole('status', { name: '도보 경로를 불러오고 있어요' })).toBeNull());
-        expect(screen.queryByText('걸어서')).toBeNull(); expect(screen.queryByText('0m')).toBeNull(); expect(screen.getByText('CU 성수연무장점')).toBeTruthy();
+        expect(screen.queryByText('걸어서')).toBeNull(); expect(screen.queryByText('0m')).toBeNull(); expect(screen.getByText(destination.placeName)).toBeTruthy();
     });
     it('위치가 없으면 경로를 요청하지 않고 재시도한다', async () => {
         const retry = vi.fn();
