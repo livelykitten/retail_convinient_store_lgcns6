@@ -8,12 +8,12 @@ AI 도구가 이 저장소에서 일할 때 자동으로 읽는 파일이에요.
 | [docs/reference/](docs/reference/requirements.md) | 요구사항 · 계산 규칙 · API · 테이블을 다룰 때. **스펙의 기준** (요구사항명세서 사본) |
 | [docs/design.md](docs/design.md) | 모듈 경계, 모듈 간 인터페이스, quotes 흐름을 다룰 때 |
 | [docs/code-convention.md](docs/code-convention.md) | 코드를 쓸 때 |
-| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | 이슈 · 커밋 메시지 · PR 초안을 쓸 때 |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | 브랜치 이름 · 커밋 메시지 · PR 초안을 쓸 때 |
 | [docs/roles.md](docs/roles.md) | 담당자와 담당 모듈을 확인할 때 |
 
 ## 반드시 지킬 것
 
-1. **git과 GitHub에 흔적을 남기는 동작은 하지 않아요.** 이슈 생성, 브랜치 생성 · 전환, `git add` · `commit` · `push` · `merge` · `rebase` · `reset`, PR 생성, 리뷰 게시, 승인, 병합은 사람이 해요. AI는 그 내용의 초안만 써요. 읽기 명령(`git status`, `git diff`, `git log`)은 써도 돼요.
+1. **git과 GitHub에 흔적을 남기는 동작은 하지 않아요.** 브랜치 생성 · 전환, `git add` · `commit` · `push` · `merge` · `rebase` · `reset`, PR 생성, 리뷰 게시, 승인, 병합은 사람이 해요. AI는 그 내용의 초안만 써요. 읽기 명령(`git status`, `git diff`, `git log`)은 써도 돼요.
 2. **담당 모듈 패키지 밖을 고치지 않아요.** 필요하면 먼저 사람에게 물어요.
 3. **다른 모듈의 Repository · 엔티티를 직접 쓰지 않아요.** 그 모듈의 Service 메서드를 불러요.
 4. **스펙을 추측하지 않아요.** `docs/reference/`에 없는 경로 · 필드 · enum · 오류 코드는 만들지 말고 확인할 것으로 남겨요. 필드 이름은 명세에서 복사해요.

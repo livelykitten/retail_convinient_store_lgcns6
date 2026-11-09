@@ -77,7 +77,7 @@ erDiagram
 | `estimated` | boolean | N | `false` | 다른 브랜드 정가로 채운 추정 값이면 true |
 | `pb` | boolean | N | `false` | 한 브랜드 전용 상품 |
 
-상품군 목록(안): `COLA` · `CIDER` · `COFFEE` · `RAMEN_CUP` · `RAMEN_BAG` · `CHOCOLATE`. 제로 콜라를 `COLA`에 넣을지는 미정(PO 신해원)이에요.
+상품군 목록(안): `COLA` · `CIDER` · `COFFEE` · `RAMEN_CUP` · `RAMEN_BAG` · `CHOCOLATE`. **제로 콜라는 `COLA`에 넣어요** (결정 2026-11-09). 원천에 상품군이 없는 상품은 변환 때 키워드로 채우고, 키워드로도 못 채우면 NULL(미분류)이에요.
 
 ### 3-2. 할인 규칙 `discount_rule`
 

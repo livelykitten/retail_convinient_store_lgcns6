@@ -59,9 +59,9 @@ flowchart LR
 | `CategoryResolver.resolve` | `q` → `category` · `confidence` · `method` | 한예림 |
 
 - 반환 타입(`Product`, `Store`, `DiscountRule`)은 엔티티가 아니라 **모듈 밖으로 내보내는 DTO**로 해요 (안). 엔티티를 바꿔도 쓰는 사람의 코드가 깨지지 않아요.
-- `Store` 필드는 `GET /api/stores` 응답과 같게 해요: `storeId`, `brand`, `placeName`, `distanceM`, `x`, `y`, `roadAddress`. `walkMinutes`는 아래 7장 7번이에요.
+- `Store` 필드는 `GET /api/stores` 응답과 같게 해요: `storeId`, `brand`, `placeName`, `distanceM`, `x`, `y`, `roadAddress`. 거리 지표는 `distanceM` 하나예요 (도보 분 없음, 7장 7번 결정).
 - 카카오 오류 예외 이름: 미정(노건우). 안: `KakaoRateLimitException`(429), `KakaoApiException`(그 밖)
-- 인터페이스를 바꾸려면 [스펙 변경 이슈](CONTRIBUTING.md#스펙-변경-이슈)를 열고 쓰는 사람에게 알려요.
+- 인터페이스를 바꾸려면 [스펙 변경](CONTRIBUTING.md#스펙-변경) 순서대로 쓰는 사람에게 먼저 알려요.
 
 ## 3. `POST /api/quotes` 흐름 (함석원)
 
@@ -78,6 +78,18 @@ POST /api/quotes (함석원)
  └─ 정렬 · notice · mockRule → 응답
 ```
 
+### 매장 조회가 실패했을 때 (7장 1번 결정)
+
+| 카카오 결과 | quotes 응답 |
+| --- | --- |
+| 429 | 429 `KAKAO_RATE_LIMIT` (`message` = "잠시 뒤 다시 시도해 주세요") |
+| 그 밖의 오류 (`KAKAO_ERROR`) | 200. 매장 없이 상품 목록만: 그 상품군의 4사 상품을 모두 행으로 내고, 매장 칸(`storeId` · `placeName` · `distanceM` · `x` · `y`)과 `stockStatus`는 null. 계산과 할인 내역은 그대로 |
+
+- `StoreService.findNearby`가 던진 예외 타입으로 둘을 나눠요.
+- **전부 성공하거나 전부 실패**예요. `StoreService`는 카카오를 여러 번(페이지) 부르다가 한 번이라도 실패하면 받은 결과를 버리고 예외를 던져요. 그래서 일부 행만 null인 응답은 없고, 프런트는 `storeId`가 null인지만 보면 돼요 (따로 표시 칸 없음).
+- 타임아웃도 그 밖의 오류로 봐요.
+- 매장이 없으면 거리 기준 정렬과 `OUT` 맨 아래 규칙은 적용하지 않아요. `finalPrice` 오름차순만 써요.
+
 ### 4단계 계산
 
 규칙 원문은 [reference/requirements.md 2절](reference/requirements.md#2-최종-결제액-계산-규칙-fr-04)이에요. 코드로 옮길 때 지킬 것만 적어요.
@@ -92,11 +104,12 @@ POST /api/quotes (함석원)
 - 금액은 원 단위 정수(`int`/`long`)로 계산하고, `rate`를 곱할 때만 `BigDecimal`을 써요. `double`을 쓰지 않아요 (안).
 - ⌊ ⌋(버림)은 `BigDecimal.setScale(0, RoundingMode.FLOOR)`로 해요 (안).
 - `reason` 문구 목록(행사 중복 불가, 전월 실적 미충족, 최소 결제액 미만, 더 큰 할인 선택 등): 미정(함석원). 프런트와 맞춰요.
-- **검증 예시(류지범 손계산)를 단위 테스트로 만들고, 모두 맞아야 완료**예요. 건수는 7장 8번이에요.
+- **검증 예시(류지범 손계산)를 단위 테스트로 만들고, 모두 맞아야 완료**예요. 명세대로 5건이에요 (7장 8번 결정).
 
 ### 정렬과 표시
 
-- 정렬: `finalPrice` 오름차순 → 같으면 `distanceM` 오름차순. `stockStatus` = `OUT` 행은 맨 아래 (안)
+- 정렬: `finalPrice` 오름차순 → 같으면 `distanceM` 오름차순. `stockStatus` = `OUT` 행은 맨 아래 (안). 명세 2절 그대로예요 (7장 2번 결정).
+- 1+1처럼 2개 받는 행사도 개당 가격이 아니라 `finalPrice`로 정렬해요 (7장 6번 결정).
 - `mockRule`: 적용된(`applied` = true) 규칙 중 `source`가 NULL인 것이 있으면 true (NFR-01)
 - `notice`: "매장마다 취급 상품이 다를 수 있음" 고정
 
@@ -117,6 +130,7 @@ flowchart LR
 - 앱이 뜰 때 CSV를 **다시 적재**해요. 그래서 H2 파일의 데이터는 언제든 지워도 돼요.
 - 테이블은 `backend/src/main/resources/schema.sql`로 만들어요 (함석원). JPA는 `ddl-auto: validate`로 확인만 해요 (안).
 - 원천 · 변환 결과 파일 위치: `backend/src/main/resources/data/` (안, 이서현)
+- 원천에 상품군이 없는 상품은 **변환 때 키워드로 `category`를 채워요** (7장 3번 결정). 키워드로도 못 채우면 NULL(미분류)로 두고, FR-08 사전 분류가 채워요. 제로 콜라는 `COLA` (7장 4번 결정)
 - 변환 스크립트 위치와 언어: 미정(한예림)
 - 할인 규칙표를 어떤 형식(CSV 등)으로 받을지: 미정(함석원 · 류지범)
 - 앱이 뜨면 상품군별 4사 개수를 로그로 출력해요. 4사 각 10개 이상이어야 해요 (FR-07).
@@ -140,7 +154,7 @@ int n = Math.floorMod((storeId + ":" + productId).hashCode(), 10);
 | LLM (모델 미정, 한예림) | `category` | `AI_API_KEY` | 검색 1번에 LLM 1번. 같은 검색어는 메모리에서 재사용. 실패하면 키워드 사전으로 |
 
 - 키는 저장소에 올리지 않고 환경 변수로 받아요. `application.properties`에는 `${KAKAO_REST_API_KEY}`처럼 이름만 적어요.
-- 카카오 오류(NFR-02): 429 → `KAKAO_RATE_LIMIT`, 그 밖 → `KAKAO_ERROR`. quotes에서의 동작은 아래 7장 1번이에요.
+- 카카오 오류(NFR-02): 429 → `KAKAO_RATE_LIMIT`, 그 밖 → `KAKAO_ERROR`. quotes에서의 동작은 [3장](#매장-조회가-실패했을-때-7장-1번-결정)에 있어요.
 
 ## 6. 공통 규칙
 
@@ -154,15 +168,22 @@ int n = Math.floorMod((storeId + ":" + productId).hashCode(), 10);
 
 ## 7. 아직 정하지 않은 것
 
-정해지면 해당 절과 reference를 고치고 이 표에서 지워요. 1 ~ 6은 역할 분담 문서 8절, 7 ~ 8은 역할 분담 문서와 요구사항명세서를 대조하다가 찾은 차이예요.
+정해지면 해당 절과 reference를 고치고 아래 "정한 것"으로 옮겨요. 번호는 처음 정리할 때의 번호를 그대로 써요. 1 ~ 6은 역할 분담 문서 8절, 7 ~ 8은 역할 분담 문서와 요구사항명세서를 대조하다가 찾은 차이예요.
 
 | # | 내용 | 정하는 사람 |
 | --- | --- | --- |
-| 1 | 매장 조회 실패 시 quotes 동작이 명세 안에서 달라요. NFR-02는 "429 외 오류는 매장 없이 상품 목록만", API 표는 `POST /api/quotes`가 502. 매장 없이 준다면 `storeId` · `distanceM` · `stockStatus`를 null로 둘지도 함께 | 미정(PM2 · 백엔드 리드) |
-| 2 | 정렬이 가격순 · 시간순 선택으로 바뀌었다고 했는데, 명세 2절은 아직 `finalPrice` → `distanceM`이에요. 프런트가 다시 요청하지 않고 정렬한다면 quotes는 기본 가격순만 보장하면 되는지 | 미정(PM2) |
-| 3 | 원천에 상품군이 없는 상품의 `category`를 변환 때 키워드로 채울지, FR-08 결과로만 채울지 (한예림 · 이서현 경계) | 미정(백엔드 리드) |
-| 4 | 제로 콜라를 `COLA`에 넣을지. 정답셋 · 키워드 사전에 영향 | 미정(PO 신해원) |
 | 5 | 함석원이 계산 · DB 설계를 같이 맡아 스프린트 0이 무거워요. DB 설계가 늦어지면 이서현이 명세 4절 그대로 임시 테이블을 먼저 만들고, 설계 확정 뒤 맞춰요 (안) | 미정(백엔드 리드) |
-| 6 | 1+1처럼 2개 받는 행사의 개당 가격 정렬을 추가할지. 추가하면 quotes 응답에 개당 가격 칸이 필요해요 | 미정(PO 신해원) |
-| 7 | 역할 분담 문서는 `StoreService`와 FR-12에 `walkMinutes`(도보 분)를 두지만, 명세 API(`/api/stores`, `/api/quotes`)에는 `distanceM`만 있어요. 응답에 `walkMinutes`를 더할지(더하면 계산식도: 예 분당 67m), 프런트가 `distanceM`으로 계산할지 | 미정(PM2 · 노건우 · 민경완) |
-| 8 | FR-04 수용 기준의 검증 예시가 명세는 5건, 역할 분담 문서는 10건이에요 | 미정(PM2 · 류지범) |
+
+### 정한 것
+
+요구사항명세서 원본에도 반영해야 해요 (PM2 민경완).
+
+| # | 결정 | 반영한 곳 |
+| --- | --- | --- |
+| 1 | 매장 조회 실패 시: 카카오 429면 quotes도 429 `KAKAO_RATE_LIMIT`. **그 밖의 오류는 502로 끝내지 않고 매장 없이 상품 목록만** 200으로 줘요(NFR-02 기준). 이때 매장 칸(`storeId` · `placeName` · `distanceM` · `x` · `y`)과 `stockStatus`는 **null**. 화면은 `storeId`가 null인지로 판단하고, 매장 조회는 전부 성공하거나 전부 실패예요 | [api-spec.md 5절](reference/api-spec.md#5-post-apiquotes), 이 문서 3장 |
+| 2 | 정렬은 **명세 2절 그대로** `finalPrice` 오름차순 → 같으면 `distanceM` 오름차순, `OUT`은 맨 아래. 역할 분담 문서의 "가격순 · 시간순 선택"은 명세에 근거가 없어 따르지 않아요 | 이 문서 3장, [roles.md](roles.md) |
+| 3 | 원천에 상품군이 없는 상품의 `category`는 **변환 때 키워드로 채워요** (한예림 변환 스크립트). FR-08은 키워드로도 못 채운 것(NULL)만 다뤄요 | 이 문서 4장 |
+| 4 | 제로 콜라는 **`COLA`에 넣어요** | [erd.md 3-1](reference/erd.md#3-1-상품-product) |
+| 6 | 개당 가격 정렬은 **추가하지 않아요.** 1+1도 실제로 내는 금액(`finalPrice`) 기준으로 정렬해요. 응답 변경 없음 | — |
+| 7 | **`walkMinutes`(도보 분)는 만들지 않아요.** 명세의 거리 지표는 `distanceM` 하나예요. 역할 분담 문서의 `walkMinutes`는 명세에 없는 필드였어요 | 이 문서 2장, [roles.md](roles.md) |
+| 8 | FR-04 검증 예시는 **명세대로 5건** | 이 문서 3장, [roles.md](roles.md) |

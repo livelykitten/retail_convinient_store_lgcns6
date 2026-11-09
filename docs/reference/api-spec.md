@@ -24,7 +24,7 @@
 | --- | --- | --- |
 | 400 | `INVALID_PARAM` | 필수 값이 없거나 범위를 벗어날 때 |
 | 429 | `KAKAO_RATE_LIMIT` | 카카오 API가 429를 줄 때 |
-| 502 | `KAKAO_ERROR` | 그 밖의 카카오 API 오류 |
+| 502 | `KAKAO_ERROR` | 그 밖의 카카오 API 오류 (`GET /api/stores`만. quotes는 매장 없이 200) |
 | 500 | `INTERNAL_ERROR` (안) | 예상하지 못한 서버 오류. 명세에 없어 이서현이 확정 |
 
 - `message`는 화면에 그대로 보여도 되는 한국어 문구로 써요 (안). 스택 트레이스를 싣지 않아요.
@@ -38,7 +38,7 @@
 | `GET /api/categories/resolve?q=` | `q` 필수, 1 ~ 30자 | 200 `{ query, category, confidence, method }`. 못 찾으면 `category` = null. `method` = `AI` · `KEYWORD` | 400 `INVALID_PARAM` | 한예림 |
 | `GET /api/products?category=` | `category` 필수 | 200 `Product[]` (product 칸, camelCase) | 400 `INVALID_PARAM` | 이서현 |
 | `GET /api/stores?x=&y=&radius=` | `x` 경도 · `y` 위도 필수, `radius` 미터(기본 500, 최대 2000, 안) | 200 `[{ storeId, brand, placeName, distanceM, x, y, roadAddress }]` 거리순 | 400 `INVALID_PARAM` · 429 `KAKAO_RATE_LIMIT` · 502 `KAKAO_ERROR` | 노건우 |
-| `POST /api/quotes` | [5절](#5-post-apiquotes) | 200 [5절](#5-post-apiquotes) | 400 `INVALID_PARAM` · 429 · 502(매장 조회 실패) | 함석원 |
+| `POST /api/quotes` | [5절](#5-post-apiquotes) | 200 [5절](#5-post-apiquotes) | 400 `INVALID_PARAM` · 429 `KAKAO_RATE_LIMIT`. 그 밖의 매장 조회 실패는 502가 아니라 200(매장 칸 null) | 함석원 |
 
 ## 4. API별 상세
 
@@ -198,4 +198,36 @@
 - 정렬: `finalPrice` 오름차순 → 같으면 `distanceM` 오름차순. `OUT` 행은 맨 아래 (안)
 - 반경 안에 그 브랜드 매장이 없으면 그 브랜드 행은 나오지 않아요.
 - `discounts[]`에 담는 범위(사용자가 고른 수단의 규칙만인지, 브랜드가 맞는 규칙만인지), 적립 규칙의 `type` 표기: 미정(함석원)
-- 매장 조회가 실패했을 때의 동작은 명세 안에서 서로 달라요 ([design.md 7장](../design.md#7-아직-정하지-않은-것) 1번).
+- 1+1처럼 2개 받는 행사도 개당 가격이 아니라 `finalPrice`로 정렬해요. 개당 가격 칸은 두지 않아요 (결정 2026-11-09).
+
+### 매장 조회가 실패했을 때 (결정 2026-11-09, NFR-02 기준)
+
+명세 원본은 API 표(502)와 NFR-02(상품 목록만)가 달랐어요. NFR-02를 따르기로 정했어요. 요구사항명세서 원본 수정이 필요해요 (PM2).
+
+| 카카오 결과 | 응답 |
+| --- | --- |
+| 429 | 429 `{ "code": "KAKAO_RATE_LIMIT", "message": "잠시 뒤 다시 시도해 주세요" }` |
+| 그 밖의 오류 | 200. 그 상품군의 4사 상품을 모두 행으로 내고, 매장 칸과 재고는 null. 계산 · 할인 내역은 그대로 |
+
+```json
+{
+  "items": [{
+    "brand": "GS25", "storeId": null, "placeName": null,
+    "distanceM": null, "x": null, "y": null,
+    "product": { "productId": "gs25-1001", "name": "펩시콜라600ml", "size": 600, "unit": "ML", "pb": false },
+    "listPrice": 2500, "qty": 1, "paidQty": 1, "receivedQty": 2,
+    "event": "ONE_PLUS_ONE", "eventPrice": 2500,
+    "discounts": [],
+    "finalPrice": 2500, "pointAmount": 0,
+    "stockStatus": null,
+    "dataMonth": "2026-08", "estimated": false, "mockRule": false
+  }],
+  "notice": "매장마다 취급 상품이 다를 수 있음"
+}
+```
+
+- 이때 정렬은 `finalPrice` 오름차순만 써요 (거리 · 재고 기준 없음).
+- 화면은 **`storeId`가 null인지로** "매장 정보를 불러오지 못함"을 알아요. 따로 표시 칸을 두지 않아요 (결정 2026-11-09).
+- 그래서 매장 조회는 **전부 성공하거나 전부 실패**예요. 카카오를 여러 번(페이지) 부르다가 한 번이라도 실패하면 전체를 실패로 보고, 모든 행의 매장 칸을 null로 내요. 일부 행만 null인 응답은 없어요.
+- 반경 안에 4사 매장이 하나도 없으면 null 행이 아니라 `items: []`예요.
+- 프런트는 `storeId`가 null인 행에서 길찾기(FR-06)를 끄고, 거리 정렬 때 맨 뒤로 보내요.

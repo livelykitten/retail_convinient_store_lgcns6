@@ -56,7 +56,7 @@ backend/src/main/resources/
 
 ## API
 
-- **경로, 메서드, 요청 · 응답 필드는 [reference/api-spec.md](reference/api-spec.md)와 똑같이 만들어요.** 바꿔야 하면 스펙 변경 이슈를 열어요.
+- **경로, 메서드, 요청 · 응답 필드는 [reference/api-spec.md](reference/api-spec.md)와 똑같이 만들어요.** 바꿔야 하면 [스펙 변경](CONTRIBUTING.md#스펙-변경) 순서를 따라요.
 - 요청 검증은 Bean Validation(`@NotNull`, `@Size`, `@Min`, `@Max`)으로 해요. 실패하면 공통 예외 처리가 400 `INVALID_PARAM`으로 바꿔요.
 - 컨트롤러는 요청을 받고 서비스를 부르는 일만 해요. 계산 · 판별 로직은 서비스에 둬요.
 - 스프린트 0에는 각자 API가 **고정 응답**을 돌려주게 먼저 올려요. 프런트가 바로 붙을 수 있어요.
@@ -92,7 +92,7 @@ public class StoreController {
 | 카카오 그 밖의 오류 | 502 | `KAKAO_ERROR` |
 | 예상하지 못한 오류 | 500 | `INTERNAL_ERROR` (안) |
 
-- 새 code가 필요하면 스펙 변경 이슈로 명세에 먼저 넣어요.
+- 새 code가 필요하면 [스펙 변경](CONTRIBUTING.md#스펙-변경)으로 명세에 먼저 넣어요.
 
 ## 계산 (quote · discount)
 
