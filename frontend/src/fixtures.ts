@@ -15,18 +15,27 @@ export const walletOptions: WalletOptions = {
     memberships: [{ brand: 'CU', name: 'CU 멤버십' }, { brand: 'GS25', name: 'GS&POINT' }, { brand: 'SEVEN', name: '세븐일레븐 멤버십' }, { brand: 'EMART24', name: '이마트24 멤버십' }]
 };
 export const stores: Store[] = [
-    { storeId: '12345678', brand: 'CU', placeName: 'CU 성수연무장점', x: 127.0571, y: 37.5431, distanceM: 240, walkMin: 4 },
-    { storeId: '87654321', brand: 'GS25', placeName: 'GS25 성수역점', x: 127.0559, y: 37.5448, distanceM: 380, walkMin: 6 }
+    // 주소와 좌표의 출처는 README의 발표 장소 데모 데이터 표 참고.
+    // distanceM = 강의장 대표 좌표에서의 직선거리(m, 반올림), walkMin = ceil(distanceM / 67).
+    // 실제 출입구 측량·보행 경로·영업 상태·가격·재고를 보증하는 데이터가 아니다.
+    { storeId: 'demo-gs25-sindang-first', brand: 'GS25', placeName: 'GS25 신당퍼스트점',
+        x: 127.0160011385, y: 37.562617536025, distanceM: 21, walkMin: 1 },
+    { storeId: 'demo-cu-sindang-dasanro', brand: 'CU', placeName: 'CU 신당다산로점',
+        x: 127.0161509, y: 37.5617411, distanceM: 114, walkMin: 2 },
+    { storeId: 'demo-seven-sindang', brand: 'SEVEN', placeName: '세븐일레븐 신당점',
+        x: 127.017856, y: 37.561518, distanceM: 205, walkMin: 4 }
 ];
 export function quotes(input: QuoteRequest): QuoteResponse {
-    const rows: QuoteStore[] = stores.map((store, index) => ({ ...store,
+    // main의 재고 시나리오(CU 있음, GS25 적음, 세븐일레븐 있음)를 새 위치의 거리순으로 제공한다.
+    const bananaStores = stores.slice(0, 2);
+    const rows: QuoteStore[] = bananaStores.map(store => ({ ...store,
         event: 'TWO_PLUS_ONE', eventLabel: '2+1 행사', unitPrice: 1000,
         applicableMethods: [
-            ...(input.wallet?.telecom && index === 0 ? [{ type: 'TELECOM' as const, code: input.wallet.telecom.provider }] : []),
+            ...(input.wallet?.telecom && store.brand === 'CU' ? [{ type: 'TELECOM' as const, code: input.wallet.telecom.provider }] : []),
             ...(input.wallet?.cards ?? []).filter(card => card.cardId).map(card => ({ type: 'CARD' as const, code: card.cardId! })),
             ...(input.wallet?.pays ?? []).map(code => ({ type: 'PAY' as const, code })),
             ...(input.wallet?.memberships ?? []).filter(code => code === store.brand).map(code => ({ type: 'MEMBERSHIP' as const, code }))
-        ], stockStatus: index === 0 ? 'IN_STOCK' : 'OUT'
+        ], stockStatus: store.brand === 'CU' ? 'IN_STOCK' : 'LOW'
     }));
     const products: QuoteResponse['products'] = [{
         productKey: 'binggrae-banana-240', name: '빙그레 바나나맛우유 240ml', imageUrl: null,
@@ -34,8 +43,8 @@ export function quotes(input: QuoteRequest): QuoteResponse {
     }, {
         productKey: 'maeil-barista-latte-325', name: '매일 바리스타룰스 카페라떼 325ml', imageUrl: null,
         event: 'ONE_PLUS_ONE', listPrice: 2500, minUnitPrice: 1250, storeCount: 1,
-        stores: [{ storeId: 'example-cafe-01', brand: 'SEVEN', placeName: '세븐일레븐 예시점', x: 127.0580, y: 37.5450,
-            distanceM: 210, walkMin: 4, event: 'ONE_PLUS_ONE', eventLabel: '1+1 행사', unitPrice: 1250, applicableMethods: [], stockStatus: 'LOW' }]
+        stores: [{ ...stores[2], event: 'ONE_PLUS_ONE', eventLabel: '1+1 행사', unitPrice: 1250,
+            applicableMethods: [], stockStatus: 'IN_STOCK' }]
     }];
     products.sort(input.sort === 'PRICE' ? (a, b) => a.minUnitPrice - b.minUnitPrice : (a, b) => Math.min(...a.stores.map(store => store.distanceM)) - Math.min(...b.stores.map(store => store.distanceM)));
     return { query: input.q, products: /우유|바나나|커피|라떼/.test(input.q) ? products : [] };

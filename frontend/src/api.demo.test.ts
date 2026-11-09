@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { demoCenter } from './demoLocation';
 
 afterEach(() => {
     vi.unstubAllEnvs();
@@ -23,13 +24,13 @@ describe('프로덕션 데모 모드', () => {
         const options = await api.walletOptions();
         expect(options.telecoms.length).toBeGreaterThan(0);
         const result = await api.quotes({
-            q: '우유', x: 127.0563, y: 37.5446,
+            q: '우유', ...demoCenter,
             wallet: { telecom: null, cards: [], pays: ['KAKAOPAY'], memberships: [] }
         });
         const product = result.products.find(product => product.productKey === 'binggrae-banana-240');
         expect(product?.storeCount).toBe(product?.stores.length);
         expect(product?.stores[0].applicableMethods).toContainEqual({ type: 'PAY', code: 'KAKAOPAY' });
-        expect((await api.stores({ x: 127.0563, y: 37.5446 })).length).toBeGreaterThan(0);
+        expect((await api.stores(demoCenter)).length).toBeGreaterThan(0);
         expect(fetch).not.toHaveBeenCalled();
     });
 

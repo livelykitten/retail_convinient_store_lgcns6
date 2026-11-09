@@ -24,7 +24,7 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
     }
     if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        throw new ApiError(error.code ?? '', messages[error.code] ?? error.message ?? '요청을 처리하지 못했어요', response.status);
+        throw new ApiError(error.code ?? '', messages[error.code] ?? error.message ?? '잠시 뒤 다시 시도해 주세요', response.status);
     }
     return response.json() as Promise<T>;
 }

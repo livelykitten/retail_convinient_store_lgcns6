@@ -1,6 +1,6 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { api, fixturesEnabled } from './api';
-import { searchDefaultCoordinates } from './location';
+import { demoCenter, demoCenterLabel, demoMapLabel } from './demoLocation';
 import { latLng, loadKakao } from './kakao';
 import type { Overlay } from './kakao';
 import type { Coordinates, Destination, Store, WalkingRoute } from './types';
@@ -15,8 +15,8 @@ export function MapView({ position, locationError, locating, locate, destination
     const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
     const [reload, setReload] = useState(0); const [mapError, setMapError] = useState('');
     const container = useRef<HTMLDivElement>(null); const centerMap = useRef<(() => void) | null>(null);
-    // 예시 매장은 성수동에 고정되어 있으므로 데모에서는 GPS를 지도·경로에 사용하지 않는다.
-    const mapPosition = fixturesEnabled ? searchDefaultCoordinates : position;
+    // 예시 매장은 발표 장소 주변에 고정되어 있으므로 데모에서는 GPS를 지도·경로에 사용하지 않는다.
+    const mapPosition = fixturesEnabled ? demoCenter : position;
     useEffect(() => {
         setRoute(null); setError(''); setStores([]); if (!mapPosition) return;
         const controller = new AbortController(); setBusy(true);
@@ -50,7 +50,7 @@ export function MapView({ position, locationError, locating, locate, destination
                 overlays.push(new maps.Polyline({ map, path, strokeWeight: 5, strokeColor: '#111111', strokeOpacity: 1, strokeStyle: 'shortdash' }));
             }
             if (fixturesEnabled) {
-                // 성수동 중심에서 남북·동서 약 500m 범위. GPS·목적지의 원거리 이상값은 줌에 반영하지 않는다.
+                // 강의장 중심에서 남북·동서 약 500m 범위. GPS·목적지의 원거리 이상값은 줌에 반영하지 않는다.
                 bounds.extend(latLng(maps, { x: mapPosition.x - .00567, y: mapPosition.y - .0045 }));
                 bounds.extend(latLng(maps, { x: mapPosition.x + .00567, y: mapPosition.y + .0045 }));
                 map.setBounds(bounds, 16, 16, 16, 16);
@@ -64,9 +64,9 @@ export function MapView({ position, locationError, locating, locate, destination
     }, [mapPosition, destination, stores, route, reload]);
     const routeUrl = route?.landingUrl && /^https:\/\/(?:map\.kakao\.com|kko\.kakao\.com|kko\.to)(?:\/|$)/.test(route.landingUrl) ? route.landingUrl : null;
     return <section className="map-page" aria-label="주변 편의점 지도"><div ref={container} className="map-canvas" aria-label="카카오맵" />
-        {!mapPosition && <div className="map-example" aria-hidden="true"><div className="map-park" /><span>성수공원</span></div>}
-        {mapPosition && <div className="location-pill"><Icon name="pin" size={14} />{fixturesEnabled ? '성수동 예시 지도 · 실제 내 위치 아님' : '내 위치 근처'}</div>}
-        <button className="locate-button" aria-label={fixturesEnabled ? '성수동 예시 중심으로 이동' : '내 위치로 이동'} onClick={() => { if (centerMap.current) centerMap.current(); else if (!fixturesEnabled) locate(); }}><Icon name="locate" size={20} /></button>
+        {!mapPosition && <div className="map-example" aria-hidden="true"><div className="map-park" /></div>}
+        {mapPosition && <div className="location-pill"><Icon name="pin" size={14} />{fixturesEnabled ? demoMapLabel : '내 위치 근처'}</div>}
+        <button className="locate-button" aria-label={fixturesEnabled ? demoCenterLabel : '내 위치로 이동'} onClick={() => { if (centerMap.current) centerMap.current(); else if (!fixturesEnabled) locate(); }}><Icon name="locate" size={20} /></button>
         {!fixturesEnabled && (!position || locationError) && <div className="location-dialog"><span className="location-symbol"><Icon name="pin-large" size={24} /></span><h1>{locating ? '현재 위치를 확인하고 있어요' : '현재 위치를 확인할 수 없어요'}</h1><p>브라우저 설정에서 위치 접근을 허용하면<br />내 주변 편의점과 가는 길을 보여 드려요.</p><button className="primary" onClick={locate} disabled={locating}>{locating ? '확인 중…' : '다시 시도'}</button><small>위치 정보는 저장하지 않아요</small></div>}
         {mapPosition && mapError && <div className="map-error"><Notice retry={() => setReload(value => value + 1)}>{mapError}</Notice></div>}
         {destination ? <div className="destination-card"><div className="destination-title"><BrandIcon code={destination.brand} size={40} /><div><span className="destination-badge">목적지</span><h2>{destination.placeName}</h2></div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="map-close" size={20} /></button></div>

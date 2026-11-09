@@ -3,10 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { api, ApiError } from './api';
 import { MapView } from './MapView';
+import App from './App';
 import { loadKakao } from './kakao';
 import type { KakaoMaps } from './kakao';
 import { stores } from './fixtures';
-import { searchDefaultCoordinates } from './location';
+import { demoCenter } from './demoLocation';
 
 const mode = vi.hoisted(() => ({ demo: true }));
 vi.mock('./api', async importOriginal => ({
@@ -57,6 +58,7 @@ const props = {
 
 beforeEach(() => {
     mode.demo = true;
+    localStorage.clear(); sessionStorage.clear(); sessionStorage.setItem('pyeonri.started', 'true');
     vi.clearAllMocks();
     vi.mocked(loadKakao).mockResolvedValue(sdk);
     vi.spyOn(api, 'stores').mockResolvedValue(stores);
@@ -68,25 +70,36 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('지도 좌표와 표시 범위 분리', () => {
-    it('원거리 GPS가 있어도 성수동 중심 약 500m 반경만 bounds에 넣는다', async () => {
+    it('이전 데모 목적지를 복원하지 않고 실제 API 모드의 저장값은 유지한다', () => {
+        const oldDestination = { ...destination, storeId: '12345678', placeName: '이전 데모 매장' };
+        sessionStorage.setItem('pyeonri.destination', JSON.stringify(oldDestination));
+        const demo = render(<App />);
+        expect(sessionStorage.getItem('pyeonri.destination')).toBeNull();
+        demo.unmount();
+        mode.demo = false;
+        sessionStorage.setItem('pyeonri.destination', JSON.stringify(oldDestination));
+        render(<App />);
+        expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!)).toEqual(oldDestination);
+    });
+    it('원거리 GPS가 있어도 신당동 강의장 중심 약 500m 반경만 bounds에 넣는다', async () => {
         render(<MapView {...props} />);
         await waitFor(() => expect(setBounds).toHaveBeenCalled());
-        expect(api.stores).toHaveBeenCalledWith(searchDefaultCoordinates, expect.any(AbortSignal));
+        expect(api.stores).toHaveBeenCalledWith(demoCenter, expect.any(AbortSignal));
         for (const [, options] of created.mock.calls) {
-            expect(options.center.getLng()).toBe(searchDefaultCoordinates.x);
-            expect(options.center.getLat()).toBe(searchDefaultCoordinates.y);
+            expect(options.center.getLng()).toBe(demoCenter.x);
+            expect(options.center.getLat()).toBe(demoCenter.y);
         }
         for (const [bounds, ...padding] of setBounds.mock.calls) {
             expect(bounds.points).toEqual([
-                new Point(searchDefaultCoordinates.y - .0045, searchDefaultCoordinates.x - .00567),
-                new Point(searchDefaultCoordinates.y + .0045, searchDefaultCoordinates.x + .00567)
+                new Point(demoCenter.y - .0045, demoCenter.x - .00567),
+                new Point(demoCenter.y + .0045, demoCenter.x + .00567)
             ]);
             expect(padding).toEqual([16, 16, 16, 16]);
         }
-        expect(screen.getByText('성수동 예시 지도 · 실제 내 위치 아님')).toBeTruthy();
+        expect(screen.getByText('신당동 강의장 예시 지도 · 실제 내 위치 아님')).toBeTruthy();
         expect(overlay.mock.calls.some(([options]) => options.content.className === 'current-dot')).toBe(false);
-        fireEvent.click(screen.getByRole('button', { name: '성수동 예시 중심으로 이동' }));
-        expect(panTo).toHaveBeenLastCalledWith(new Point(searchDefaultCoordinates.y, searchDefaultCoordinates.x));
+        fireEvent.click(screen.getByRole('button', { name: '신당동 강의장 예시 중심으로 이동' }));
+        expect(panTo).toHaveBeenLastCalledWith(new Point(demoCenter.y, demoCenter.x));
         expect(props.locate).not.toHaveBeenCalled();
     });
 
@@ -94,7 +107,7 @@ describe('지도 좌표와 표시 범위 분리', () => {
         render(<MapView {...props} position={null} locationError="위치 거부" destination={destination} />);
         await screen.findByText('개발 예시 모드에서는 실제 도보 경로를 제공하지 않아요');
         await waitFor(() => expect(setBounds).toHaveBeenCalled());
-        expect(api.walking).toHaveBeenCalledWith(searchDefaultCoordinates, destination, expect.any(AbortSignal));
+        expect(api.walking).toHaveBeenCalledWith(demoCenter, destination, expect.any(AbortSignal));
         expect(screen.queryByText('현재 위치를 확인할 수 없어요')).toBeNull();
         expect(screen.getByText(destination.placeName)).toBeTruthy();
         expect(polyline).not.toHaveBeenCalled();
@@ -106,8 +119,8 @@ describe('지도 좌표와 표시 범위 분리', () => {
         for (const [bounds] of setBounds.mock.calls) {
             expect(bounds.points).toHaveLength(2);
             expect(bounds.points.every((point: Point) =>
-                Math.abs(point.getLat() - searchDefaultCoordinates.y) < .005
-                && Math.abs(point.getLng() - searchDefaultCoordinates.x) < .006)).toBe(true);
+                Math.abs(point.getLat() - demoCenter.y) < .005
+                && Math.abs(point.getLng() - demoCenter.x) < .006)).toBe(true);
         }
     });
 
