@@ -3,7 +3,7 @@ import type { Coordinates, QuoteRequest, QuoteResponse, Store, WalkingRoute, Wal
 export class ApiError extends Error {
     constructor(public code: string, message: string, public status = 0) { super(message); }
 }
-export const fixturesEnabled = import.meta.env.DEV && import.meta.env.VITE_USE_FIXTURES === 'true';
+export const fixturesEnabled = import.meta.env.VITE_USE_FIXTURES === 'true';
 const messages: Record<string, string> = {
     INVALID_PARAM: '입력값을 확인해 주세요',
     KAKAO_RATE_LIMIT: '잠시 뒤 다시 시도해 주세요',
