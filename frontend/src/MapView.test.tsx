@@ -140,7 +140,7 @@ describe('지도 좌표와 표시 범위 분리', () => {
         await user.selectOptions(screen.getByRole('combobox', { name: '정렬' }), 'PRICE');
         await user.click(await screen.findByRole('button', { name: /빙그레 바나나맛우유/ }));
         expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
-        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy();
+        expect(screen.getByText('최저가 · 가장 가까움')).toBeTruthy();
         await user.click(screen.getByRole('button', { name: '할인 수단' }));
         await user.click(screen.getByRole('button', { name: '할인 수단 추가' }));
         const dialog = await screen.findByRole('dialog');
@@ -149,22 +149,22 @@ describe('지도 좌표와 표시 범위 분리', () => {
         await user.click(within(dialog).getByRole('button', { name: '추가' }));
         await user.click(screen.getByRole('button', { name: '상품 목록' }));
         expect(await screen.findByText('CU 신당다산로점')).toBeTruthy();
-        expect(screen.getByText('가장 싸요')).toBeTruthy();
+        expect(screen.getByText('최저가')).toBeTruthy();
         expect(screen.getByText(/100원 더 비싸지만 약 1분 가까워요/)).toBeTruthy();
         expect(screen.getAllByText('900').length).toBeGreaterThan(0);
-        await user.click(screen.getByRole('button', { name: '여기로 길 안내' }));
-        expect(await screen.findByText('개당 900원')).toBeTruthy();
-        expect(await screen.findByText('예시 경로 · 실제 길찾기 결과 아님')).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '길찾기' }));
+        expect(await screen.findByText('900')).toBeTruthy();
+        expect(await screen.findByText(/예시 경로 · 실제 길찾기 결과 아님/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: '할인 수단' }));
         await user.click(screen.getByRole('button', { name: 'SKT 삭제' }));
         await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: '삭제' }));
         await waitFor(() => expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!).unitPrice).toBe(1200));
         await user.click(screen.getByRole('button', { name: '지도' }));
-        expect(await screen.findByText('개당 1,200원')).toBeTruthy();
+        expect(await screen.findByText('1,200')).toBeTruthy();
         await user.click(screen.getByRole('button', { name: '목적지 해제' }));
         await user.click(screen.getByRole('button', { name: '상품 목록' }));
         expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
-        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy();
+        expect(screen.getByText('최저가 · 가장 가까움')).toBeTruthy();
         expect(screen.queryByText('900')).toBeNull();
     });
     it('이전 데모 목적지를 복원하지 않고 실제 API 모드의 저장값은 유지한다', () => {
@@ -204,7 +204,7 @@ describe('지도 좌표와 표시 범위 분리', () => {
         const route = demoWalking(demoCenter, destination)!;
         vi.mocked(api.walking).mockResolvedValue(route);
         render(<MapView {...props} position={null} locationError="위치 거부" destination={destination} />);
-        await screen.findByText('예시 경로 · 실제 길찾기 결과 아님');
+        await screen.findByText(/예시 경로 · 실제 길찾기 결과 아님/);
         await waitFor(() => expect(setBounds).toHaveBeenCalled());
         expect(api.walking).toHaveBeenCalledWith(demoCenter, destination, expect.any(AbortSignal));
         expect(screen.queryByText('현재 위치를 확인할 수 없어요')).toBeNull();

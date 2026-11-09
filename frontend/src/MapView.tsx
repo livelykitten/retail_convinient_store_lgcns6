@@ -3,8 +3,9 @@ import { ApiError, api, fixturesEnabled } from './api';
 import { demoCenter, demoCenterLabel, demoMapLabel } from './demoLocation';
 import { latLng, loadKakao } from './kakao';
 import type { Overlay } from './kakao';
-import type { Coordinates, Destination, Store, WalkingRoute } from './types';
-import { BrandIcon, Icon, Notice, chipText, errorMessage, fallbackMessage, labels, won } from './ui';
+import { ProductImage } from './Products';
+import type { Coordinates, Destination, Product, Store, WalkingRoute } from './types';
+import { Icon, Notice, PriceLine, errorMessage, fallbackMessage, labels, logoUrl, won } from './ui';
 
 /** M2 경로 실패 문구. 데모는 실제 404가 아니므로 받은 안내를 그대로 쓴다 */
 export function routeErrorMessage(error: unknown) {
@@ -14,17 +15,26 @@ export function routeErrorMessage(error: unknown) {
     if (error.status === 502) return '도보 경로를 불러오지 못했어요';
     return errorMessage(error);
 }
-function marker(brand: string, kind: 'store' | 'destination' | 'other') {
+/** 지도 위 말풍선 핀: 로고 + 도보 분(M1) 또는 개당 가격(M2) */
+function pin(brand: string, text: string, unit: string, destination = false) {
     const element = document.createElement('span');
-    element.className = `map-marker ${kind === 'destination' ? 'is-destination' : kind === 'other' ? 'is-other' : ''}`;
-    element.textContent = chipText(brand, kind === 'destination' ? 44 : kind === 'other' ? 24 : 32);
-    element.title = labels[brand]; return element;
+    element.className = `map-pin ${destination ? 'is-destination' : ''}`; element.title = labels[brand] ?? '';
+    const url = logoUrl(brand);
+    if (url) { const image = document.createElement('img'); image.src = url; image.alt = labels[brand] ?? ''; image.className = `lg-${brand.toLowerCase()}`; element.append(image); }
+    const value = document.createElement('b'); value.textContent = text;
+    const small = document.createElement('small'); small.textContent = unit; value.append(small); element.append(value);
+    return element;
 }
-export function MapView({ position, locationError, locating, locate, destination, clear, nearbyStores = [], onStores }: {
+const arrival = (seconds: number) => new Date(Date.now() + seconds * 1000).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
+const cssVar = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+export function MapView({ position, locationError, locating, locate, destination, clear, nearbyStores = [], onStores, destinationProduct = null }: {
     position: Coordinates | null; locationError: string; locating: boolean; locate: () => void;
     destination: Destination | null; clear: () => void;
-    /** M1에서 받아 둔 매장. M2에서 다른 매장 마커(24px, 반투명)로만 쓰고 추가 호출은 하지 않는다 */
+    /** P1 · M1에서 받아 둔 매장. M2에서 다른 매장 핀으로만 쓰고 추가 호출은 하지 않는다 */
     nearbyStores?: Store[]; onStores?: (stores: Store[]) => void;
+    /** 목적지 상품의 검색 결과(있으면 정가 · 사진 · 매장별 가격을 보여 준다) */
+    destinationProduct?: Product | null;
 }) {
     const [stores, setStores] = useState<Store[]>([]);
     const [route, setRoute] = useState<WalkingRoute | null>(null);
@@ -57,23 +67,26 @@ export function MapView({ position, locationError, locating, locate, destination
                 overlays.push(new maps.CustomOverlay({ map, position: latLng(maps, mapPosition), content: current, yAnchor: .5, zIndex: 4 }));
             }
             if (destination) {
-                // 다른 매장: M1에서 받아 둔 것만 낮춰서 표시(표시 범위에는 넣지 않음)
-                for (const store of nearbyStores.filter(store => store.storeId !== destination.storeId)) {
-                    overlays.push(new maps.CustomOverlay({ map, position: latLng(maps, store), content: marker(store.brand, 'other'), yAnchor: .5, zIndex: 2 }));
+                // 다른 매장: 이미 받아 둔 매장만, 이 상품 가격이 있으면 가격으로(표시 범위에는 넣지 않음)
+                const priced = destinationProduct?.stores ?? [];
+                const others = (priced.length ? priced : nearbyStores).filter(store => store.storeId !== destination.storeId);
+                for (const store of others) {
+                    const price = 'unitPrice' in store ? store.unitPrice as number : null;
+                    overlays.push(new maps.CustomOverlay({ map, position: latLng(maps, store), content: price === null ? pin(store.brand, String(store.walkMin), '분') : pin(store.brand, won(price), '원'), yAnchor: 1, zIndex: 2 }));
                 }
-            }
-            for (const store of destination ? [destination] : stores) {
-                const content = document.createElement('div'); content.className = 'map-marker-wrap';
-                if (destination) { const label = document.createElement('strong'); label.className = 'map-marker-label'; label.textContent = store.placeName; content.append(label); }
-                content.append(marker(store.brand, destination ? 'destination' : 'store'));
-                overlays.push(new maps.CustomOverlay({ map, position: latLng(maps, store), content, yAnchor: 1, zIndex: 3 }));
-                if (!fixturesEnabled) bounds.extend(latLng(maps, store));
+                overlays.push(new maps.CustomOverlay({ map, position: latLng(maps, destination), content: pin(destination.brand, won(destination.unitPrice), '원', true), yAnchor: 1, zIndex: 3 }));
+                if (!fixturesEnabled) bounds.extend(latLng(maps, destination));
+            } else {
+                for (const store of stores) {
+                    overlays.push(new maps.CustomOverlay({ map, position: latLng(maps, store), content: pin(store.brand, String(store.walkMin), '분'), yAnchor: 1, zIndex: 3 }));
+                    if (!fixturesEnabled) bounds.extend(latLng(maps, store));
+                }
             }
             if (route && route.path.length > 1) {
                 const path = route.path.map(point => { const value = latLng(maps, point); if (!fixturesEnabled) bounds.extend(value); return value; });
-                // 경로 선 색도 디자인 변수에서 읽는다
-                const color = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim();
-                overlays.push(new maps.Polyline({ map, path, strokeWeight: 4, strokeColor: color, strokeOpacity: 1, strokeStyle: fixturesEnabled ? 'shortdash' : 'solid' }));
+                // 경로 선: 아래 파랑 굵기 8, 위 노랑 굵기 4.5. 데모 예시 경로는 위 선을 점선으로 구분한다
+                overlays.push(new maps.Polyline({ map, path, strokeWeight: 8, strokeColor: cssVar('--color-main'), strokeOpacity: 1, strokeStyle: 'solid' }));
+                overlays.push(new maps.Polyline({ map, path, strokeWeight: 4.5, strokeColor: cssVar('--color-way'), strokeOpacity: 1, strokeStyle: fixturesEnabled ? 'shortdash' : 'solid' }));
             }
             const fitDemoRoute = () => {
                 if (!destination || !route || route.path.length < 2) return false;
@@ -89,7 +102,7 @@ export function MapView({ position, locationError, locating, locate, destination
                 routeBounds.extend(latLng(maps, { x: Math.min(minX, center.x - halfX), y: Math.min(minY, center.y - halfY) }));
                 routeBounds.extend(latLng(maps, { x: Math.max(maxX, center.x + halfX), y: Math.max(maxY, center.y + halfY) }));
                 const cardHeight = destinationCard.current?.getBoundingClientRect().height ?? 0;
-                // 상단 위치 표시·목적지 마커와 하단 카드(아래 16px + 여유 24px)를 피한다.
+                // 상단 위치 표시·목적지 핀과 하단 시트(+ 여유 24px)를 피한다.
                 map.setBounds(routeBounds, 96, 48, Math.ceil(cardHeight) + 40, 48);
                 return true;
             };
@@ -112,22 +125,25 @@ export function MapView({ position, locationError, locating, locate, destination
             if (fixturesEnabled && destinationCard.current) observer.observe(destinationCard.current);
         }).catch(error => { if (!disposed) setMapError(errorMessage(error)); });
         return () => { disposed = true; overlays.forEach(overlay => overlay.setMap(null)); observer?.disconnect(); centerMap.current = null; };
-    }, [mapPosition, destination, stores, route, reload, nearbyStores]);
+    }, [mapPosition, destination, stores, route, reload, nearbyStores, destinationProduct]);
     const routeUrl = route?.landingUrl && /^https:\/\/(?:map\.kakao\.com|kko\.kakao\.com|kko\.to)(?:\/|$)/.test(route.landingUrl) ? route.landingUrl : null;
-    // 경로 성공. path: [] (출발 = 도착)이면 목적지 마커만 두고 분 · 거리 줄은 숨긴다
-    const routeOk = !!route;
+    const minutes = route ? Math.ceil(route.durationSeconds / 60) : 0;
     return <section className="map-page" aria-label="주변 편의점 지도"><div ref={container} className="map-canvas" aria-label="카카오맵" />
         {!mapPosition && <div className="map-example" aria-hidden="true"><div className="map-park" /></div>}
-        {mapPosition && <div className="location-pill"><Icon name="pin" size={14} />{fixturesEnabled ? demoMapLabel : '내 위치 근처'}</div>}
-        <button className="locate-button" aria-label={fixturesEnabled ? demoCenterLabel : '내 위치로 이동'} onClick={() => { if (centerMap.current) centerMap.current(); else if (!fixturesEnabled) locate(); }}><Icon name="locate" size={20} /></button>
-        {!fixturesEnabled && (!position || locationError) && <div className="location-dialog"><span className="location-symbol"><Icon name="pin-large" size={24} /></span><h1>{locating ? '현재 위치를 확인하고 있어요' : '현재 위치를 확인할 수 없어요'}</h1><p>브라우저 설정에서 위치 접근을 허용하면<br />내 주변 편의점과 가는 길을 보여 드려요.</p><button className="primary" onClick={locate} disabled={locating}>{locating ? '확인 중…' : '다시 시도'}</button><small>위치 정보는 저장하지 않아요</small></div>}
+        {mapPosition && <div className="location-pill"><Icon name="icons/map-pin" size={14} />{fixturesEnabled ? demoMapLabel : '내 위치 근처'}</div>}
+        <button className={`locate-button ${destination ? 'up' : ''}`} aria-label={fixturesEnabled ? demoCenterLabel : '내 위치로 이동'} onClick={() => { if (centerMap.current) centerMap.current(); else if (!fixturesEnabled) locate(); }}><Icon name="icons/crosshair-simple" size={18} /></button>
+        {!fixturesEnabled && (!position || locationError) && <div className="location-dialog"><span className="location-symbol"><Icon name="icons/map-pin-fill" size={24} /></span><h1>{locating ? '현재 위치를 확인하고 있어요' : '현재 위치를 확인할 수 없어요'}</h1><p>브라우저 설정에서 위치 접근을 허용하면<br />내 주변 편의점과 가는 길을 보여 드려요.</p><button className="primary" onClick={locate} disabled={locating}>{locating ? '확인 중…' : '다시 시도'}</button><small>위치 정보는 저장하지 않아요</small></div>}
         {mapPosition && mapError && <div className="map-error"><Notice retry={() => setReload(value => value + 1)}>{mapError}</Notice></div>}
-        {destination ? <div ref={destinationCard} className="destination-card"><div className="destination-title"><BrandIcon code={destination.brand} size={40} /><div><span className="badge">목적지</span><h2>{destination.placeName}</h2></div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="map-close" size={20} /></button></div>
-            {fixturesEnabled && routeOk && <p className="route-error">예시 경로 · 실제 길찾기 결과 아님<br /><small>도로 형태 참고 · 출입구·보행 가능 여부 미검증 · 시간·거리 추정<br />도로 자료: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></small></p>}
-            {busy && mapPosition ? <div className="route-skeleton" role="status" aria-label="도보 경로를 불러오고 있어요"><span /><span /></div>
-                : routeOk ? (route.path.length > 0 && <div className="route-summary"><span>{fixturesEnabled ? '예상 도보 약 ' : '걸어서 '}<b className="mark">{Math.ceil(route.durationSeconds / 60)}</b>분</span><strong>{fixturesEnabled ? '약 ' : ''}{route.distanceM}m</strong></div>)
-                : <p className="route-error" role="status">{mapPosition ? error : '현재 위치를 확인하면 도보 경로를 안내해요.'}{error && <button className="text-button" onClick={() => setReload(value => value + 1)}>다시 시도</button>}</p>}
-            <div className="destination-product"><span>{destination.productName}</span><strong>개당 {won(destination.unitPrice)}원</strong></div>{routeUrl && <a className="external-route" href={routeUrl} target="_blank" rel="noreferrer">카카오맵에서 길찾기</a>}
-        </div> : mapPosition && <div className="nearby-card">{busy ? <span role="status">주변 편의점을 찾고 있어요…</span> : error ? <Notice retry={() => setReload(value => value + 1)}>{error}</Notice> : <><strong>주변 편의점 {stores.length}곳</strong><small>상품 목록에서 매장을 고르면 길 안내</small></>}</div>}
+        {destination ? <div ref={destinationCard} className="destination-card"><i className="handle" />
+            <div className="route-head"><div><small><span>{destination.placeName}</span>까지</small>
+                {busy && mapPosition ? <div className="route-skeleton" role="status" aria-label="도보 경로를 불러오고 있어요"><span /><span /></div>
+                    : route ? (route.path.length > 0 && <p className="route-summary"><b>{fixturesEnabled ? '예상 ' : ''}도보 {minutes}분</b><span>{fixturesEnabled ? '약 ' : ''}{route.distanceM}m{fixturesEnabled ? '' : ` · ${arrival(route.durationSeconds)} 도착`}</span></p>)
+                    : <p className="route-error" role="status">{mapPosition ? error : '현재 위치를 확인하면 도보 경로를 안내해요.'}</p>}
+            </div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="icons/x" size={20} /></button></div>
+            {fixturesEnabled && route && <p className="route-note">예시 경로 · 실제 길찾기 결과 아님 · 도로 형태 참고 · 출입구·보행 가능 여부 미검증 · 시간·거리 추정 · 도로 자료 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p>}
+            <div className="destination-product"><ProductImage imageUrl={destinationProduct?.imageUrl ?? null} productKey={destination.productKey} className="s" /><span className="product-info"><small>사러 가는 상품</small><strong>{destination.productName}</strong></span><PriceLine price={destination.unitPrice} listPrice={destinationProduct?.listPrice} size="row" /></div>
+            {!busy && !route && error && <button className="secondary" onClick={() => setReload(value => value + 1)}>다시 시도</button>}
+            {routeUrl && <a className="external-route" href={routeUrl} target="_blank" rel="noreferrer">카카오맵에서 길찾기</a>}
+        </div> : mapPosition && <div className="nearby-card"><i className="handle" />{busy ? <span role="status">주변 편의점을 찾고 있어요…</span> : error ? <Notice retry={() => setReload(value => value + 1)}>{error}</Notice> : <><strong>주변 편의점 {stores.length}곳</strong><small>상품을 검색하면 매장별 가격과 길을 보여 드려요</small></>}</div>}
     </section>;
 }
