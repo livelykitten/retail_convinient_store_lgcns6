@@ -31,6 +31,7 @@ export function MapView({ position, locationError, locating, locate, destination
     const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
     const [reload, setReload] = useState(0); const [mapError, setMapError] = useState('');
     const container = useRef<HTMLDivElement>(null); const centerMap = useRef<(() => void) | null>(null);
+    const destinationCard = useRef<HTMLDivElement>(null);
     const storesLoaded = useRef(onStores); storesLoaded.current = onStores;
     // 예시 매장은 발표 장소 주변에 고정되어 있으므로 데모에서는 GPS를 지도·경로에 사용하지 않는다.
     const mapPosition = fixturesEnabled ? demoCenter : position;
@@ -74,16 +75,41 @@ export function MapView({ position, locationError, locating, locate, destination
                 const color = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim();
                 overlays.push(new maps.Polyline({ map, path, strokeWeight: 4, strokeColor: color, strokeOpacity: 1, strokeStyle: fixturesEnabled ? 'shortdash' : 'solid' }));
             }
-            if (fixturesEnabled) {
+            const fitDemoRoute = () => {
+                if (!destination || !route || route.path.length < 2) return false;
+                const points = [mapPosition, destination, ...route.path];
+                const xs = points.map(point => point.x); const ys = points.map(point => point.y);
+                const minX = Math.min(...xs); const maxX = Math.max(...xs);
+                const minY = Math.min(...ys); const maxY = Math.max(...ys);
+                const center = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+                // 약 80m 이상을 확보해 아주 짧은 경로도 과도하게 확대하지 않는다.
+                const halfX = Math.max((maxX - minX) / 2, 40 / (111320 * Math.cos(center.y * Math.PI / 180)));
+                const halfY = Math.max((maxY - minY) / 2, 40 / 111320);
+                const routeBounds = new maps.LatLngBounds();
+                routeBounds.extend(latLng(maps, { x: Math.min(minX, center.x - halfX), y: Math.min(minY, center.y - halfY) }));
+                routeBounds.extend(latLng(maps, { x: Math.max(maxX, center.x + halfX), y: Math.max(maxY, center.y + halfY) }));
+                const cardHeight = destinationCard.current?.getBoundingClientRect().height ?? 0;
+                // 상단 위치 표시·목적지 마커와 하단 카드(아래 16px + 여유 24px)를 피한다.
+                map.setBounds(routeBounds, 96, 48, Math.ceil(cardHeight) + 40, 48);
+                return true;
+            };
+            if (fixturesEnabled && !fitDemoRoute()) {
                 // 강의장 중심에서 남북·동서 약 500m 범위. GPS·목적지의 원거리 이상값은 줌에 반영하지 않는다.
                 bounds.extend(latLng(maps, { x: mapPosition.x - .00567, y: mapPosition.y - .0045 }));
                 bounds.extend(latLng(maps, { x: mapPosition.x + .00567, y: mapPosition.y + .0045 }));
                 map.setBounds(bounds, 16, 16, 16, 16);
-            } else if (destination || stores.length || route?.path.length) {
+            } else if (!fixturesEnabled && (destination || stores.length || route?.path.length)) {
                 map.setBounds(bounds, 90, 40, destination ? 250 : 110, 40);
             }
-            centerMap.current = () => map.panTo(latLng(maps, mapPosition));
-            observer = new ResizeObserver(() => map.relayout()); observer.observe(container.current);
+            centerMap.current = () => {
+                if (!fixturesEnabled || !fitDemoRoute()) map.panTo(latLng(maps, mapPosition));
+            };
+            observer = new ResizeObserver(() => {
+                map.relayout();
+                if (fixturesEnabled) fitDemoRoute();
+            });
+            observer.observe(container.current);
+            if (fixturesEnabled && destinationCard.current) observer.observe(destinationCard.current);
         }).catch(error => { if (!disposed) setMapError(errorMessage(error)); });
         return () => { disposed = true; overlays.forEach(overlay => overlay.setMap(null)); observer?.disconnect(); centerMap.current = null; };
     }, [mapPosition, destination, stores, route, reload, nearbyStores]);
@@ -96,7 +122,7 @@ export function MapView({ position, locationError, locating, locate, destination
         <button className="locate-button" aria-label={fixturesEnabled ? demoCenterLabel : '내 위치로 이동'} onClick={() => { if (centerMap.current) centerMap.current(); else if (!fixturesEnabled) locate(); }}><Icon name="locate" size={20} /></button>
         {!fixturesEnabled && (!position || locationError) && <div className="location-dialog"><span className="location-symbol"><Icon name="pin-large" size={24} /></span><h1>{locating ? '현재 위치를 확인하고 있어요' : '현재 위치를 확인할 수 없어요'}</h1><p>브라우저 설정에서 위치 접근을 허용하면<br />내 주변 편의점과 가는 길을 보여 드려요.</p><button className="primary" onClick={locate} disabled={locating}>{locating ? '확인 중…' : '다시 시도'}</button><small>위치 정보는 저장하지 않아요</small></div>}
         {mapPosition && mapError && <div className="map-error"><Notice retry={() => setReload(value => value + 1)}>{mapError}</Notice></div>}
-        {destination ? <div className="destination-card"><div className="destination-title"><BrandIcon code={destination.brand} size={40} /><div><span className="badge">목적지</span><h2>{destination.placeName}</h2></div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="map-close" size={20} /></button></div>
+        {destination ? <div ref={destinationCard} className="destination-card"><div className="destination-title"><BrandIcon code={destination.brand} size={40} /><div><span className="badge">목적지</span><h2>{destination.placeName}</h2></div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="map-close" size={20} /></button></div>
             {fixturesEnabled && routeOk && <p className="route-error">예시 경로 · 실제 길찾기 결과 아님<br /><small>도로 형태 참고 · 출입구·보행 가능 여부 미검증 · 시간·거리 추정<br />도로 자료: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></small></p>}
             {busy && mapPosition ? <div className="route-skeleton" role="status" aria-label="도보 경로를 불러오고 있어요"><span /><span /></div>
                 : routeOk ? (route.path.length > 0 && <div className="route-summary"><span>{fixturesEnabled ? '예상 도보 약 ' : '걸어서 '}<b className="mark">{Math.ceil(route.durationSeconds / 60)}</b>분</span><strong>{fixturesEnabled ? '약 ' : ''}{route.distanceM}m</strong></div>)
