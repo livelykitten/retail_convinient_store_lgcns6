@@ -14,6 +14,28 @@ class KeywordCategoryResolverTest {
     private final KeywordCategoryResolver resolver = new KeywordCategoryResolver(keywordDictionary);
 
     @ParameterizedTest
+    @ValueSource(strings = {"우유", "바나나우유", "바나나맛우유", "빙그레 바나나맛우유", "초코우유", "milk"})
+    @DisplayName("API 명세 v1.1 우유 관련 검색어는 MILK 카테고리로 해결된다")
+    void resolveMilkKeywords(String query) {
+        CategoryResolveResponse response = resolver.resolve(query);
+
+        assertThat(response.getCategory()).isEqualTo("MILK");
+        assertThat(response.getConfidence()).isEqualTo(1.0);
+        assertThat(response.getMethod()).isEqualTo("KEYWORD");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"카페라떼", "매일 바리스타룰스 카페라떼", "바리스타", "아메리카노", "coffee"})
+    @DisplayName("API 명세 v1.1 커피 관련 검색어는 COFFEE 카테고리로 해결된다")
+    void resolveCoffeeKeywords(String query) {
+        CategoryResolveResponse response = resolver.resolve(query);
+
+        assertThat(response.getCategory()).isEqualTo("COFFEE");
+        assertThat(response.getConfidence()).isEqualTo(1.0);
+        assertThat(response.getMethod()).isEqualTo("KEYWORD");
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"콜라", "코카콜라", "펩시", "제로콜라", "coca", "pepsi"})
     @DisplayName("콜라 관련 키워드는 COLA 카테고리로 해결된다")
     void resolveColaKeywords(String query) {
@@ -45,4 +67,3 @@ class KeywordCategoryResolverTest {
         assertThat(response.getMethod()).isEqualTo("KEYWORD");
     }
 }
-

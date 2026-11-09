@@ -29,6 +29,16 @@ class CategoryControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/categories/resolve?q=우유 명세 v1.1 메인 샘플 요청 시 MILK 카테고리와 200 반환")
+    void resolveMilkSuccessfully() throws Exception {
+        mockMvc.perform(get("/api/categories/resolve").param("q", "우유"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.category").value("MILK"))
+                .andExpect(jsonPath("$.confidence").value(1.0))
+                .andExpect(jsonPath("$.method").value("KEYWORD"));
+    }
+
+    @Test
     @DisplayName("GET /api/categories/resolve?q=콜라 정상 요청 시 COLA 카테고리와 200 반환")
     void resolveColaSuccessfully() throws Exception {
         mockMvc.perform(get("/api/categories/resolve").param("q", "콜라"))
