@@ -26,7 +26,7 @@ export function quotes(input: QuoteRequest): QuoteResponse {
             ...(input.wallet?.cards ?? []).filter(card => card.cardId).map(card => ({ type: 'CARD' as const, code: card.cardId! })),
             ...(input.wallet?.pays ?? []).map(code => ({ type: 'PAY' as const, code })),
             ...(input.wallet?.memberships ?? []).filter(code => code === store.brand).map(code => ({ type: 'MEMBERSHIP' as const, code }))
-        ], stockStatus: index === 0 ? 'IN_STOCK' : 'OUT'
+        ], stockStatus: index === 0 ? 'IN_STOCK' : 'LOW'
     }));
     const products: QuoteResponse['products'] = [{
         productKey: 'binggrae-banana-240', name: '빙그레 바나나맛우유 240ml', imageUrl: null,
@@ -35,7 +35,7 @@ export function quotes(input: QuoteRequest): QuoteResponse {
         productKey: 'maeil-barista-latte-325', name: '매일 바리스타룰스 카페라떼 325ml', imageUrl: null,
         event: 'ONE_PLUS_ONE', listPrice: 2500, minUnitPrice: 1250, storeCount: 1,
         stores: [{ storeId: 'example-cafe-01', brand: 'SEVEN', placeName: '세븐일레븐 예시점', x: 127.0580, y: 37.5450,
-            distanceM: 210, walkMin: 4, event: 'ONE_PLUS_ONE', eventLabel: '1+1 행사', unitPrice: 1250, applicableMethods: [], stockStatus: 'LOW' }]
+            distanceM: 210, walkMin: 4, event: 'ONE_PLUS_ONE', eventLabel: '1+1 행사', unitPrice: 1250, applicableMethods: [], stockStatus: 'IN_STOCK' }]
     }];
     products.sort(input.sort === 'PRICE' ? (a, b) => a.minUnitPrice - b.minUnitPrice : (a, b) => Math.min(...a.stores.map(store => store.distanceM)) - Math.min(...b.stores.map(store => store.distanceM)));
     return { query: input.q, products: /우유|바나나|커피|라떼/.test(input.q) ? products : [] };
