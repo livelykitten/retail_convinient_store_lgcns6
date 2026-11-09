@@ -1,4 +1,4 @@
-package com.lgcns.retail.common;
+package com.lgcns.retail.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
