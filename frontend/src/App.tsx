@@ -20,6 +20,7 @@ export default function App() {
     const controller = useRef<AbortController | null>(null); const locationPending = useRef(false); const mounted = useRef(true);
     useEffect(() => { mounted.current = true; return () => { mounted.current = false; controller.current?.abort(); }; }, []);
     const locate = useCallback(() => {
+        if (fixturesEnabled) return;
         if (locationPending.current) return;
         locationPending.current = true; setLocating(true); setLocationError('');
         getCurrentLocation().then(value => { if (mounted.current) setPosition(value); })
