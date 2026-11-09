@@ -31,7 +31,7 @@ public class GeminiCategoryResolver implements CategoryResolver {
 
     public GeminiCategoryResolver(
             @Value("${gemini.api.key:}") String apiKey,
-            @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent}") String apiUrl,
+            @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent}") String apiUrl,
             KeywordCategoryResolver fallbackResolver,
             KeywordDictionary keywordDictionary) {
         this.apiKey = apiKey;
@@ -86,9 +86,9 @@ public class GeminiCategoryResolver implements CategoryResolver {
         String prompt = String.format("""
                 너는 편의점 상품 검색어 카테고리 분류 AI야.
                 사용자의 검색어 '%s'가 다음 편의점 카테고리 중 어느 것에 속하는지 판별해줘.
-                
+
                 선택 가능한 카테고리 목록: [%s]
-                
+
                 분류 가이드:
                 - 우유, 바나나우유, 유제품류 -> MILK
                 - 커피, 아메리카노, 라떼, 바리스타룰스 등 -> COFFEE
@@ -110,10 +110,7 @@ public class GeminiCategoryResolver implements CategoryResolver {
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(
                         Map.of("parts", List.of(
-                                Map.of("text", prompt)
-                        ))
-                )
-        );
+                                Map.of("text", prompt)))));
 
         String rawResponse = restClient.post()
                 .uri(apiUrl + "?key=" + apiKey)
@@ -166,4 +163,3 @@ public class GeminiCategoryResolver implements CategoryResolver {
         }
     }
 }
-
