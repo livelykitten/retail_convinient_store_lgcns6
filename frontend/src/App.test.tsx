@@ -1,4 +1,4 @@
-﻿// @vitest-environment jsdom
+// @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -9,6 +9,8 @@ import { MapView } from './MapView';
 import { emptyWallet } from './storage';
 import type { KakaoMaps } from './kakao';
 import { latLng, loadKakao } from './kakao';
+
+const cuStore = stores.find(store => store.brand === 'CU')!;
 
 vi.mock('./kakao', async importOriginal => ({ ...await importOriginal<typeof import('./kakao')>(), loadKakao: vi.fn() }));
 beforeEach(() => {
@@ -40,17 +42,17 @@ describe('주요 사용자 흐름', () => {
         await user.selectOptions(screen.getByRole('combobox', { name: '정렬' }), 'PRICE');
         await waitFor(() => expect(api.quotes).toHaveBeenLastCalledWith(expect.objectContaining({ sort: 'PRICE', wallet: emptyWallet() }), expect.any(AbortSignal)));
         await user.click(await screen.findByRole('button', { name: /빙그레 바나나맛우유/ }));
-        // 최적 매장(CU)만 강조 카드로, GS25는 접힌 줄의 차이 문구로
-        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy(); expect(screen.getByText('CU 성수연무장점')).toBeTruthy();
-        expect(screen.queryByText('GS25 성수역점')).toBeNull(); expect(screen.getByText(/같은 가격인데 약 2분 더 걸려요/)).toBeTruthy();
+        // 새 강의장 기준 최적 매장(GS25)만 강조하고 CU와의 차이는 접힌 줄에 표시
+        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy(); expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
+        expect(screen.queryByText('CU 신당다산로점')).toBeNull(); expect(screen.getByText(/같은 가격인데 약 1분 더 걸려요/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: /다른 매장 1곳/ }));
-        await user.click(screen.getByRole('button', { name: /GS25 성수역점/ }));
+        await user.click(screen.getByRole('button', { name: /CU 신당다산로점/ }));
         await screen.findByText('현재 위치를 확인할 수 없어요'); expect(api.walking).not.toHaveBeenCalled();
-        expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!).storeId).toBe('87654321');
+        expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!).storeId).toBe('demo-cu-sindang-dasanro');
         await user.click(screen.getByRole('button', { name: '상품 목록' }));
         // 돌아오면 목적지 상품이 펼쳐져 있고 목적지 매장이 강조 카드에
         expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByRole('button', { name: '지도에서 길 보기' })).toBeTruthy();
-        expect(screen.getByText(/같은 가격이고 약 2분 가까워요/)).toBeTruthy();
+        expect(screen.getByText(/같은 가격이고 약 1분 가까워요/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: '지도' }));
         await user.click(screen.getByRole('button', { name: '목적지 해제' }));
         expect(sessionStorage.getItem('pyeonri.destination')).toBeNull();
@@ -92,10 +94,10 @@ describe('주요 사용자 흐름', () => {
     });
     it('저장된 수단과 목적지를 새 마운트에서 복원한다', async () => {
         localStorage.setItem('pyeonri.wallet', JSON.stringify({ ...emptyWallet(), pays: ['KAKAOPAY'] }));
-        sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...stores[0], productKey: 'milk', productName: '우유', unitPrice: 1000 }));
+        sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...cuStore, productKey: 'milk', productName: '우유', unitPrice: 1000 }));
         render(<App />); const user = userEvent.setup();
         await user.click(screen.getByRole('button', { name: '할인 수단' })); expect(await screen.findByText('카카오페이')).toBeTruthy();
-        await user.click(screen.getByRole('button', { name: '지도' })); expect(screen.getByText('CU 성수연무장점')).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '지도' })); expect(screen.getByText('CU 신당다산로점')).toBeTruthy();
     });
     it('검색 실패·재시도·빈 결과를 표시한다', async () => {
         vi.mocked(api.quotes).mockRejectedValueOnce(new Error('검색 실패')).mockResolvedValueOnce({ query: '우유', products: [] });
@@ -106,7 +108,7 @@ describe('주요 사용자 흐름', () => {
     });
 });
 describe('경로 지도 계약', () => {
-    const destination = { ...stores[0], productKey: 'milk', productName: '우유', unitPrice: 1000 };
+    const destination = { ...cuStore, productKey: 'milk', productName: '우유', unitPrice: 1000 };
     it('성공 응답의 시간·거리와 순서가 있는 경로를 지도에 전달한다', async () => {
         const path = [{ x: 127.0563, y: 37.5446 }, { x: 127.0565, y: 37.5443 }, { x: 127.0571, y: 37.5431 }];
         vi.mocked(api.walking).mockResolvedValue({ path, distanceM: 410, durationSeconds: 390, landingUrl: null });
@@ -128,14 +130,14 @@ describe('경로 지도 계약', () => {
     });
     it('경로 실패에도 목적지와 가격을 유지하고 가짜 시간이나 경로를 만들지 않는다', async () => {
         render(<MapView position={{ x: 127, y: 37 }} destination={destination} locationError="" locating={false} locate={vi.fn()} clear={vi.fn()} />);
-        expect(await screen.findByText('도보 경로를 찾지 못했어요')).toBeTruthy(); expect(screen.getByText('CU 성수연무장점')).toBeTruthy(); expect(screen.getByText('개당 1,000원')).toBeTruthy(); expect(screen.queryByText('걸어서')).toBeNull();
+        expect(await screen.findByText('도보 경로를 찾지 못했어요')).toBeTruthy(); expect(screen.getByText('CU 신당다산로점')).toBeTruthy(); expect(screen.getByText('개당 1,000원')).toBeTruthy(); expect(screen.queryByText('걸어서')).toBeNull();
     });
     it('출발 = 도착(path: [])이면 분 · 거리 줄을 숨기고 오류도 띄우지 않는다', async () => {
         vi.mocked(api.walking).mockResolvedValue({ path: [], distanceM: 0, durationSeconds: 0, landingUrl: null });
         render(<MapView position={{ x: 127, y: 37 }} destination={destination} locationError="" locating={false} locate={vi.fn()} clear={vi.fn()} />);
         await waitFor(() => expect(api.walking).toHaveBeenCalled());
         await waitFor(() => expect(screen.queryByRole('status', { name: '도보 경로를 불러오고 있어요' })).toBeNull());
-        expect(screen.queryByText('걸어서')).toBeNull(); expect(screen.queryByText('0m')).toBeNull(); expect(screen.getByText('CU 성수연무장점')).toBeTruthy();
+        expect(screen.queryByText('걸어서')).toBeNull(); expect(screen.queryByText('0m')).toBeNull(); expect(screen.getByText(destination.placeName)).toBeTruthy();
     });
     it('위치가 없으면 경로를 요청하지 않고 재시도한다', async () => {
         const retry = vi.fn();
@@ -143,5 +145,3 @@ describe('경로 지도 계약', () => {
         expect(api.walking).not.toHaveBeenCalled(); fireEvent.click(screen.getByRole('button', { name: '다시 시도' })); expect(retry).toHaveBeenCalledOnce();
     });
 });
-
-

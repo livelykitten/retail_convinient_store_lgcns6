@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, api, fixturesEnabled } from './api';
+import { demoCenter } from './demoLocation';
 import { getCurrentLocation, searchDefaultCoordinates } from './location';
 import { MapView } from './MapView';
 import { Products } from './Products';
@@ -13,7 +14,17 @@ export default function App() {
     const [tab, setTab] = useState<Tab>('products');
     const [splash, setSplash] = useState(() => { try { return sessionStorage.getItem('pyeonri.started') !== 'true'; } catch { return true; } });
     const [wallet, setWallet] = useState<Wallet>(() => { try { return readWallet(localStorage); } catch { return emptyWallet(); } });
-    const [destination, setDestination] = useState<Destination | null>(() => { try { return readDestination(sessionStorage); } catch { return null; } });
+    const [destination, setDestination] = useState<Destination | null>(() => {
+        try {
+            const saved = readDestination(sessionStorage);
+            // 이전 데모 매장의 좌표가 새 발표 장소 지도에 복원되는 것을 방지한다. 실제 API 모드는 유지한다.
+            if (fixturesEnabled && saved && ['12345678', '87654321', 'example-cafe-01'].includes(saved.storeId)) {
+                saveDestination(sessionStorage, null);
+                return null;
+            }
+            return saved;
+        } catch { return null; }
+    });
     const [q, setQ] = useState(''); const [sort, setSort] = useState<Sort>('DISTANCE');
     const [result, setResult] = useState<QuoteResponse | null>(null); const [expanded, setExpanded] = useState<string | null>(null);
     const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [paramError, setParamError] = useState(''); const [storageError, setStorageError] = useState('');
@@ -35,7 +46,7 @@ export default function App() {
         controller.current?.abort(); const current = new AbortController(); controller.current = current; setError(''); setParamError('');
         try {
             setBusy(true);
-            const value = await api.quotes({ q, ...(position ?? searchDefaultCoordinates), radius: 500, sort: nextSort, wallet }, current.signal);
+            const value = await api.quotes({ q, ...(fixturesEnabled ? demoCenter : position ?? searchDefaultCoordinates), radius: 500, sort: nextSort, wallet }, current.signal);
             if (!current.signal.aborted) { setResult(value); setExpanded(null); }
         } catch (error) {
             if (current.signal.aborted) return;
