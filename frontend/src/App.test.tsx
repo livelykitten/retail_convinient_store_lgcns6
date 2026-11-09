@@ -40,13 +40,17 @@ describe('주요 사용자 흐름', () => {
         await user.selectOptions(screen.getByRole('combobox', { name: '정렬' }), 'PRICE');
         await waitFor(() => expect(api.quotes).toHaveBeenLastCalledWith(expect.objectContaining({ sort: 'PRICE', wallet: emptyWallet() }), expect.any(AbortSignal)));
         await user.click(await screen.findByRole('button', { name: /빙그레 바나나맛우유/ }));
-        expect(screen.getByText('도보 약 4분')).toBeTruthy(); expect(screen.getByText('재고 없음')).toBeTruthy();
-        expect(screen.getAllByText('예시 데이터').length).toBe(2);
-        await user.click(screen.getByRole('button', { name: /CU 성수연무장점/ }));
+        // 최적 매장(CU)만 강조 카드로, GS25는 접힌 줄의 차이 문구로
+        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy(); expect(screen.getByText('CU 성수연무장점')).toBeTruthy();
+        expect(screen.queryByText('GS25 성수역점')).toBeNull(); expect(screen.getByText(/같은 가격인데 약 2분 더 걸려요/)).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: /다른 매장 1곳/ }));
+        await user.click(screen.getByRole('button', { name: /GS25 성수역점/ }));
         await screen.findByText('현재 위치를 확인할 수 없어요'); expect(api.walking).not.toHaveBeenCalled();
-        expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!).storeId).toBe('12345678');
+        expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!).storeId).toBe('87654321');
         await user.click(screen.getByRole('button', { name: '상품 목록' }));
-        expect(screen.getByText('목적지')).toBeTruthy();
+        // 돌아오면 목적지 상품이 펼쳐져 있고 목적지 매장이 강조 카드에
+        expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByRole('button', { name: '지도에서 길 보기' })).toBeTruthy();
+        expect(screen.getByText(/같은 가격이고 약 2분 가까워요/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: '지도' }));
         await user.click(screen.getByRole('button', { name: '목적지 해제' }));
         expect(sessionStorage.getItem('pyeonri.destination')).toBeNull();
@@ -98,7 +102,7 @@ describe('주요 사용자 흐름', () => {
         render(<App />); const user = userEvent.setup();
         await user.type(screen.getByRole('textbox', { name: '상품 검색' }), '우유');
         await user.click(screen.getByRole('button', { name: '검색' })); expect(await screen.findByText('검색 실패')).toBeTruthy();
-        await user.click(screen.getByRole('button', { name: '다시 시도' })); expect(await screen.findByText(/검색 결과가 없어요/)).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '다시 시도' })); expect(await screen.findByText('검색 결과 없음')).toBeTruthy();
     });
 });
 describe('경로 지도 계약', () => {
