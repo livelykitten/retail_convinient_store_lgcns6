@@ -42,12 +42,22 @@ export default function App() {
     }, []);
     useEffect(() => { if (!splash) locate(); }, [splash, locate]);
     function start() { setSplash(false); locate(); try { sessionStorage.setItem('pyeonri.started', 'true'); } catch { /* 저장 불가 상태에서도 시작 가능 */ } }
-    async function search(nextSort = sort) {
+    async function search(nextSort = sort, nextWallet = wallet, query = q, preserveExpanded = false) {
         controller.current?.abort(); const current = new AbortController(); controller.current = current; setError(''); setParamError('');
         try {
             setBusy(true);
-            const value = await api.quotes({ q, ...(fixturesEnabled ? demoCenter : position ?? searchDefaultCoordinates), radius: 500, sort: nextSort, wallet }, current.signal);
-            if (!current.signal.aborted) { setResult(value); setExpanded(null); }
+            const value = await api.quotes({ q: query, ...(fixturesEnabled ? demoCenter : position ?? searchDefaultCoordinates), radius: 500, sort: nextSort, wallet: nextWallet }, current.signal);
+            if (!current.signal.aborted) {
+                setResult(value); if (!preserveExpanded) setExpanded(null);
+                if (fixturesEnabled && destination) {
+                    const selected = value.products.find(product => product.productKey === destination.productKey)?.stores.find(store => store.storeId === destination.storeId);
+                    if (selected && selected.unitPrice !== destination.unitPrice) {
+                        const next = { ...destination, unitPrice: selected.unitPrice };
+                        setDestination(next);
+                        try { saveDestination(sessionStorage, next); } catch { setStorageError('목적지 가격을 저장하지 못했어요.'); }
+                    }
+                }
+            }
         } catch (error) {
             if (current.signal.aborted) return;
             // 400은 검색창 아래, 그 밖의 오류는 목록 자리에 「다시 시도」와 함께
@@ -60,7 +70,11 @@ export default function App() {
         setTab('map'); if (!position && !locating) locate();
     }
     function updateWallet(next: Wallet) {
-        try { saveWallet(localStorage, next); setWallet(next); setStorageError(''); return true; }
+        try {
+            saveWallet(localStorage, next); setWallet(next); setStorageError('');
+            if (fixturesEnabled && result) void search(sort, next, result.query, true);
+            return true;
+        }
         catch { setStorageError('할인 수단을 저장하지 못했어요. 브라우저 저장 설정을 확인해 주세요.'); return false; }
     }
     function clearDestination() { setDestination(null); try { saveDestination(sessionStorage, null); } catch { setStorageError('저장된 목적지를 해제하지 못했어요.'); } }
@@ -72,7 +86,7 @@ export default function App() {
     }
     if (splash) return <div className="app-shell splash"><button className="splash-start" onClick={start} aria-label="편리 시작하기"><span className="splash-logo">편리</span><span className="splash-line">내 주변 행사, 가장 가벼운 가격</span></button></div>;
     return <div className={`app-shell ${fixturesEnabled ? 'with-fixtures' : ''}`}>
-        {fixturesEnabled && <div className="fixture-banner">개발 예시 데이터 · 실제 가격·매장·경로 아님</div>}
+        {fixturesEnabled && <div className="fixture-banner">발표용 예시 데이터 · 가격·할인율은 가상</div>}
         {storageError && <p className="storage-error" role="alert">{storageError}<button aria-label="알림 닫기" onClick={() => setStorageError('')}>×</button></p>}
         <main key={tab} className={`app-content tab-fade ${tab === 'map' ? 'map-content' : ''}`}>
             {tab === 'products' && <><header className="search-header"><div className="logo-row"><span className="logo">편리</span><button className="header-location" onClick={locate} disabled={locating}><Icon name="pin" size={14} />{locating ? '위치 확인 중' : position ? '내 위치 기준' : '기본 위치 기준'}</button></div><form className="search-form" onSubmit={event => { event.preventDefault(); void search(); }}><button type="submit" className="search-submit" aria-label="검색"><Icon name="search" size={20} /></button><input aria-label="상품 검색" placeholder="어떤 상품을 찾으세요?" value={q} maxLength={30} onChange={event => setQ(event.target.value)} enterKeyHint="search" /></form>{paramError && <p className="search-error" role="alert">{paramError}</p>}</header>

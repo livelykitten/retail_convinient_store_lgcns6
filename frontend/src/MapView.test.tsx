@@ -1,13 +1,15 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { api, ApiError } from './api';
 import { MapView } from './MapView';
 import App from './App';
 import { loadKakao } from './kakao';
 import type { KakaoMaps } from './kakao';
-import { stores } from './fixtures';
+import { quotes, stores, walletOptions } from './fixtures';
 import { demoCenter } from './demoLocation';
+import { demoWalking } from './demoRoutes';
 
 const mode = vi.hoisted(() => ({ demo: true }));
 vi.mock('./api', async importOriginal => ({
@@ -70,6 +72,46 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('지도 좌표와 표시 범위 분리', () => {
+    it('데모 할인 등록·삭제가 기존 검색의 가격·추천과 저장 목적지 가격에 반영된다', async () => {
+        Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true, value: function(this: HTMLDialogElement) { this.open = true; } });
+        Object.defineProperty(HTMLDialogElement.prototype, 'close', { configurable: true, value: function(this: HTMLDialogElement) { this.open = false; } });
+        vi.spyOn(api, 'quotes').mockImplementation(async input => quotes(input));
+        vi.spyOn(api, 'walletOptions').mockResolvedValue(walletOptions);
+        vi.mocked(api.walking).mockImplementation(async (start, end) => demoWalking(start, end)!);
+        const user = userEvent.setup();
+        render(<App />);
+        await user.type(screen.getByRole('textbox', { name: '상품 검색' }), '우유');
+        await user.click(screen.getByRole('button', { name: '검색' }));
+        await user.selectOptions(screen.getByRole('combobox', { name: '정렬' }), 'PRICE');
+        await user.click(await screen.findByRole('button', { name: /빙그레 바나나맛우유/ }));
+        expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
+        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(screen.getByRole('button', { name: '할인 수단 추가' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.click(await within(dialog).findByRole('button', { name: 'SKT' }));
+        await user.click(within(dialog).getByRole('button', { name: 'VIP' }));
+        await user.click(within(dialog).getByRole('button', { name: '추가' }));
+        await user.click(screen.getByRole('button', { name: '상품 목록' }));
+        expect(await screen.findByText('CU 신당다산로점')).toBeTruthy();
+        expect(screen.getByText('가장 싸요')).toBeTruthy();
+        expect(screen.getByText(/100원 더 비싸지만 약 1분 가까워요/)).toBeTruthy();
+        expect(screen.getAllByText('900').length).toBeGreaterThan(0);
+        await user.click(screen.getByRole('button', { name: '여기로 길 안내' }));
+        expect(await screen.findByText('개당 900원')).toBeTruthy();
+        expect(await screen.findByText('예시 경로 · 실제 길찾기 결과 아님')).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(screen.getByRole('button', { name: 'SKT 삭제' }));
+        await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: '삭제' }));
+        await waitFor(() => expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!).unitPrice).toBe(1200));
+        await user.click(screen.getByRole('button', { name: '지도' }));
+        expect(await screen.findByText('개당 1,200원')).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '목적지 해제' }));
+        await user.click(screen.getByRole('button', { name: '상품 목록' }));
+        expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
+        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy();
+        expect(screen.queryByText('900')).toBeNull();
+    });
     it('이전 데모 목적지를 복원하지 않고 실제 API 모드의 저장값은 유지한다', () => {
         const oldDestination = { ...destination, storeId: '12345678', placeName: '이전 데모 매장' };
         sessionStorage.setItem('pyeonri.destination', JSON.stringify(oldDestination));
@@ -103,14 +145,20 @@ describe('지도 좌표와 표시 범위 분리', () => {
         expect(props.locate).not.toHaveBeenCalled();
     });
 
-    it('GPS 권한이 없어도 예시 지도를 표시하고 가짜 경로를 그리지 않는다', async () => {
+    it('GPS 권한 없이 고정 예시 경로·시간·거리와 미검증 안내를 표시한다', async () => {
+        const route = demoWalking(demoCenter, destination)!;
+        vi.mocked(api.walking).mockResolvedValue(route);
         render(<MapView {...props} position={null} locationError="위치 거부" destination={destination} />);
-        await screen.findByText('개발 예시 모드에서는 실제 도보 경로를 제공하지 않아요');
+        await screen.findByText('예시 경로 · 실제 길찾기 결과 아님');
         await waitFor(() => expect(setBounds).toHaveBeenCalled());
         expect(api.walking).toHaveBeenCalledWith(demoCenter, destination, expect.any(AbortSignal));
         expect(screen.queryByText('현재 위치를 확인할 수 없어요')).toBeNull();
         expect(screen.getByText(destination.placeName)).toBeTruthy();
-        expect(polyline).not.toHaveBeenCalled();
+        await waitFor(() => expect(polyline).toHaveBeenCalled());
+        expect(polyline.mock.calls.at(-1)![0].path).toEqual(route.path.map(point => new Point(point.y, point.x)));
+        expect(polyline.mock.calls.at(-1)![0].strokeStyle).toBe('shortdash');
+        expect(screen.getByText(`약 ${route.distanceM}m`)).toBeTruthy();
+        expect(screen.getByText(/도로 형태 참고 · 출입구·보행 가능 여부 미검증/)).toBeTruthy();
     });
 
     it('예시 목적지의 이상 좌표도 표시 범위를 넓히지 않는다', async () => {

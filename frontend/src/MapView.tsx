@@ -68,11 +68,11 @@ export function MapView({ position, locationError, locating, locate, destination
                 overlays.push(new maps.CustomOverlay({ map, position: latLng(maps, store), content, yAnchor: 1, zIndex: 3 }));
                 if (!fixturesEnabled) bounds.extend(latLng(maps, store));
             }
-            if (!fixturesEnabled && route && route.path.length > 1) {
-                const path = route.path.map(point => { const value = latLng(maps, point); bounds.extend(value); return value; });
+            if (route && route.path.length > 1) {
+                const path = route.path.map(point => { const value = latLng(maps, point); if (!fixturesEnabled) bounds.extend(value); return value; });
                 // 경로 선 색도 디자인 변수에서 읽는다
                 const color = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim();
-                overlays.push(new maps.Polyline({ map, path, strokeWeight: 4, strokeColor: color, strokeOpacity: 1, strokeStyle: 'solid' }));
+                overlays.push(new maps.Polyline({ map, path, strokeWeight: 4, strokeColor: color, strokeOpacity: 1, strokeStyle: fixturesEnabled ? 'shortdash' : 'solid' }));
             }
             if (fixturesEnabled) {
                 // 강의장 중심에서 남북·동서 약 500m 범위. GPS·목적지의 원거리 이상값은 줌에 반영하지 않는다.
@@ -89,7 +89,7 @@ export function MapView({ position, locationError, locating, locate, destination
     }, [mapPosition, destination, stores, route, reload, nearbyStores]);
     const routeUrl = route?.landingUrl && /^https:\/\/(?:map\.kakao\.com|kko\.kakao\.com|kko\.to)(?:\/|$)/.test(route.landingUrl) ? route.landingUrl : null;
     // 경로 성공. path: [] (출발 = 도착)이면 목적지 마커만 두고 분 · 거리 줄은 숨긴다
-    const routeOk = !!route && !fixturesEnabled;
+    const routeOk = !!route;
     return <section className="map-page" aria-label="주변 편의점 지도"><div ref={container} className="map-canvas" aria-label="카카오맵" />
         {!mapPosition && <div className="map-example" aria-hidden="true"><div className="map-park" /></div>}
         {mapPosition && <div className="location-pill"><Icon name="pin" size={14} />{fixturesEnabled ? demoMapLabel : '내 위치 근처'}</div>}
@@ -97,8 +97,9 @@ export function MapView({ position, locationError, locating, locate, destination
         {!fixturesEnabled && (!position || locationError) && <div className="location-dialog"><span className="location-symbol"><Icon name="pin-large" size={24} /></span><h1>{locating ? '현재 위치를 확인하고 있어요' : '현재 위치를 확인할 수 없어요'}</h1><p>브라우저 설정에서 위치 접근을 허용하면<br />내 주변 편의점과 가는 길을 보여 드려요.</p><button className="primary" onClick={locate} disabled={locating}>{locating ? '확인 중…' : '다시 시도'}</button><small>위치 정보는 저장하지 않아요</small></div>}
         {mapPosition && mapError && <div className="map-error"><Notice retry={() => setReload(value => value + 1)}>{mapError}</Notice></div>}
         {destination ? <div className="destination-card"><div className="destination-title"><BrandIcon code={destination.brand} size={40} /><div><span className="badge">목적지</span><h2>{destination.placeName}</h2></div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="map-close" size={20} /></button></div>
+            {fixturesEnabled && routeOk && <p className="route-error">예시 경로 · 실제 길찾기 결과 아님<br /><small>도로 형태 참고 · 출입구·보행 가능 여부 미검증 · 시간·거리 추정<br />도로 자료: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></small></p>}
             {busy && mapPosition ? <div className="route-skeleton" role="status" aria-label="도보 경로를 불러오고 있어요"><span /><span /></div>
-                : routeOk ? (route.path.length > 0 && <div className="route-summary"><span>걸어서 <b className="mark">{Math.ceil(route.durationSeconds / 60)}</b>분</span><strong>{route.distanceM}m</strong></div>)
+                : routeOk ? (route.path.length > 0 && <div className="route-summary"><span>{fixturesEnabled ? '예상 도보 약 ' : '걸어서 '}<b className="mark">{Math.ceil(route.durationSeconds / 60)}</b>분</span><strong>{fixturesEnabled ? '약 ' : ''}{route.distanceM}m</strong></div>)
                 : <p className="route-error" role="status">{mapPosition ? error : '현재 위치를 확인하면 도보 경로를 안내해요.'}{error && <button className="text-button" onClick={() => setReload(value => value + 1)}>다시 시도</button>}</p>}
             <div className="destination-product"><span>{destination.productName}</span><strong>개당 {won(destination.unitPrice)}원</strong></div>{routeUrl && <a className="external-route" href={routeUrl} target="_blank" rel="noreferrer">카카오맵에서 길찾기</a>}
         </div> : mapPosition && <div className="nearby-card">{busy ? <span role="status">주변 편의점을 찾고 있어요…</span> : error ? <Notice retry={() => setReload(value => value + 1)}>{error}</Notice> : <><strong>주변 편의점 {stores.length}곳</strong><small>상품 목록에서 매장을 고르면 길 안내</small></>}</div>}
