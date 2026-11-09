@@ -1,6 +1,6 @@
 ﻿# 편리 React 프론트엔드
 
-React + TypeScript + Vite. Figma `ag2sdNihDB8gV3ODLcTSFM`의 「편리 · B 매대 가격표 · 새 디자인 v1 (11.09)」(`188:3636`)을 기준으로 구현했습니다. 색·간격은 `src/style.css`의 `:root` 변수로만 씁니다. 앱 시작, P1~P4 상품 검색과 매장 선택, M1~M3 지도·경로·위치 오류, D1~D4 할인 수단 관리 화면을 제공합니다.
+React + TypeScript + Vite. Figma `ag2sdNihDB8gV3ODLcTSFM`의 Page 1 「편리 기준 화면」(`260:230`)을 기준으로 구현했습니다. 값은 `design/reference/screens.css`, 색은 `src/style.css`의 `:root` 변수로만 씁니다. 앱 시작, P1~P4 상품 검색과 매장 선택, M1~M3 지도·경로·위치 오류, D1~D4 할인 수단 관리 화면을 제공합니다.
 
 ## 실행
 

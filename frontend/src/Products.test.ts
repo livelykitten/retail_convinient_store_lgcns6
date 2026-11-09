@@ -15,9 +15,9 @@ describe('강조 카드 라벨', () => {
     it('목적지가 가장 먼저', () => expect(featuredLabel(product([cu, gs]), gs, true)).toBe('목적지'));
     it('매장 1곳이면 라벨 없음', () => expect(featuredLabel(product([cu]), cu, false)).toBeNull());
     it('전부 OUT이면 라벨 없음', () => expect(featuredLabel(product([store({ stockStatus: 'OUT' }), store({ stockStatus: 'OUT' })]), cu, false)).toBeNull());
-    it('가장 싸고 가장 가까우면', () => expect(featuredLabel(product([cu, gs]), cu, false)).toBe('가장 싸고 가까워요'));
-    it('가장 싸지만 더 멀면', () => expect(featuredLabel(product([gs, store({ storeId: 'x', distanceM: 100, unitPrice: 1200 })]), gs, false)).toBe('가장 싸요'));
-    it('OUT 매장은 가까움 비교에서 뺀다', () => expect(featuredLabel(product([cu, store({ distanceM: 50, stockStatus: 'OUT' })]), cu, false)).toBe('가장 싸고 가까워요'));
+    it('가장 싸고 가장 가까우면', () => expect(featuredLabel(product([cu, gs]), cu, false)).toBe('최저가 · 가장 가까움'));
+    it('가장 싸지만 더 멀면', () => expect(featuredLabel(product([gs, store({ storeId: 'x', distanceM: 100, unitPrice: 1200 })]), gs, false)).toBe('최저가'));
+    it('OUT 매장은 가까움 비교에서 뺀다', () => expect(featuredLabel(product([cu, store({ distanceM: 50, stockStatus: 'OUT' })]), cu, false)).toBe('최저가 · 가장 가까움'));
 });
 
 describe('차이 문구', () => {

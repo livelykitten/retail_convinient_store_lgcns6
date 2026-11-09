@@ -1,4 +1,4 @@
-import type { Destination, Wallet } from './types';
+import type { Brand, Destination, Event, Wallet } from './types';
 
 export const emptyWallet = (): Wallet => ({ telecom: null, cards: [], pays: [], memberships: [] });
 const providers = ['SKT', 'KT', 'LGU'];
@@ -37,4 +37,25 @@ export function readDestination(storage: Storage): Destination | null {
 export function saveDestination(storage: Storage, value: Destination | null) {
     if (value) storage.setItem('pyeonri.destination', JSON.stringify(value));
     else storage.removeItem('pyeonri.destination');
+}
+
+/** P1 「최근 찾은 상품」: 펼쳐 본 상품을 최대 8개, 최근 순으로 이 기기에만 저장 */
+export interface RecentItem {
+    productKey: string; name: string; imageUrl: string | null; event: Event;
+    listPrice: number; unitPrice: number; brand: Brand; query: string;
+}
+const RECENT_KEY = 'pyeonri.recent';
+const events = ['NONE', 'ONE_PLUS_ONE', 'TWO_PLUS_ONE', 'THREE_PLUS_ONE'];
+export function readRecent(storage: Storage): RecentItem[] {
+    try {
+        const value: unknown = JSON.parse(storage.getItem(RECENT_KEY) ?? '[]');
+        if (!Array.isArray(value)) return [];
+        return value.filter((item): item is RecentItem => record(item) && typeof item.productKey === 'string' && typeof item.name === 'string'
+            && typeof item.query === 'string' && brands.includes(String(item.brand)) && events.includes(String(item.event))
+            && Number.isInteger(item.listPrice) && Number.isInteger(item.unitPrice) && (item.imageUrl === null || typeof item.imageUrl === 'string')).slice(0, 8);
+    } catch { return []; }
+}
+export function addRecent(storage: Storage, list: RecentItem[], item: RecentItem): RecentItem[] {
+    const next = [item, ...list.filter(value => value.productKey !== item.productKey)].slice(0, 8);
+    storage.setItem(RECENT_KEY, JSON.stringify(next)); return next;
 }

@@ -43,7 +43,7 @@ describe('주요 사용자 흐름', () => {
         await waitFor(() => expect(api.quotes).toHaveBeenLastCalledWith(expect.objectContaining({ sort: 'PRICE', wallet: emptyWallet() }), expect.any(AbortSignal)));
         await user.click(await screen.findByRole('button', { name: /빙그레 바나나맛우유/ }));
         // 새 강의장 기준 최적 매장(GS25)만 강조하고 CU와의 차이는 접힌 줄에 표시
-        expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy(); expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
+        expect(screen.getByText('최저가 · 가장 가까움')).toBeTruthy(); expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
         expect(screen.queryByText('CU 신당다산로점')).toBeNull(); expect(screen.getByText(/200원 더 비싸요/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: /다른 매장 1곳/ }));
         await user.click(screen.getByRole('button', { name: /CU 신당다산로점/ }));
@@ -51,7 +51,7 @@ describe('주요 사용자 흐름', () => {
         expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!).storeId).toBe('demo-cu-sindang-dasanro');
         await user.click(screen.getByRole('button', { name: '상품 목록' }));
         // 돌아오면 목적지 상품이 펼쳐져 있고 목적지 매장이 강조 카드에
-        expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByRole('button', { name: '지도에서 길 보기' })).toBeTruthy();
+        expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByRole('button', { name: '지도 보기' })).toBeTruthy();
         expect(screen.getByText(/200원 더 싸요/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: '지도' }));
         await user.click(screen.getByRole('button', { name: '목적지 해제' }));
@@ -92,6 +92,17 @@ describe('주요 사용자 흐름', () => {
         await user.click(screen.getByRole('button', { name: '추가' }));
         expect(JSON.parse(localStorage.getItem('pyeonri.wallet')!).cards).toEqual([{ cardId: null, issuer: 'WOORI', name: '우리카드 카드의정석 체크' }]);
     });
+    it('접힌 카드는 현재 최저가 매장, 펼친 카드는 목적지를 먼저 보여 준다', async () => {
+        // GS25를 목적지로 고른 뒤 SKT 등록 → 최저가는 CU 900원으로 바뀜
+        localStorage.setItem('pyeonri.wallet', JSON.stringify({ ...emptyWallet(), telecom: { provider: 'SKT', grade: 'VIP' } }));
+        sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...stores[0], productKey: 'binggrae-banana-240', productName: '빙그레 바나나맛우유 240ml', unitPrice: 1000 }));
+        render(<App />); const user = await searchMilk();
+        const card = screen.getByRole('button', { name: /빙그레 바나나맛우유/ });
+        expect(card.querySelector('.where')?.textContent).toContain('신당다산로점');
+        expect(card.querySelector('.where')?.textContent).not.toContain('신당퍼스트점');
+        await user.click(card);
+        expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
+    });
     it('저장된 수단과 목적지를 새 마운트에서 복원한다', async () => {
         localStorage.setItem('pyeonri.wallet', JSON.stringify({ ...emptyWallet(), pays: ['KAKAOPAY'] }));
         sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...cuStore, productKey: 'milk', productName: '우유', unitPrice: 1000 }));
@@ -123,14 +134,14 @@ describe('경로 지도 계약', () => {
         };
         vi.mocked(loadKakao).mockResolvedValue(maps);
         const { unmount } = render(<MapView position={path[0]} destination={destination} locationError="" locating={false} locate={vi.fn()} clear={vi.fn()} />);
-        expect(await screen.findByText('410m')).toBeTruthy(); expect(screen.getByText('7')).toBeTruthy();
+        expect(await screen.findByText(/^410m · .* 도착$/)).toBeTruthy(); expect(screen.getByText('도보 7분')).toBeTruthy();
         await waitFor(() => expect(polyline).toHaveBeenCalled());
         expect(polyline.mock.calls.at(-1)![0].path.map((point: Point) => [point.getLng(), point.getLat()])).toEqual(path.map(point => [point.x, point.y]));
         expect(latLng(maps, path[0]).getLat()).toBe(37.5446); unmount(); expect(removed).toHaveBeenCalledWith(null);
     });
     it('경로 실패에도 목적지와 가격을 유지하고 가짜 시간이나 경로를 만들지 않는다', async () => {
         render(<MapView position={{ x: 127, y: 37 }} destination={destination} locationError="" locating={false} locate={vi.fn()} clear={vi.fn()} />);
-        expect(await screen.findByText('도보 경로를 찾지 못했어요')).toBeTruthy(); expect(screen.getByText('CU 신당다산로점')).toBeTruthy(); expect(screen.getByText('개당 1,000원')).toBeTruthy(); expect(screen.queryByText('걸어서')).toBeNull();
+        expect(await screen.findByText('도보 경로를 찾지 못했어요')).toBeTruthy(); expect(screen.getByText('CU 신당다산로점')).toBeTruthy(); expect(screen.getByText('1,000')).toBeTruthy(); expect(screen.queryByText('걸어서')).toBeNull();
     });
     it('출발 = 도착(path: [])이면 분 · 거리 줄을 숨기고 오류도 띄우지 않는다', async () => {
         vi.mocked(api.walking).mockResolvedValue({ path: [], distanceM: 0, durationSeconds: 0, landingUrl: null });
