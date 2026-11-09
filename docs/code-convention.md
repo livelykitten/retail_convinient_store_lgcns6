@@ -145,6 +145,8 @@ public class StoreController {
 | 결제액 계산 | 검증 예시(류지범 손계산)를 모두 단위 테스트로. 단계별 경계값(`maxAmount`, `minPayAmount`, 전월 실적) | 함석원 |
 | 재고 더미 | 같은 `storeId` · `productId`는 항상 같은 값, 0 · 5 · 6 · 8 · 9 경계 | 노건우 |
 | 브랜드 판별 | `place_name` 4사 시작어, 그 밖의 편의점 제외 | 노건우 |
+| 도보 분 | `walkMinutes` 계산 경계값 (0m, 67m, 68m, 120m) | 노건우 |
+| 정렬 | `finalPrice` → `walkMinutes` → `distanceM`, `OUT` 맨 아래 | 함석원 |
 | 검색어 → 상품군 | 키워드 사전으로 정답셋 실행, `q` 길이 검증 | 한예림 |
 | CSV 적재 | 적재 뒤 상품군별 4사 각 10개 이상 | 이서현 |
 | 컨트롤러 | `@WebMvcTest`로 경로 · 응답 필드 · 400 형식 확인 | 각 API 담당 |

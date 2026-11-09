@@ -37,7 +37,7 @@
 | `GET /api/wallet-options` | 없음 | 200 `{ telecoms: [{ provider, grades: [string] }], cards: [string], pays: [string] }` | | 함석원 |
 | `GET /api/categories/resolve?q=` | `q` 필수, 1 ~ 30자 | 200 `{ query, category, confidence, method }`. 못 찾으면 `category` = null. `method` = `AI` · `KEYWORD` | 400 `INVALID_PARAM` | 한예림 |
 | `GET /api/products?category=` | `category` 필수 | 200 `Product[]` (product 칸, camelCase) | 400 `INVALID_PARAM` | 이서현 |
-| `GET /api/stores?x=&y=&radius=` | `x` 경도 · `y` 위도 필수, `radius` 미터(기본 500, 최대 2000, 안) | 200 `[{ storeId, brand, placeName, distanceM, x, y, roadAddress }]` 거리순 | 400 `INVALID_PARAM` · 429 `KAKAO_RATE_LIMIT` · 502 `KAKAO_ERROR` | 노건우 |
+| `GET /api/stores?x=&y=&radius=` | `x` 경도 · `y` 위도 필수, `radius` 미터(기본 500, 최대 2000, 안) | 200 `[{ storeId, brand, placeName, distanceM, walkMinutes, x, y, roadAddress }]` 거리순 | 400 `INVALID_PARAM` · 429 `KAKAO_RATE_LIMIT` · 502 `KAKAO_ERROR` | 노건우 |
 | `POST /api/quotes` | [5절](#5-post-apiquotes) | 200 [5절](#5-post-apiquotes) | 400 `INVALID_PARAM` · 429 `KAKAO_RATE_LIMIT`. 그 밖의 매장 조회 실패는 502가 아니라 200(매장 칸 null) | 함석원 |
 
 ## 4. API별 상세
@@ -120,6 +120,7 @@
     "brand": "GS25",
     "placeName": "GS25 역삼점",
     "distanceM": 120,
+    "walkMinutes": 2,
     "x": 127.03,
     "y": 37.50,
     "roadAddress": "서울 강남구 ..."
@@ -130,6 +131,7 @@
 - `storeId` · `placeName` · `x` · `y`는 카카오 응답의 `id` · `place_name` · `x` · `y`예요.
 - 브랜드 판별: `place_name`이 `CU` · `GS25` · `세븐일레븐` · `이마트24`로 시작해요. 나머지 매장은 빼요. `brand` 값은 `CU` · `GS25` · `SEVEN` · `EMART24`
 - 거리순(`distanceM` 오름차순)으로 돌려줘요.
+- `walkMinutes`(도보 분) = ⌈`distanceM` ÷ 67⌉ (안: 분속 67m ≈ 시속 4km, 노건우 확정). 명세 원본에 없던 칸으로, 화면 설계 초안에 맞춰 더했어요 (결정 2026-11-09). 카카오 거리는 직선거리라 실제 걷는 시간보다 짧게 나올 수 있어요.
 - 카카오 응답은 저장하지 않아요.
 
 ## 5. `POST /api/quotes`
@@ -167,7 +169,7 @@
 {
   "items": [{
     "brand": "GS25", "storeId": "12345678", "placeName": "GS25 역삼점",
-    "distanceM": 120, "x": 127.03, "y": 37.50,
+    "distanceM": 120, "walkMinutes": 2, "x": 127.03, "y": 37.50,
     "product": { "productId": "gs25-1001", "name": "펩시콜라600ml", "size": 600, "unit": "ML", "pb": false },
     "listPrice": 2500, "qty": 1, "paidQty": 1, "receivedQty": 2,
     "event": "ONE_PLUS_ONE", "eventPrice": 2500,
@@ -183,7 +185,7 @@
 | 필드 | 설명 |
 | --- | --- |
 | `items[]` | 행 = 브랜드 × 상품. 그 브랜드에서 가장 가까운 매장 1곳 기준 |
-| `brand` · `storeId` · `placeName` · `distanceM` · `x` · `y` | 매장 (`GET /api/stores`와 같음) |
+| `brand` · `storeId` · `placeName` · `distanceM` · `walkMinutes` · `x` · `y` | 매장 (`GET /api/stores`와 같음) |
 | `product` | `productId` · `name` · `size` · `unit` · `pb` |
 | `listPrice` · `qty` · `paidQty` · `receivedQty` · `event` · `eventPrice` | 1단계 행사 ([requirements.md 2절](requirements.md#2-최종-결제액-계산-규칙-fr-04)) |
 | `discounts[]` | 2 ~ 4단계 규칙. **적용 안 된 규칙도** `applied` = false와 `reason`으로 담아요 (화면 "상품별 할인 내역") |
@@ -195,7 +197,7 @@
 | `mockRule` | 적용된 할인 규칙 중 `source`가 NULL인 것이 있으면 true (NFR-01) |
 | `notice` | 목록 아래 고정 문구 |
 
-- 정렬: `finalPrice` 오름차순 → 같으면 `distanceM` 오름차순. `OUT` 행은 맨 아래 (안)
+- 정렬: **가격순 우선, 그다음 도보 시간순**. `finalPrice` 오름차순 → 같으면 `walkMinutes` 오름차순 → 그래도 같으면 `distanceM` 오름차순. `OUT` 행은 맨 아래 (안). 명세 원본(`finalPrice` → `distanceM`)에서 바꿨어요 (결정 2026-11-09, 화면 설계 초안 기준)
 - 반경 안에 그 브랜드 매장이 없으면 그 브랜드 행은 나오지 않아요.
 - `discounts[]`에 담는 범위(사용자가 고른 수단의 규칙만인지, 브랜드가 맞는 규칙만인지), 적립 규칙의 `type` 표기: 미정(함석원)
 - 1+1처럼 2개 받는 행사도 개당 가격이 아니라 `finalPrice`로 정렬해요. 개당 가격 칸은 두지 않아요 (결정 2026-11-09).
@@ -213,7 +215,7 @@
 {
   "items": [{
     "brand": "GS25", "storeId": null, "placeName": null,
-    "distanceM": null, "x": null, "y": null,
+    "distanceM": null, "walkMinutes": null, "x": null, "y": null,
     "product": { "productId": "gs25-1001", "name": "펩시콜라600ml", "size": 600, "unit": "ML", "pb": false },
     "listPrice": 2500, "qty": 1, "paidQty": 1, "receivedQty": 2,
     "event": "ONE_PLUS_ONE", "eventPrice": 2500,
@@ -230,4 +232,4 @@
 - 화면은 **`storeId`가 null인지로** "매장 정보를 불러오지 못함"을 알아요. 따로 표시 칸을 두지 않아요 (결정 2026-11-09).
 - 그래서 매장 조회는 **전부 성공하거나 전부 실패**예요. 카카오를 여러 번(페이지) 부르다가 한 번이라도 실패하면 전체를 실패로 보고, 모든 행의 매장 칸을 null로 내요. 일부 행만 null인 응답은 없어요.
 - 반경 안에 4사 매장이 하나도 없으면 null 행이 아니라 `items: []`예요.
-- 프런트는 `storeId`가 null인 행에서 길찾기(FR-06)를 끄고, 거리 정렬 때 맨 뒤로 보내요.
+- 프런트는 `storeId`가 null인 행에서 길찾기(FR-06)와 도보 분 표시를 꺼요.

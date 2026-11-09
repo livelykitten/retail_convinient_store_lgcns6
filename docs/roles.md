@@ -40,7 +40,7 @@
 | FR-07 | 상품 데이터(목업) | 필수 | 한예림 → 이서현 | 변환 스크립트 한예림, 테이블 · 시작 시 적재 이서현 |
 | FR-10 | 매장 재고 더미 | 필수 | 노건우 | — |
 | FR-11 | 결제 수단 선택지 목록 | 필수 | 함석원 | 류지범 (할인 규칙표) |
-| FR-12 | 위치(교육장 기본 + 허용 시 기기 위치) | 필수 | 프런트(민경완) | 노건우 (좌표 → `distanceM`) |
+| FR-12 | 위치(교육장 기본 + 허용 시 기기 위치) | 필수 | 프런트(민경완) | 노건우 (`walkMinutes`) |
 | FR-08 | 상품 AI 사전 분류 | 선택 | 한예림 | 이서현 (`category` 칸 갱신) |
 | FR-09 | PB 상품 표시 | 선택 | 이서현 | — |
 | NFR-01 | 목업 값 구분 표시 | 필수 | 함석원 | 이서현 (`estimated` · `dataMonth` · `source`) |
@@ -51,7 +51,7 @@
 | 스프린트 | 시간 | 끝나면 보여 줄 것 (백엔드) |
 | --- | --- | --- |
 | 0 · 초기 세팅 | Day 1 ~ 15:00 | API 5개가 고정 응답을 돌려줘요. 인터페이스 고정 |
-| 1 · 핵심 흐름 | 15:00 ~ Day 1 끝 | 교육장 기준 "콜라" → 실제 카카오 매장 + 목업 상품 + 결제액 + 거리. **17:00 진행 공유에서 시연** |
+| 1 · 핵심 흐름 | 15:00 ~ Day 1 끝 | 교육장 기준 "콜라" → 실제 카카오 매장 + 목업 상품 + 결제액 + 도보 분. **17:00 진행 공유에서 시연** |
 | 2 · 완성도 | Day 2 09:00 ~ 12:00 | 할인 내역 · AI 검색 · 재고 · 오류 처리. **12:00 기능 동결** |
 | 릴리스 | Day 2 13:00 ~ 16:15 | 리허설 2회 지원, 카카오 호출 수 확인, 백업 영상 |
 
@@ -76,7 +76,7 @@
 | --- | --- |
 | 0 | **DB 설계(요구사항 기준)**: 명세 4-1 `product` · 4-2 `discount_rule`을 ERD · DDL(`schema.sql`)로. enum(brand · event · type · kind) · PK 규칙 · NULL 허용 · 인덱스(`product.category`, `discount_rule.brand`) · H2 호환 확인. FR마다 쓰는 칸을 대조해 빠진 칸이 없는지 점검([reference/erd.md](reference/erd.md)). **14:00(안)까지 이서현 · 한예림에게 공유**<br>계산 규칙(명세 2절)을 코드 없이 표로 다시 써 보고, 모호한 곳은 PM2(민경완)에게 질문. quotes · wallet-options 고정 응답 |
 | 1 | `POST /api/quotes`: 행사 → 통신사 → 결제 할인 → 적립 4단계, 브랜드마다 가장 가까운 매장 1곳, 적용 안 된 규칙도 `applied = false` · `reason`. `GET /api/wallet-options`. **류지범의 검증 예시 5건을 단위 테스트로** |
-| 2 | 할인 규칙표 실데이터 반영, 정렬(`finalPrice` → `distanceM`, 명세 2절) · `OUT` 맨 아래, `mockRule` · `estimated` · `dataMonth` (NFR-01) |
+| 2 | 할인 규칙표 실데이터 반영, 정렬(가격순 우선 → 도보 시간순: `finalPrice` → `walkMinutes`) · `OUT` 맨 아래, `mockRule` · `estimated` · `dataMonth` (NFR-01) |
 
 **제공** `schema.sql` · ERD · `DiscountRuleService.findFor` · quotes 조립
 **완료 기준** 검증 예시 5건 모두 일치 (명세 기준, 2026-11-09 결정), 스키마 변경은 이서현 리뷰 뒤 반영
@@ -86,7 +86,7 @@
 | 스프린트 | 할 일 |
 | --- | --- |
 | 0 | 카카오 REST 키로 교육장 좌표 `CS2` 호출 성공(응답 저장 금지 확인). stores 고정 응답 |
-| 1 | `GET /api/stores`: `place_name`이 CU · GS25 · 세븐일레븐 · 이마트24로 시작하면 브랜드 판별, 나머지 제외, `distanceM` 거리순. 재고 더미(명세 3절: `storeId:productId` 해시 % 10) |
+| 1 | `GET /api/stores`: `place_name`이 CU · GS25 · 세븐일레븐 · 이마트24로 시작하면 브랜드 판별, 나머지 제외, `walkMinutes` 계산(⌈`distanceM` ÷ 67⌉, 안). 재고 더미(명세 3절: `storeId:productId` 해시 % 10) |
 | 2 | 429 → `KAKAO_RATE_LIMIT`, 그 밖 → `KAKAO_ERROR` (NFR-02), 반경 · 매장 수 조정, 시연 전 호출 수 확인 |
 
 **제공** `StoreService.findNearby` · `StockService.statusOf`
