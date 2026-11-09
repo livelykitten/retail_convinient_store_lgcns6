@@ -66,7 +66,7 @@ describe('주요 사용자 흐름', () => {
         expect(JSON.parse(localStorage.getItem('pyeonri.wallet')!).telecom).toEqual({ provider: 'SKT', grade: 'VIP' });
         await user.click(screen.getByRole('button', { name: 'SKT 수정' }));
         await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: '일반' }));
-        await user.click(screen.getByRole('button', { name: '저장' }));
+        await user.click(screen.getByRole('button', { name: '수정 완료' }));
         await user.click(screen.getByRole('button', { name: '상품 목록' }));
         await searchMilk();
         expect(api.quotes).toHaveBeenLastCalledWith(expect.objectContaining({ wallet: expect.objectContaining({ telecom: { provider: 'SKT', grade: 'NORMAL' } }) }), expect.any(AbortSignal));
@@ -83,8 +83,8 @@ describe('주요 사용자 흐름', () => {
         await screen.findByRole('button', { name: /신용·체크카드/ });
         await user.click(screen.getByRole('button', { name: /신용·체크카드/ }));
         await user.click(screen.getByRole('button', { name: '직접 입력' }));
-        await user.click(screen.getByRole('button', { name: '추가' }));
-        expect(screen.getByRole('alert').textContent).toContain('필수 입력');
+        // 카드 이름 · 카드사를 다 고르기 전에는 「추가」 비활성
+        expect((screen.getByRole('button', { name: '추가' }) as HTMLButtonElement).disabled).toBe(true);
         await user.type(screen.getByRole('textbox', { name: '카드 이름' }), '우리카드 카드의정석 체크');
         await user.selectOptions(screen.getByRole('combobox', { name: '카드사' }), 'WOORI');
         await user.click(screen.getByRole('button', { name: '추가' }));
@@ -129,6 +129,13 @@ describe('경로 지도 계약', () => {
     it('경로 실패에도 목적지와 가격을 유지하고 가짜 시간이나 경로를 만들지 않는다', async () => {
         render(<MapView position={{ x: 127, y: 37 }} destination={destination} locationError="" locating={false} locate={vi.fn()} clear={vi.fn()} />);
         expect(await screen.findByText('도보 경로를 찾지 못했어요')).toBeTruthy(); expect(screen.getByText('CU 성수연무장점')).toBeTruthy(); expect(screen.getByText('개당 1,000원')).toBeTruthy(); expect(screen.queryByText('걸어서')).toBeNull();
+    });
+    it('출발 = 도착(path: [])이면 분 · 거리 줄을 숨기고 오류도 띄우지 않는다', async () => {
+        vi.mocked(api.walking).mockResolvedValue({ path: [], distanceM: 0, durationSeconds: 0, landingUrl: null });
+        render(<MapView position={{ x: 127, y: 37 }} destination={destination} locationError="" locating={false} locate={vi.fn()} clear={vi.fn()} />);
+        await waitFor(() => expect(api.walking).toHaveBeenCalled());
+        await waitFor(() => expect(screen.queryByRole('status', { name: '도보 경로를 불러오고 있어요' })).toBeNull());
+        expect(screen.queryByText('걸어서')).toBeNull(); expect(screen.queryByText('0m')).toBeNull(); expect(screen.getByText('CU 성수연무장점')).toBeTruthy();
     });
     it('위치가 없으면 경로를 요청하지 않고 재시도한다', async () => {
         const retry = vi.fn();
