@@ -37,7 +37,7 @@ export function Sheet({ title, children, close }: { title: string; children: Rea
         return () => dialog?.close();
     }, []);
     return <dialog ref={ref} className="sheet" onCancel={close} aria-labelledby="sheet-title" onClick={event => { if (event.target === event.currentTarget) close(); }}>
-        <div className="sheet-inner"><div className="handle" /><div className="sheet-heading"><h2 id="sheet-title">{title}</h2><button aria-label="닫기" className="icon-button" onClick={close}><Icon name="close" /></button></div>{children}</div>
+        <div className="sheet-inner"><div className="handle" /><div className="sheet-heading"><h2 id="sheet-title" tabIndex={-1} autoFocus>{title}</h2><button aria-label="닫기" className="icon-button" onClick={close}><Icon name="close" /></button></div>{children}</div>
     </dialog>;
 }
 export const fallbackMessage = '잠시 뒤 다시 시도해 주세요';

@@ -5,7 +5,7 @@ import { getCurrentLocation, searchDefaultCoordinates } from './location';
 import { MapView } from './MapView';
 import { Products } from './Products';
 import { emptyWallet, readDestination, readWallet, saveDestination, saveWallet } from './storage';
-import type { Coordinates, Destination, Product, QuoteResponse, QuoteStore, Sort, Wallet } from './types';
+import type { Coordinates, Destination, Product, QuoteResponse, QuoteStore, Sort, Store, Wallet } from './types';
 import { WalletView } from './Wallet';
 import { Icon, errorMessage } from './ui';
 
@@ -29,6 +29,7 @@ export default function App() {
     const [result, setResult] = useState<QuoteResponse | null>(null); const [expanded, setExpanded] = useState<string | null>(null);
     const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [paramError, setParamError] = useState(''); const [storageError, setStorageError] = useState('');
     const [position, setPosition] = useState<Coordinates | null>(null); const [locationError, setLocationError] = useState(''); const [locating, setLocating] = useState(false);
+    const [nearbyStores, setNearbyStores] = useState<Store[]>([]); // M1에서 받은 매장, M2 다른 매장 마커용
     const controller = useRef<AbortController | null>(null); const locationPending = useRef(false); const mounted = useRef(true);
     useEffect(() => { mounted.current = true; return () => { mounted.current = false; controller.current?.abort(); }; }, []);
     const locate = useCallback(() => {
@@ -78,7 +79,7 @@ export default function App() {
                 {locationError && <p className="search-location-note">위치를 확인할 수 없어 기본 위치(교육장)로 검색해요.</p>}
                 <Products result={result} busy={busy} error={error} sort={sort} changeSort={value => { setSort(value); void search(value); }} destination={destination} wallet={wallet} choose={choose} retry={() => void search()} expanded={expanded} toggle={setExpanded} />
             </>}
-            {tab === 'map' && <MapView position={position} locationError={locationError} locating={locating} locate={locate} destination={destination} clear={clearDestination} />}
+            {tab === 'map' && <MapView position={position} locationError={locationError} locating={locating} locate={locate} destination={destination} clear={clearDestination} nearbyStores={nearbyStores} onStores={setNearbyStores} />}
             {tab === 'wallet' && <WalletView wallet={wallet} update={updateWallet} />}
         </main>
         <nav className="bottom-nav" aria-label="주요 메뉴">{([{ id: 'products', label: '상품 목록', icon: 'list' }, { id: 'map', label: '지도', icon: 'map' }, { id: 'wallet', label: '할인 수단', icon: 'discount' }] as const).map(item => <button key={item.id} className={tab === item.id ? 'active' : ''} aria-current={tab === item.id ? 'page' : undefined} onClick={() => switchTab(item.id)}><span className="tab-icon"><Icon name={item.icon} />{item.id === 'map' && destination && <span className="tab-dot" aria-hidden="true" />}</span><span>{item.label}</span></button>)}</nav>
