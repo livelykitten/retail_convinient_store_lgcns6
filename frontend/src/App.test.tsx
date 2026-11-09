@@ -44,7 +44,7 @@ describe('주요 사용자 흐름', () => {
         await user.click(await screen.findByRole('button', { name: /빙그레 바나나맛우유/ }));
         // 새 강의장 기준 최적 매장(GS25)만 강조하고 CU와의 차이는 접힌 줄에 표시
         expect(screen.getByText('가장 싸고 가까워요')).toBeTruthy(); expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
-        expect(screen.queryByText('CU 신당다산로점')).toBeNull(); expect(screen.getByText(/같은 가격인데 약 1분 더 걸려요/)).toBeTruthy();
+        expect(screen.queryByText('CU 신당다산로점')).toBeNull(); expect(screen.getByText(/200원 더 비싸요/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: /다른 매장 1곳/ }));
         await user.click(screen.getByRole('button', { name: /CU 신당다산로점/ }));
         await screen.findByText('현재 위치를 확인할 수 없어요'); expect(api.walking).not.toHaveBeenCalled();
@@ -52,7 +52,7 @@ describe('주요 사용자 흐름', () => {
         await user.click(screen.getByRole('button', { name: '상품 목록' }));
         // 돌아오면 목적지 상품이 펼쳐져 있고 목적지 매장이 강조 카드에
         expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByRole('button', { name: '지도에서 길 보기' })).toBeTruthy();
-        expect(screen.getByText(/같은 가격이고 약 1분 가까워요/)).toBeTruthy();
+        expect(screen.getByText(/200원 더 싸요/)).toBeTruthy();
         await user.click(screen.getByRole('button', { name: '지도' }));
         await user.click(screen.getByRole('button', { name: '목적지 해제' }));
         expect(sessionStorage.getItem('pyeonri.destination')).toBeNull();

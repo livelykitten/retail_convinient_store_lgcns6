@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { demoCenter } from './demoLocation';
 import { quotes, stores } from './fixtures';
 import { searchDefaultCoordinates } from './location';
+import { emptyWallet } from './storage';
 
 function distanceFromVenue(x: number, y: number) {
     const radians = (angle: number) => angle * Math.PI / 180;
@@ -12,6 +13,20 @@ function distanceFromVenue(x: number, y: number) {
 }
 
 describe('신당동 발표 장소 데모', () => {
+    it('가상 SKT 할인으로 최저가·추천 순서가 바뀌고 삭제하면 원복된다', () => {
+        const request = { q: '우유', ...demoCenter, sort: 'PRICE' as const };
+        const original = quotes({ ...request, wallet: emptyWallet() });
+        const discounted = quotes({ ...request, wallet: { ...emptyWallet(), telecom: { provider: 'SKT', grade: 'VIP' } } });
+        expect(original.products[0].stores.map(store => [store.brand, store.unitPrice])).toEqual([['GS25', 1000], ['CU', 1200]]);
+        expect(discounted.products[0].stores.map(store => [store.brand, store.unitPrice])).toEqual([['CU', 900], ['GS25', 1000]]);
+        expect(discounted.products[0].stores[0].applicableMethods).toContainEqual({ type: 'TELECOM', code: 'SKT' });
+        for (const response of [original, discounted]) {
+            expect(response.products.map(product => product.minUnitPrice)).toEqual([...response.products.map(product => product.minUnitPrice)].sort((a, b) => a - b));
+            for (const product of response.products) expect(product.minUnitPrice).toBe(Math.min(...product.stores.map(store => store.unitPrice)));
+        }
+        expect(quotes({ ...request, wallet: emptyWallet() })).toEqual(original);
+        expect(quotes({ ...request, wallet: { ...emptyWallet(), telecom: { provider: 'KT', grade: 'VIP' } } })).toEqual(original);
+    });
     it('확인한 동산빌딩 좌표를 사용하고 실제 API 기본 좌표를 유지한다', () => {
         expect(demoCenter).toEqual({ x: 127.0161468688, y: 37.562768271563 });
         expect(searchDefaultCoordinates).toEqual({ x: 127.0563, y: 37.5446 });

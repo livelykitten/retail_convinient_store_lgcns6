@@ -54,8 +54,11 @@ export const api = {
     },
     async walking(start: Coordinates, end: Coordinates, signal?: AbortSignal): Promise<WalkingRoute> {
         validateCoordinates(start); validateCoordinates(end);
-        // 개발 예시를 실제 보행 경로로 오인하지 않도록 fixture에서는 경로 성공을 만들지 않는다.
-        if (fixturesEnabled) throw new ApiError('ROUTE_NOT_FOUND', '개발 예시 모드에서는 실제 도보 경로를 제공하지 않아요', 404);
+        if (fixturesEnabled) {
+            const route = (await import('./demoRoutes')).demoWalking(start, end);
+            if (route) return route;
+            throw new ApiError('ROUTE_NOT_FOUND', '이 목적지의 예시 경로는 준비되지 않았어요. 실제 길찾기 결과를 제공하지 않아요.', 404);
+        }
         return request(`/api/routes/walking?${new URLSearchParams({ startX: String(start.x), startY: String(start.y), endX: String(end.x), endY: String(end.y) })}`, { signal });
     }
 };

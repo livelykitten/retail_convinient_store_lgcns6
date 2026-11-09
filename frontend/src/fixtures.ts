@@ -26,20 +26,24 @@ export const stores: Store[] = [
         x: 127.017856, y: 37.561518, distanceM: 205, walkMin: 4 }
 ];
 export function quotes(input: QuoteRequest): QuoteResponse {
-    // main의 재고 시나리오(CU 있음, GS25 적음, 세븐일레븐 있음)를 새 위치의 거리순으로 제공한다.
+    // PPT 전용 가상 시나리오: CU 1,200원 → SKT(모든 등급) 등록 시 25% 할인, 900원.
+    // 실제 제휴·행사·할인 계산 규칙이 아니다. 실제 API에서는 이 모듈을 사용하지 않는다.
+    const skt = input.wallet?.telecom?.provider === 'SKT';
     const bananaStores = stores.slice(0, 2);
     const rows: QuoteStore[] = bananaStores.map(store => ({ ...store,
-        event: 'TWO_PLUS_ONE', eventLabel: '2+1 행사', unitPrice: 1000,
+        event: 'TWO_PLUS_ONE', eventLabel: '2+1 행사', unitPrice: store.brand === 'CU' ? (skt ? 900 : 1200) : 1000,
         applicableMethods: [
-            ...(input.wallet?.telecom && store.brand === 'CU' ? [{ type: 'TELECOM' as const, code: input.wallet.telecom.provider }] : []),
+            ...(skt && store.brand === 'CU' ? [{ type: 'TELECOM' as const, code: 'SKT' }] : []),
             ...(input.wallet?.cards ?? []).filter(card => card.cardId).map(card => ({ type: 'CARD' as const, code: card.cardId! })),
             ...(input.wallet?.pays ?? []).map(code => ({ type: 'PAY' as const, code })),
             ...(input.wallet?.memberships ?? []).filter(code => code === store.brand).map(code => ({ type: 'MEMBERSHIP' as const, code }))
         ], stockStatus: store.brand === 'CU' ? 'IN_STOCK' : 'LOW'
     }));
+    // 상품 내 추천은 개당 가격 → 거리순. 화면은 이 응답 순서를 그대로 사용한다.
+    rows.sort((a, b) => a.unitPrice - b.unitPrice || a.distanceM - b.distanceM);
     const products: QuoteResponse['products'] = [{
         productKey: 'binggrae-banana-240', name: '빙그레 바나나맛우유 240ml', imageUrl: null,
-        event: 'TWO_PLUS_ONE', listPrice: 1500, minUnitPrice: 1000, storeCount: rows.length, stores: rows
+        event: 'TWO_PLUS_ONE', listPrice: 1500, minUnitPrice: rows[0].unitPrice, storeCount: rows.length, stores: rows
     }, {
         productKey: 'maeil-barista-latte-325', name: '매일 바리스타룰스 카페라떼 325ml', imageUrl: null,
         event: 'ONE_PLUS_ONE', listPrice: 2500, minUnitPrice: 1250, storeCount: 1,
