@@ -63,7 +63,7 @@ class StoreServiceTest {
         when(tmap.walkingMinutes(X, Y, 127.0571, 37.5431)).thenReturn(4);
 
         assertThat(service.findNearbyWithWalkMin(X, Y, 500))
-                .containsExactly(new Store("1", "CU", "CU 성수점", 127.0571, 37.5431, 240, 4, "서울 성동구 연무장길 1"));
+                .containsExactly(new Store("1", "CU", "CU 성수점", 127.0571, 37.5431, 240, 4));
     }
 
     @Test

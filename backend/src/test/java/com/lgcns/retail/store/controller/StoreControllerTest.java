@@ -31,14 +31,13 @@ class StoreControllerTest {
     @DisplayName("요청한 좌표의 매장을 명세 필드로 돌려준다")
     void response() throws Exception {
         when(storeService.findNearbyWithWalkMin(127.05, 37.54, 500)).thenReturn(List.of(
-                new Store("12345678", "CU", "CU 성수연무장점", 127.0571, 37.5431, 240, 4, "서울 성동구 연무장길 1")));
+                new Store("12345678", "CU", "CU 성수연무장점", 127.0571, 37.5431, 240, 4)));
 
         mockMvc.perform(get("/api/stores").param("x", "127.05").param("y", "37.54"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(
                         "[{\"storeId\":\"12345678\",\"brand\":\"CU\",\"placeName\":\"CU 성수연무장점\","
-                                + "\"x\":127.0571,\"y\":37.5431,\"distanceM\":240,\"walkMin\":4,"
-                                + "\"roadAddress\":\"서울 성동구 연무장길 1\"}]"));
+                                + "\"x\":127.0571,\"y\":37.5431,\"distanceM\":240,\"walkMin\":4}]"));
     }
 
     @Test

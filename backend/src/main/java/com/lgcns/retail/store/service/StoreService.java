@@ -73,7 +73,8 @@ public class StoreService {
                         Double.parseDouble(place.x()),
                         Double.parseDouble(place.y()),
                         Integer.parseInt(place.distance()),
-                        null,
-                        place.roadAddressName()));
+                        null
+                        //place.roadAddressName()
+                         ));
     }
 }

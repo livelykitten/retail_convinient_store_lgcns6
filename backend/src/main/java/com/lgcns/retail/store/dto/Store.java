@@ -11,10 +11,11 @@ public record Store(
         double x,
         double y,
         int distanceM,
-        Integer walkMin,
-        String roadAddress) {
+        Integer walkMin
+        //String roadAddress
+        ) {
 
     public Store withWalkMin(Integer minutes) {
-        return new Store(storeId, brand, placeName, x, y, distanceM, minutes, roadAddress);
+        return new Store(storeId, brand, placeName, x, y, distanceM, minutes);
     }
 }
