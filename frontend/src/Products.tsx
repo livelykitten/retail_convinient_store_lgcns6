@@ -81,7 +81,9 @@ function ProductCard({ product, open, toggle, destination, wallet, choose }: {
     product: Product; open: boolean; toggle: () => void; destination: Destination | null; wallet: Wallet; choose: (store: QuoteStore) => void;
 }) {
     const destinationStore = destination?.productKey === product.productKey ? product.stores.find(store => store.storeId === destination.storeId) : undefined;
-    const featured = destinationStore ?? product.stores[0];
+    // 접힌 카드 = 현재 최저가 매장(stores[0]), 펼친 카드 = 목적지를 우선 강조
+    const cheapest = product.stores[0];
+    const featured = destinationStore ?? cheapest;
     const others = product.stores.filter(store => store !== featured);
     return <article className={`product ${open ? 'open' : ''}`}>
         <button className="product-row pressable" aria-expanded={open} onClick={toggle}>
@@ -89,7 +91,7 @@ function ProductCard({ product, open, toggle, destination, wallet, choose }: {
             <span className="product-info"><strong>{product.name}</strong>
                 <span className="product-meta">{product.event !== 'NONE' && <b className="event">{events[product.event]}</b>}<s>정가 {won(product.listPrice)}원</s></span>
                 <PriceLine price={product.minUnitPrice} listPrice={product.listPrice} size={open ? 'strong' : 'list'} />
-                {!open && featured && <span className="where"><Logo code={featured.brand} /><span>{shortPlace(featured)} · 도보 {featured.walkMin}분</span></span>}
+                {!open && cheapest && <span className="where"><Logo code={cheapest.brand} /><span>{shortPlace(cheapest)} · 도보 {cheapest.walkMin}분</span></span>}
             </span>
             <span className="chev"><Icon name={open ? 'icons/caret-up' : 'icons/caret-down'} size={14} /></span>
         </button>

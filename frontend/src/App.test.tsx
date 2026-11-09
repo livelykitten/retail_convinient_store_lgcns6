@@ -92,6 +92,17 @@ describe('주요 사용자 흐름', () => {
         await user.click(screen.getByRole('button', { name: '추가' }));
         expect(JSON.parse(localStorage.getItem('pyeonri.wallet')!).cards).toEqual([{ cardId: null, issuer: 'WOORI', name: '우리카드 카드의정석 체크' }]);
     });
+    it('접힌 카드는 현재 최저가 매장, 펼친 카드는 목적지를 먼저 보여 준다', async () => {
+        // GS25를 목적지로 고른 뒤 SKT 등록 → 최저가는 CU 900원으로 바뀜
+        localStorage.setItem('pyeonri.wallet', JSON.stringify({ ...emptyWallet(), telecom: { provider: 'SKT', grade: 'VIP' } }));
+        sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...stores[0], productKey: 'binggrae-banana-240', productName: '빙그레 바나나맛우유 240ml', unitPrice: 1000 }));
+        render(<App />); const user = await searchMilk();
+        const card = screen.getByRole('button', { name: /빙그레 바나나맛우유/ });
+        expect(card.querySelector('.where')?.textContent).toContain('신당다산로점');
+        expect(card.querySelector('.where')?.textContent).not.toContain('신당퍼스트점');
+        await user.click(card);
+        expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
+    });
     it('저장된 수단과 목적지를 새 마운트에서 복원한다', async () => {
         localStorage.setItem('pyeonri.wallet', JSON.stringify({ ...emptyWallet(), pays: ['KAKAOPAY'] }));
         sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...cuStore, productKey: 'milk', productName: '우유', unitPrice: 1000 }));
