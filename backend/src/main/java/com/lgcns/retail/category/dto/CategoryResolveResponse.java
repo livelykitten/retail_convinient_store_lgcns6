@@ -1,4 +1,4 @@
-package com.lgcns.retail.aiservice.dto;
+package com.lgcns.retail.category.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryResolveResponse {
+    private String query;
     private String category;
     private Double confidence;
     private String method;

@@ -1,8 +1,8 @@
-package com.lgcns.retail.aiservice.controller;
+package com.lgcns.retail.category.controller;
 
-import com.lgcns.retail.aiservice.exception.AiServiceExceptionHandler;
-import com.lgcns.retail.aiservice.service.KeywordCategoryResolver;
-import com.lgcns.retail.aiservice.service.KeywordDictionary;
+import com.lgcns.retail.category.exception.CategoryExceptionHandler;
+import com.lgcns.retail.category.service.KeywordCategoryResolver;
+import com.lgcns.retail.category.service.KeywordDictionary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,25 +24,27 @@ class CategoryControllerTest {
         CategoryController controller = new CategoryController(resolver);
 
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setControllerAdvice(new AiServiceExceptionHandler())
+                .setControllerAdvice(new CategoryExceptionHandler())
                 .build();
     }
 
     @Test
-    @DisplayName("GET /api/categories/resolve?q=우유 명세 v1.1 메인 샘플 요청 시 MILK 카테고리와 200 반환")
+    @DisplayName("GET /api/categories/resolve?q=우유 명세 v1.1 메인 샘플 요청 시 query, MILK 카테고리와 200 반환")
     void resolveMilkSuccessfully() throws Exception {
         mockMvc.perform(get("/api/categories/resolve").param("q", "우유"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.query").value("우유"))
                 .andExpect(jsonPath("$.category").value("MILK"))
                 .andExpect(jsonPath("$.confidence").value(1.0))
                 .andExpect(jsonPath("$.method").value("KEYWORD"));
     }
 
     @Test
-    @DisplayName("GET /api/categories/resolve?q=콜라 정상 요청 시 COLA 카테고리와 200 반환")
+    @DisplayName("GET /api/categories/resolve?q=콜라 정상 요청 시 query, COLA 카테고리와 200 반환")
     void resolveColaSuccessfully() throws Exception {
         mockMvc.perform(get("/api/categories/resolve").param("q", "콜라"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.query").value("콜라"))
                 .andExpect(jsonPath("$.category").value("COLA"))
                 .andExpect(jsonPath("$.confidence").value(1.0))
                 .andExpect(jsonPath("$.method").value("KEYWORD"));
@@ -65,3 +67,4 @@ class CategoryControllerTest {
                 .andExpect(jsonPath("$.code").value("INVALID_PARAM"));
     }
 }
+

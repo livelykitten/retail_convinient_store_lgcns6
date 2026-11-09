@@ -1,6 +1,6 @@
-package com.lgcns.retail.aiservice.exception;
+package com.lgcns.retail.category.exception;
 
-import com.lgcns.retail.aiservice.dto.ErrorResponse;
+import com.lgcns.retail.category.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
-@RestControllerAdvice(basePackages = "com.lgcns.retail.aiservice")
-public class AiServiceExceptionHandler {
+@RestControllerAdvice(basePackages = "com.lgcns.retail.category")
+public class CategoryExceptionHandler {
 
     @ExceptionHandler(InvalidParamException.class)
     public ResponseEntity<ErrorResponse> handleInvalidParamException(InvalidParamException e) {

@@ -1,8 +1,8 @@
-package com.lgcns.retail.aiservice.controller;
+package com.lgcns.retail.category.controller;
 
-import com.lgcns.retail.aiservice.dto.CategoryResolveResponse;
-import com.lgcns.retail.aiservice.exception.InvalidParamException;
-import com.lgcns.retail.aiservice.service.CategoryResolver;
+import com.lgcns.retail.category.dto.CategoryResolveResponse;
+import com.lgcns.retail.category.exception.InvalidParamException;
+import com.lgcns.retail.category.service.CategoryResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

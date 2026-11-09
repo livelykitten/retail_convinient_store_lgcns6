@@ -1,8 +1,8 @@
-package com.lgcns.retail.aiservice.service;
+package com.lgcns.retail.category.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lgcns.retail.aiservice.dto.CategoryResolveResponse;
+import com.lgcns.retail.category.dto.CategoryResolveResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -49,13 +49,13 @@ public class GeminiCategoryResolver implements CategoryResolver {
 
         String normalizedQuery = q.trim();
 
-        // 1. 캐시 확인 (같은 검색어 재사용)
+        // 캐시 확인 (같은 검색어 재사용)
         if (queryCache.containsKey(normalizedQuery)) {
             log.info("Gemini Category Cache Hit for query: {}", normalizedQuery);
             return queryCache.get(normalizedQuery);
         }
 
-        // 2. API Key 미설정 시 키워드 사전으로 Fallback
+        // API Key 미설정 시 키워드 사전으로 Fallback
         if (apiKey == null || apiKey.isBlank()) {
             log.warn("Gemini API Key가 설정되지 않아 키워드 사전(KEYWORD)으로 대체합니다.");
             CategoryResolveResponse fallbackResult = fallbackResolver.resolve(normalizedQuery);
@@ -63,7 +63,7 @@ public class GeminiCategoryResolver implements CategoryResolver {
             return fallbackResult;
         }
 
-        // 3. Gemini API 호출
+        // Gemini API 호출
         try {
             CategoryResolveResponse response = callGemini(normalizedQuery);
             if (response != null && response.getCategory() != null) {
@@ -74,7 +74,7 @@ public class GeminiCategoryResolver implements CategoryResolver {
             log.error("Gemini 호출 중 오류 발생: {}, 키워드 사전으로 폴백합니다.", e.getMessage());
         }
 
-        // 4. 호출 실패 또는 매칭 불가 시 Fallback
+        // 호출 실패 또는 매칭 불가 시 Fallback
         CategoryResolveResponse fallbackResult = fallbackResolver.resolve(normalizedQuery);
         queryCache.put(normalizedQuery, fallbackResult);
         return fallbackResult;
@@ -122,10 +122,10 @@ public class GeminiCategoryResolver implements CategoryResolver {
                 .retrieve()
                 .body(String.class);
 
-        return parseGeminiResponse(rawResponse);
+        return parseGeminiResponse(query, rawResponse);
     }
 
-    private CategoryResolveResponse parseGeminiResponse(String rawResponse) {
+    private CategoryResolveResponse parseGeminiResponse(String query, String rawResponse) {
         try {
             JsonNode root = objectMapper.readTree(rawResponse);
             JsonNode textNode = root.path("candidates").get(0)
@@ -155,6 +155,7 @@ public class GeminiCategoryResolver implements CategoryResolver {
             }
 
             return CategoryResolveResponse.builder()
+                    .query(query)
                     .category(category.toUpperCase())
                     .confidence(confidence)
                     .method("AI")
@@ -165,3 +166,4 @@ public class GeminiCategoryResolver implements CategoryResolver {
         }
     }
 }
+

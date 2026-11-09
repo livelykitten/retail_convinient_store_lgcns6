@@ -1,6 +1,6 @@
-package com.lgcns.retail.aiservice.service;
+package com.lgcns.retail.category.service;
 
-import com.lgcns.retail.aiservice.dto.CategoryResolveResponse;
+import com.lgcns.retail.category.dto.CategoryResolveResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +19,7 @@ class KeywordCategoryResolverTest {
     void resolveMilkKeywords(String query) {
         CategoryResolveResponse response = resolver.resolve(query);
 
+        assertThat(response.getQuery()).isEqualTo(query);
         assertThat(response.getCategory()).isEqualTo("MILK");
         assertThat(response.getConfidence()).isEqualTo(1.0);
         assertThat(response.getMethod()).isEqualTo("KEYWORD");
@@ -30,6 +31,7 @@ class KeywordCategoryResolverTest {
     void resolveCoffeeKeywords(String query) {
         CategoryResolveResponse response = resolver.resolve(query);
 
+        assertThat(response.getQuery()).isEqualTo(query);
         assertThat(response.getCategory()).isEqualTo("COFFEE");
         assertThat(response.getConfidence()).isEqualTo(1.0);
         assertThat(response.getMethod()).isEqualTo("KEYWORD");
@@ -41,6 +43,7 @@ class KeywordCategoryResolverTest {
     void resolveColaKeywords(String query) {
         CategoryResolveResponse response = resolver.resolve(query);
 
+        assertThat(response.getQuery()).isEqualTo(query);
         assertThat(response.getCategory()).isEqualTo("COLA");
         assertThat(response.getConfidence()).isEqualTo(1.0);
         assertThat(response.getMethod()).isEqualTo("KEYWORD");
@@ -52,6 +55,7 @@ class KeywordCategoryResolverTest {
     void resolveRamenKeywords(String query) {
         CategoryResolveResponse response = resolver.resolve(query);
 
+        assertThat(response.getQuery()).isEqualTo(query);
         assertThat(response.getCategory()).isEqualTo("RAMEN");
         assertThat(response.getConfidence()).isEqualTo(1.0);
         assertThat(response.getMethod()).isEqualTo("KEYWORD");
@@ -62,8 +66,10 @@ class KeywordCategoryResolverTest {
     void resolveUnknownKeywords() {
         CategoryResolveResponse response = resolver.resolve("알수없는검색어123");
 
+        assertThat(response.getQuery()).isEqualTo("알수없는검색어123");
         assertThat(response.getCategory()).isNull();
         assertThat(response.getConfidence()).isEqualTo(0.0);
         assertThat(response.getMethod()).isEqualTo("KEYWORD");
     }
 }
+

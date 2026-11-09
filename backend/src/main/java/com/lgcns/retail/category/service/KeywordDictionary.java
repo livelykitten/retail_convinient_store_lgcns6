@@ -1,4 +1,4 @@
-package com.lgcns.retail.aiservice.service;
+package com.lgcns.retail.category.service;
 
 import org.springframework.stereotype.Component;
 
@@ -67,8 +67,6 @@ public class KeywordDictionary {
 
     /**
      * 질의어(query)로 카테고리를 찾습니다.
-     * 1. 질의어 정규화 (공백 제거, 소문자화)
-     * 2. 완전 일치 또는 상호 포함 여부 검사
      */
     public Optional<String> findCategory(String query) {
         if (query == null) {
@@ -99,3 +97,4 @@ public class KeywordDictionary {
         return Collections.unmodifiableMap(categoryKeywords);
     }
 }
+
