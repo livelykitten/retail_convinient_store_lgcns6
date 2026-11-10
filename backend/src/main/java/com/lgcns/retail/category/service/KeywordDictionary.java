@@ -44,10 +44,15 @@ public class KeywordDictionary {
                 "밀키스", "마운틴듀", "데미소다", "트레비",
                 "soda", "cider", "sprite", "fanta"));
 
-        // 라면
-        categoryKeywords.put("RAMEN", Arrays.asList(
-                "라면", "컵라면", "봉지라면", "신라면", "진라면", "불닭", "불닭볶음면", "짜파게티", "삼양라면",
-                "너구리", "안성탕면", "육개장", "비빔면", "큰사발", "팔도도시락", "ramen", "noodle"));
+        // 라면 (요구사항명세서 4-1: 컵 · 봉지 구분). 컵 · 봉지를 말하지 않은 "라면" · 제품명은 컵라면으로 본다 (결정 2026-11-10)
+        categoryKeywords.put("RAMEN_CUP", Arrays.asList(
+                "라면", "컵라면", "신라면", "진라면", "불닭", "불닭볶음면", "짜파게티", "삼양라면",
+                "너구리", "안성탕면", "육개장", "비빔면", "큰사발", "소컵", "왕뚜껑", "컵누들", "팔도도시락",
+                "ramen", "noodle", "cup ramen"));
+
+        // 봉지라면. "신라면 봉지"처럼 제품명과 함께 쓰면 "라면봉지"(4자)가 "신라면"(3자)보다 길어서 이긴다
+        categoryKeywords.put("RAMEN_BAG", Arrays.asList(
+                "봉지라면", "라면봉지", "봉지", "멀티팩", "번들라면", "ramen bag"));
 
         // 초콜릿
         categoryKeywords.put("CHOCOLATE", Arrays.asList(
@@ -59,10 +64,14 @@ public class KeywordDictionary {
                 "과자", "스낵", "포테토칩", "포카칩", "감자칩", "콘칩", "새우깡", "빼빼로", "초코파이", "꼬북칩",
                 "홈런볼", "카스테라", "snack", "chip", "cookie"));
 
-        // 간편식 / 도시락 / 김밥
+        // 간편식 / 도시락 / 김밥 (삼각김밥은 TRIANGLE_KIMBAP)
         categoryKeywords.put("LUNCHBOX", Arrays.asList(
-                "도시락", "김밥", "삼각김밥", "샌드위치", "햄버거", "주먹밥",
+                "도시락", "김밥", "샌드위치", "햄버거",
                 "lunchbox", "bento", "gimbap", "sandwich", "burger"));
+
+        // 삼각김밥 / 주먹밥 (수집 데이터 상품군, 결정 2026-11-10). "삼각김밥"(4자)이 "김밥"(2자)보다 길어서 이긴다
+        categoryKeywords.put("TRIANGLE_KIMBAP", Arrays.asList(
+                "삼각김밥", "삼각", "주먹밥", "onigiri", "triangle kimbap"));
 
         // 아이스크림
         categoryKeywords.put("ICECREAM", Arrays.asList(

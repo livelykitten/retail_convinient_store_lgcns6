@@ -51,12 +51,12 @@ class KeywordCategoryResolverTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"라면", "신라면", "진라면", "불닭볶음면"})
-    @DisplayName("라면 관련 키워드는 RAMEN 카테고리로 해결된다")
+    @DisplayName("컵 · 봉지를 말하지 않은 라면 키워드는 RAMEN_CUP으로 해결된다")
     void resolveRamenKeywords(String query) {
         CategoryResolveResponse response = resolver.resolve(query);
 
         assertThat(response.getQuery()).isEqualTo(query);
-        assertThat(response.getCategory()).isEqualTo("RAMEN");
+        assertThat(response.getCategory()).isEqualTo("RAMEN_CUP");
         assertThat(response.getConfidence()).isEqualTo(1.0);
         assertThat(response.getMethod()).isEqualTo("KEYWORD");
     }
