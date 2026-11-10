@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { isBundleEvent } from './types';
 import type { RecentItem } from './storage';
 import type { Brand, Destination, MethodType, Product, QuoteResponse, QuoteStore, Sort, Store, Wallet } from './types';
@@ -125,16 +126,51 @@ export function Home({ wallet, recent, nearby, search, openRecent, goWallet, goM
         <button className="wallet-summary pressable" onClick={goWallet}><strong>할인 수단</strong><small>{codes.length ? `${codes.length}개 등록` : '등록하고 내 기준 가격 보기'}</small>
             <span className="logos">{codes.filter(code => logoUrl(code)).slice(0, 3).map(code => <img key={code} src={logoUrl(code)!} alt="" />)}</span><Icon name="icons/caret-right" size={14} /></button>
         {saved !== null && goLedger && <button className="wallet-summary saved-summary pressable" onClick={goLedger}><span>지금까지 아낀 돈</span><b>{won(saved)}원</b><Icon name="icons/caret-right" size={14} /></button>}
-        {recent.length > 0 && <section className="near"><h3>최근 찾은 상품</h3><div className="recent-row">{recent.map(item => <button key={item.productKey} className="recent-card pressable" onClick={() => openRecent(item)}>
+        {recent.length > 0 && <section className="near"><h3>최근 찾은 상품</h3><DragRow className="recent-row">{recent.map(item => <button key={item.productKey} className="recent-card pressable" onClick={() => openRecent(item)}>
             <span className="product-image wide">{isBundleEvent(item.event) && <em>{events[item.event]}</em>}<ProductImageInner item={item} /></span>
             <span className="recent-name">{item.name}</span>
             <PriceLine price={item.unitPrice} listPrice={item.listPrice} size="small" unit={false} />
             <Logo code={item.brand} />
-        </button>)}</div></section>}
+        </button>)}</DragRow></section>}
         {nearby.length > 0 && <section className="near"><h3>내 주변 편의점</h3><div className="near-list">{nearby.map(store => <button key={store.storeId} className="near-row" onClick={goMap}>
             <BrandIcon code={store.brand} size="s" /><span className="store-details"><strong>{store.placeName}</strong><span>도보 약 {store.walkMin}분 · {store.distanceM}m</span></span><Icon name="icons/caret-right" size={14} />
         </button>)}</div></section>}
     </div>;
+}
+/**
+ * 가로로 넘기는 줄. 휴대폰은 손가락으로 밀면 되지만 PC 마우스는 끌어도 안 넘어가서, 마우스로 끌면 옆으로 넘긴다.
+ * 5px 넘게 끌었으면 손을 뗄 때의 클릭(카드 열기)은 막는다. 터치 · 펜은 브라우저 기본 스크롤 그대로
+ */
+export function DragRow({ className, children }: { className: string; children: ReactNode }) {
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const row = ref.current; if (!row) return;
+        let pointer: number | null = null, startX = 0, startLeft = 0, dragged = false;
+        const down = (event: PointerEvent) => {
+            if (event.pointerType !== 'mouse' || event.button !== 0) return;
+            pointer = event.pointerId; startX = event.clientX; startLeft = row.scrollLeft; dragged = false;
+        };
+        const move = (event: PointerEvent) => {
+            if (pointer !== event.pointerId) return;
+            const dx = event.clientX - startX;
+            if (!dragged && Math.abs(dx) < 5) return;
+            if (!dragged) { dragged = true; row.setPointerCapture?.(event.pointerId); row.classList.add('dragging'); }
+            row.scrollLeft = startLeft - dx;
+        };
+        const up = (event: PointerEvent) => {
+            if (pointer !== event.pointerId) return;
+            pointer = null; row.classList.remove('dragging');
+            if (row.hasPointerCapture?.(event.pointerId)) row.releasePointerCapture(event.pointerId);
+        };
+        const click = (event: MouseEvent) => { if (dragged) { event.preventDefault(); event.stopPropagation(); dragged = false; } };
+        row.addEventListener('pointerdown', down); row.addEventListener('pointermove', move);
+        row.addEventListener('pointerup', up); row.addEventListener('pointercancel', up); row.addEventListener('click', click, true);
+        return () => {
+            row.removeEventListener('pointerdown', down); row.removeEventListener('pointermove', move);
+            row.removeEventListener('pointerup', up); row.removeEventListener('pointercancel', up); row.removeEventListener('click', click, true);
+        };
+    }, []);
+    return <div ref={ref} className={className}>{children}</div>;
 }
 function ProductImageInner({ item }: { item: RecentItem }) {
     const [failed, setFailed] = useState(false);

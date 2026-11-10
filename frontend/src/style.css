@@ -122,6 +122,11 @@ s { text-decoration: line-through; }
 .near h3 { font-size: 14.5px; font-weight: 700; padding: 4px 2px 0; color: var(--color-text); }
 .recent-row { display: flex; gap: 8px; margin: 0 -12px; padding: 1px 12px 3px; overflow-x: auto; scrollbar-width: none; }
 .recent-row::-webkit-scrollbar { display: none; }
+/* PC 마우스로 끌어서 넘기기(DragRow) */
+@media (hover: hover) and (pointer: fine) { .recent-row { cursor: grab; } }
+.recent-row.dragging { cursor: grabbing; user-select: none; }
+.recent-row.dragging .recent-card { pointer-events: none; }
+.recent-row img { -webkit-user-drag: none; user-select: none; }
 .recent-card { flex: 0 0 104px; width: 104px; min-width: 0; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 6px 6px 8px; background: var(--color-bg); border-radius: 16px; box-shadow: var(--shadow-rest); }
 .product-image.wide { position: relative; width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; }
 .product-image.wide img { max-width: 72%; max-height: 72%; }
