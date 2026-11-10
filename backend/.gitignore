@@ -1,0 +1,2 @@
+# H2 파일 모드 DB (spring.datasource.url=jdbc:h2:file:./data/retail). resources/data 는 해당 없음
+/data/

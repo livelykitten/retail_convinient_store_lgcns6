@@ -55,3 +55,6 @@ out/
 !.env.example
 !.env.sample
 !/frontend/.env.demo
+# Environment variables
+.env
+*.env

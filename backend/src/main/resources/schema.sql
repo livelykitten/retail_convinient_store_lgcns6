@@ -1,6 +1,6 @@
 -- =====================================================================
 -- 4팀 리테일(편리) DB 스키마 (초안 v1.3)
--- 기준: REST API 명세 v1.1 (B 매대 가격표 화면) 만. 요구사항명세서 4절을 바탕으로 한다
+-- 기준: API명세최종.md (편리 REST API 명세 v1.1, B 매대 가격표 화면) 만. 요구사항명세서 4절을 바탕으로 한다
 -- 문서: docs/reference/erd.md
 -- 담당: 함석원 (변경 PR은 이서현 리뷰)
 --
@@ -71,7 +71,7 @@ CREATE TABLE card_product (
 );
 
 -- ---------------------------------------------------------------------
--- 할인 규칙 (FR-04 · 11, API 5-1 · 5-2). 할인 규칙표 CSV로 적재 (함석원)
+-- 할인 규칙 (FR-04 · 11, API명세최종.md 5-1 · 5-2). 할인 규칙표 CSV로 적재 (함석원)
 -- ---------------------------------------------------------------------
 CREATE TABLE discount_rule (
     rule_id             VARCHAR(80)   NOT NULL,  -- 예) skt-vip-cu, shinhan-deepdream-check-cu
@@ -85,7 +85,7 @@ CREATE TABLE discount_rule (
     max_amount          INT,                     -- 1회 최대 할인 · 적립액. NULL = 한도 없음
     min_pay_amount      INT,                     -- 최소 결제액. NULL = 조건 없음
     stack_with_event    BOOLEAN       NOT NULL,  -- 행사 상품에 중복되나
-    requires_prev_month BOOLEAN       NOT NULL,  -- 전월 실적 조건 (API v1.1은 충족으로 보고 계산)
+    requires_prev_month BOOLEAN       NOT NULL,  -- 전월 실적 조건 (API명세최종.md 5-1: 충족으로 보고 계산)
     source              VARCHAR(300),            -- 공지 URL. 규칙 근거 기록용 (API 응답에는 없음)
     checked_at          DATE,                    -- 공지 확인 날짜. 규칙 근거 기록용
 
