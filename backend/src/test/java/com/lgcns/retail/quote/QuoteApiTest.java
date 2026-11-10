@@ -66,18 +66,21 @@ class QuoteApiTest {
         insertProduct("seven-test-1001", "SEVEN", 2600, "TWO_PLUS_ONE");
         insertProduct("emart24-test-1001", "EMART24", 2500, "NONE");
 
+        // 할인 규칙 CSV(실데이터)에도 통신사 · 카드 규칙이 있어서 그대로 두면 기대값이 섞인다.
+        // 실데이터 규칙을 비우고 테스트 규칙(test- 접두어)만 넣는다. @Transactional이라 끝나면 되돌려진다
+        jdbcTemplate.update("DELETE FROM discount_rule");
         cardProductRepository.save(CardProduct.builder()
-                .cardId("shinhan-deepdream-check").name("신한카드 Deep Dream 체크").issuer(CardIssuer.SHINHAN).build());
+                .cardId("test-deepdream-check").name("신한카드 Deep Dream 체크 (테스트)").issuer(CardIssuer.SHINHAN).build());
         discountRuleRepository.saveAll(List.of(
-                rule("skt-vip-cu", MethodType.TELECOM, "SKT", TelecomGrade.VIP, null, Brand.CU,
+                rule("test-skt-vip-cu", MethodType.TELECOM, "SKT", TelecomGrade.VIP, null, Brand.CU,
                         RuleKind.DISCOUNT, "0.100", false),
-                rule("shinhan-cu", MethodType.CARD, "SHINHAN", null, null, Brand.CU,
+                rule("test-shinhan-cu", MethodType.CARD, "SHINHAN", null, null, Brand.CU,
                         RuleKind.DISCOUNT, "0.050", true),
-                rule("shinhan-deepdream-check-gs25", MethodType.CARD, "SHINHAN", null, "shinhan-deepdream-check",
+                rule("test-deepdream-check-gs25", MethodType.CARD, "SHINHAN", null, "test-deepdream-check",
                         Brand.GS25, RuleKind.DISCOUNT, "0.020", true),
-                rule("kakaopay-gs25", MethodType.PAY, "KAKAOPAY", null, null, Brand.GS25,
+                rule("test-kakaopay-gs25", MethodType.PAY, "KAKAOPAY", null, null, Brand.GS25,
                         RuleKind.DISCOUNT, "0.100", true),
-                rule("cu-membership", MethodType.MEMBERSHIP, "CU", null, null, Brand.CU,
+                rule("test-cu-membership", MethodType.MEMBERSHIP, "CU", null, null, Brand.CU,
                         RuleKind.POINT, "0.010", true)));
     }
 
@@ -103,7 +106,7 @@ class QuoteApiTest {
               "q": "콜라", "x": 127.0161846, "y": 37.5628563, "radius": 500, "sort": "PRICE",
               "wallet": {
                 "telecom": { "provider": "SKT", "grade": "VIP" },
-                "cards": [ { "cardId": "shinhan-deepdream-check", "issuer": "SHINHAN" } ],
+                "cards": [ { "cardId": "test-deepdream-check", "issuer": "SHINHAN" } ],
                 "pays": ["KAKAOPAY"],
                 "memberships": ["CU"]
               }
@@ -171,7 +174,7 @@ class QuoteApiTest {
         assertThat(gs25).containsExactly(1125);
         List<String> gs25Methods = JsonPath.read(body,
                 TEST_PRODUCT + ".stores[?(@.brand == 'GS25')].applicableMethods[*].code");
-        assertThat(gs25Methods).containsExactly("KAKAOPAY", "shinhan-deepdream-check");
+        assertThat(gs25Methods).containsExactly("KAKAOPAY", "test-deepdream-check");
 
         // CU: 통신사 0(행사 중복 불가), 결제 할인 = 카드사 공통 5% 125 → 2375 ÷ 2 = 1187
         List<Integer> cu = JsonPath.read(body, TEST_PRODUCT + ".stores[?(@.brand == 'CU')].unitPrice");
@@ -219,7 +222,7 @@ class QuoteApiTest {
                 .andExpect(jsonPath("$.telecoms[0].code").value("SKT"))
                 .andExpect(jsonPath("$.telecoms[0].grades.length()").value(3))
                 // 카드 · 카드사는 할인 규칙 CSV(실데이터)에도 있으므로 순서 대신 포함 여부만 본다
-                .andExpect(jsonPath("$.cards[*].cardId").value(org.hamcrest.Matchers.hasItem("shinhan-deepdream-check")))
+                .andExpect(jsonPath("$.cards[*].cardId").value(org.hamcrest.Matchers.hasItem("test-deepdream-check")))
                 .andExpect(jsonPath("$.cardIssuers[?(@.code == 'SHINHAN')].name").value(
                         org.hamcrest.Matchers.hasItem("신한")))
                 .andExpect(jsonPath("$.pays[0].code").value("KAKAOPAY"))

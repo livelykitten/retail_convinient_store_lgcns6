@@ -95,3 +95,15 @@ kb-card-6cb7cac33ded5901-check-gs25,CARD,KB,,kb-card-6cb7cac33ded5901-check,GS25
 nh-card-bdb66cda1a2ada61-cu,CARD,NH,,nh-card-bdb66cda1a2ada61,CU,DISCOUNT,0.050,,,true,true,https://card.nonghyup.com/file/ebank/product/info/176442.pdf,2026-11-10
 nh-card-bdb66cda1a2ada61-gs25,CARD,NH,,nh-card-bdb66cda1a2ada61,GS25,DISCOUNT,0.050,,,true,true,https://card.nonghyup.com/file/ebank/product/info/176442.pdf,2026-11-10
 nh-card-bdb66cda1a2ada61-seven,CARD,NH,,nh-card-bdb66cda1a2ada61,SEVEN,DISCOUNT,0.050,,,true,true,https://card.nonghyup.com/file/ebank/product/info/176442.pdf,2026-11-10
+kt-vip-gs25,TELECOM,KT,VIP,,GS25,DISCOUNT,0.1,20000,,true,false,,2026-11-10
+kt-normal-gs25,TELECOM,KT,NORMAL,,GS25,DISCOUNT,0.05,10000,,true,false,,2026-11-10
+lgu-vip-gs25,TELECOM,LGU,VIP,,GS25,DISCOUNT,0.1,20000,,true,false,,2026-11-10
+lgu-normal-gs25,TELECOM,LGU,NORMAL,,GS25,DISCOUNT,0.05,10000,,true,false,,2026-11-10
+skt-vip-cu,TELECOM,SKT,VIP,,CU,DISCOUNT,0.1,,,false,false,,2026-11-10
+skt-normal-cu,TELECOM,SKT,NORMAL,,CU,DISCOUNT,0.05,,,false,false,,2026-11-10
+skt-normal-cu-point,TELECOM,SKT,NORMAL,,CU,POINT,0.05,,,false,false,,2026-11-10
+skt-vip-seven,TELECOM,SKT,VIP,,SEVEN,DISCOUNT,0.1,20000,,true,false,,2026-11-10
+skt-normal-seven,TELECOM,SKT,NORMAL,,SEVEN,DISCOUNT,0.05,10000,,true,false,,2026-11-10
+skt-normal-seven-point,TELECOM,SKT,NORMAL,,SEVEN,POINT,0.05,10000,,true,false,,2026-11-10
+kt-vip-emart24,TELECOM,KT,VIP,,EMART24,DISCOUNT,0.1,20000,,true,false,,2026-11-10
+kt-normal-emart24,TELECOM,KT,NORMAL,,EMART24,DISCOUNT,0.05,10000,,true,false,,2026-11-10
