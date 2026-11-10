@@ -31,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * POST /api/quotes · GET /api/wallet-options (API명세최종.md 4-1 · 4-2).
  * 상품은 더미 CSV(펩시콜라 4사), 매장은 FixedNearbyStoreSource, 할인 규칙은 테스트에서 넣고 되돌린다.
+ * .env에 키가 있어도 실제 카카오 · Claude를 부르지 않도록 테스트에서는 키를 비운다
+ * (매장 = FixedNearbyStoreSource, 상품군 = 키워드 사전).
  */
-@SpringBootTest
+@SpringBootTest(properties = {"KAKAO_REST_API_KEY=", "claude.api.key="})
 @AutoConfigureMockMvc
 @Transactional
 class QuoteApiTest {

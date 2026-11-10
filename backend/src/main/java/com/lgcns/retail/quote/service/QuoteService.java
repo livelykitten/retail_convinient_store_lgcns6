@@ -117,14 +117,15 @@ public class QuoteService {
                 StockStatusCalculator.statusOf(store.storeId(), product.productKey()));
     }
 
+    private static final Comparator<StoreQuote> BY_PRICE = Comparator.comparingInt(StoreQuote::unitPrice)
+            .thenComparingInt(StoreQuote::distanceM);
+
     /**
-     * 상품 한 줄. event · listPrice = 개당 가격이 가장 싼 매장 기준 (같으면 가까운 매장, erd.md 5-2 결정)
+     * 상품 한 줄. event · listPrice · minUnitPrice = 대표 매장(살 수 있는 매장 중 개당 가격이 가장 싼 곳) 기준
      * stores 정렬 = unitPrice 오름차순 → distanceM 오름차순 → 재고 OUT은 맨 아래
      */
     private ProductQuote toProductQuote(List<ProductDto> sameProduct, List<StoreQuote> stores) {
-        Comparator<StoreQuote> byPrice = Comparator.comparingInt(StoreQuote::unitPrice)
-                .thenComparingInt(StoreQuote::distanceM);
-        StoreQuote cheapest = stores.stream().min(byPrice).orElseThrow();
+        StoreQuote cheapest = representative(stores);
         // StoreQuote에는 정가가 없어서, 같은 묶음에서 그 매장 브랜드의 상품을 찾는다
         ProductDto cheapestProduct = sameProduct.stream()
                 .filter(p -> p.brand() == cheapest.brand())
@@ -134,7 +135,7 @@ public class QuoteService {
 
         List<StoreQuote> sorted = stores.stream()
                 .sorted(Comparator.comparing((StoreQuote s) -> s.stockStatus() == StockStatus.OUT)
-                        .thenComparing(byPrice))
+                        .thenComparing(BY_PRICE))
                 .toList();
 
         return new ProductQuote(
@@ -146,6 +147,18 @@ public class QuoteService {
                 cheapest.unitPrice(),
                 sorted.size(),
                 sorted);
+    }
+
+    /**
+     * 대표 매장 = 재고가 있는 매장(IN_STOCK · LOW) 중 개당 가격이 가장 싼 곳, 같으면 가까운 곳.
+     * 모두 OUT이면 OUT 매장 중에서 고른다. 재고 없는 매장 가격이 "개당 최저가"로 보이지 않게 하려는 것 (결정 2026-11-10)
+     */
+    static StoreQuote representative(List<StoreQuote> stores) {
+        return stores.stream()
+                .filter(s -> s.stockStatus() != StockStatus.OUT)
+                .min(BY_PRICE)
+                .or(() -> stores.stream().min(BY_PRICE))
+                .orElseThrow();
     }
 
     /** DISTANCE = 가장 가까운 매장의 거리 오름차순, PRICE = 개당 최저가 오름차순 (같으면 서로를 다음 기준으로) */

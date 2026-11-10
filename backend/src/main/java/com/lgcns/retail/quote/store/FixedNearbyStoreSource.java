@@ -3,14 +3,16 @@ package com.lgcns.retail.quote.store;
 import com.lgcns.retail.common.Brand;
 import java.util.Comparator;
 import java.util.List;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 /**
- * 임시 구현 (역할 분담 5절: 주인이 고정값을 돌려주는 임시 구현을 먼저 둔다).
+ * 카카오 키가 없을 때만 쓰는 고정 매장 (테스트 · 키 없는 로컬 실행용).
  * 요청 좌표 근처에 4사 매장이 하나씩 있다고 보고 돌려준다. 어떤 좌표로 불러도 동작한다.
- * 노건우 님 StoreService가 병합되면 이 클래스를 지우고 StoreService를 부르는 구현으로 바꾼다.
+ * 키가 있으면 KakaoNearbyStoreSource가 대신 쓰인다.
  */
 @Component
+@ConditionalOnExpression("'${KAKAO_REST_API_KEY:}'.isBlank()")
 public class FixedNearbyStoreSource implements NearbyStoreSource {
 
     // 요청 좌표에서 떨어진 정도 (경도 · 위도 차이). 대략 100 ~ 400m
