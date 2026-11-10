@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
-@Primary
 public class GeminiCategoryResolver implements CategoryResolver {
 
     // quotes 전체가 3초 안에 끝나야 해서(FR-05) Gemini를 오래 기다리지 않는다
