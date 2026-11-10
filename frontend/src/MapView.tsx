@@ -28,7 +28,11 @@ function pin(brand: string, text: string, unit: string, destination = false) {
 const arrival = (seconds: number) => new Date(Date.now() + seconds * 1000).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
 const cssVar = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-export function MapView({ position, locationError, locating, locate, destination, clear, nearbyStores = [], onStores, destinationProduct = null }: {
+export function MapView({ position, locationError, locating, locate, destination, clear, nearbyStores = [], onStores, destinationProduct = null, arrive, remainingM = null }: {
+    /** 「도착했어요」 버튼(추가 화면 v3 2번 도착 화면 열기) */
+    arrive?: () => void;
+    /** 목적지까지 남은 직선거리(m). 30m 안이면 도착 화면이 저절로 열린다 */
+    remainingM?: number | null;
     position: Coordinates | null; locationError: string; locating: boolean; locate: () => void;
     destination: Destination | null; clear: () => void;
     /** P1 · M1에서 받아 둔 매장. M2에서 다른 매장 핀으로만 쓰고 추가 호출은 하지 않는다 */
@@ -140,10 +144,12 @@ export function MapView({ position, locationError, locating, locate, destination
                     : route ? (route.path.length > 0 && <p className="route-summary"><b>{fixturesEnabled ? '예상 ' : ''}도보 {minutes}분</b><span>{fixturesEnabled ? '약 ' : ''}{route.distanceM}m{fixturesEnabled ? '' : ` · ${arrival(route.durationSeconds)} 도착`}</span></p>)
                     : <p className="route-error" role="status">{mapPosition ? error : '현재 위치를 확인하면 도보 경로를 안내해요.'}</p>}
             </div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="icons/x" size={20} /></button></div>
+            {arrive && remainingM !== null && <p className="remaining" role="status">남은 거리 약 {remainingM}m · {remainingM <= 30 ? '매장 앞이면 「도착했어요」를 눌러 주세요' : '30m 안이면 도착 화면이 열려요'}</p>}
             {fixturesEnabled && route && <p className="route-note">예시 경로 · 실제 길찾기 결과 아님 · 도로 형태 참고 · 출입구·보행 가능 여부 미검증 · 시간·거리 추정 · 도로 자료 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p>}
             <div className="destination-product"><ProductImage imageUrl={destinationProduct?.imageUrl ?? null} productKey={destination.productKey} className="s" /><span className="product-info"><small>사러 가는 상품</small><strong>{destination.productName}</strong></span><PriceLine price={destination.unitPrice} listPrice={destinationProduct?.listPrice} size="row" /></div>
             {!busy && !route && error && <button className="secondary" onClick={() => setReload(value => value + 1)}>다시 시도</button>}
             {routeUrl && <a className="external-route" href={routeUrl} target="_blank" rel="noreferrer">카카오맵에서 길찾기</a>}
+            {arrive && <button type="button" className="secondary" onClick={arrive}>도착했어요</button>}
         </div> : mapPosition && <div className="nearby-card"><i className="handle" />{busy ? <span role="status">주변 편의점을 찾고 있어요…</span> : error ? <Notice retry={() => setReload(value => value + 1)}>{error}</Notice> : <><strong>주변 편의점 {stores.length}곳</strong><small>상품을 검색하면 매장별 가격과 길을 보여 드려요</small></>}</div>}
     </section>;
 }

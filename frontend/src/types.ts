@@ -44,4 +44,6 @@ export interface WalkingRoute {
 export interface Destination extends Coordinates {
     storeId: string; placeName: string; productKey: string; unitPrice: number;
     productName: string; brand: Brand;
+    /** 도착 화면 계산용(고른 시점 값). 예전에 저장된 목적지에는 없을 수 있다 */
+    listPrice?: number; event?: Event; methods?: { type: MethodType; code: string }[];
 }
