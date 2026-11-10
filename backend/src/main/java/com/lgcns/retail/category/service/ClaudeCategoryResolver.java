@@ -38,7 +38,7 @@ public class ClaudeCategoryResolver implements CategoryResolver {
     public ClaudeCategoryResolver(
             @Value("${claude.api.key:}") String apiKey,
             @Value("${claude.api.url:https://api.anthropic.com/v1/messages}") String apiUrl,
-            @Value("${claude.model:claude-3-5-sonnet-20241022}") String model,
+            @Value("${claude.model:claude-opus-5-5}") String model,
             KeywordCategoryResolver fallbackResolver,
             KeywordDictionary keywordDictionary) {
         this.apiKey = apiKey;
@@ -127,30 +127,31 @@ public class ClaudeCategoryResolver implements CategoryResolver {
 
         Map<String, Object> requestBody = Map.of(
                 "model", model,
-                "max_tokens", 150,
-                "messages", List.of(
-                        Map.of("role", "user", "content", prompt)));
+                "max_tokens", 1024,
+                "output_config", Map.of("effort", "low"),
+                "fallbacks", "default",
+                "messages", List.of(Map.of("role", "user", "content", prompt)));
 
         String jsonBody = objectMapper.writeValueAsString(requestBody);
 
         HttpClient httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(3))
+                .connectTimeout(Duration.ofSeconds(5))
                 .build();
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(apiUrl))
-                .timeout(Duration.ofSeconds(5))
+                .timeout(Duration.ofSeconds(15))
                 .header("Content-Type", "application/json")
                 .header("x-api-key", apiKey)
                 .header("anthropic-version", "2023-06-01")
+                .header("anthropic-beta", "server-side-fallback-2026-07-01")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
                 .build();
 
         HttpResponse<String> httpResponse = httpClient.send(httpRequest,
                 HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         if (httpResponse.statusCode() != 200) {
-            log.error("Claude API 호출 실패 (HTTP {}): {}", httpResponse.statusCode(), httpResponse.body());
-            return null;
+            throw new IllegalStateException("Claude HTTP " + httpResponse.statusCode() + ": " + httpResponse.body());
         }
 
         return parseClaudeResponse(query, httpResponse.body());
@@ -159,12 +160,26 @@ public class ClaudeCategoryResolver implements CategoryResolver {
     private CategoryResolveResponse parseClaudeResponse(String query, String rawResponse) {
         try {
             JsonNode root = objectMapper.readTree(rawResponse);
+            if (!"end_turn".equals(root.path("stop_reason").asText())) {
+                log.warn("Claude 응답 비정상 종료: {}", root.path("stop_reason").asText());
+                return null;
+            }
+
             JsonNode contentArray = root.path("content");
             if (!contentArray.isArray() || contentArray.isEmpty()) {
                 return null;
             }
 
-            String text = contentArray.get(0).path("text").asText("").trim();
+            String text = "";
+            for (JsonNode block : contentArray) {
+                if ("text".equals(block.path("type").asText())) {
+                    text = block.path("text").asText("").trim();
+                    break;
+                }
+            }
+            if (text.isEmpty()) {
+                return null;
+            }
             if (text.startsWith("```json")) {
                 text = text.substring(7);
             } else if (text.startsWith("```")) {
