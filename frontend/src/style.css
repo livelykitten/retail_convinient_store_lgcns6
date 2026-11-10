@@ -345,7 +345,7 @@ legend { padding: 0; margin-bottom: 6px; font-size: 12px; font-weight: 600; colo
 .arrival-steps { margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; line-height: 1.4; color: var(--color-text); }
 .arrival-steps b { font-weight: 700; }
 .arrival-steps em { font-style: normal; font-weight: 600; color: var(--color-deal); }
-.app-open { width: 100%; gap: 8px; }
+.app-open { width: 100%; gap: 8px; text-decoration: none; }
 .app-open .brand-icon { box-shadow: none; }
 .arrival-note { font-size: 12px; line-height: 1.5; color: var(--color-sub); text-align: center; }
 .arrival-note.left { text-align: left; padding: 0 4px; }

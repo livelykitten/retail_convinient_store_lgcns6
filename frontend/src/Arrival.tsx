@@ -6,12 +6,41 @@ import { events } from './Products';
 import type { Brand, Event, Store } from './types';
 import { BrandIcon, Icon, Sheet, labels, won } from './ui';
 
-/** 이번 결제에 바로 여는 할인 앱: 바코드(통신사 · 편의점 멤버십) → 간편결제 순 */
-export function appButtonLabel(plan: Plan) {
-    const barcode = plan.methods.find(method => method.kind === 'TELECOM' || method.kind === 'MEMBERSHIP');
-    if (barcode) return { code: barcode.code, text: `${barcode.label} 바코드 열기` };
-    const pay = plan.methods.find(method => method.kind === 'PAY');
-    return pay ? { code: pay.code, text: `${pay.label} 열기` } : null;
+interface AppInfo { name: string; android: string; ios?: string }
+/**
+ * 통신사 멤버십 앱. 바코드는 각 통신사 앱이 띄우고 편리는 여는 길만 준다(T 멤버십 바코드는 매번 바뀌어 대신 그릴 수 없다).
+ * 패키지 · 앱 ID = Google Play · App Store 페이지에서 확인(2026-11-10). U+one iOS ID는 미확인이라 비워 둔다.
+ */
+const telecomApps: Record<string, AppInfo> = {
+    SKT: { name: 'T 멤버십', android: 'com.tms', ios: 'https://apps.apple.com/kr/app/id464205249' },
+    KT: { name: 'KT 멤버십', android: 'com.olleh.android.oc2', ios: 'https://apps.apple.com/kr/app/id451095024' },
+    LGU: { name: 'U+one', android: 'com.lguplus.mobile.cs' }
+};
+/** 간편결제 앱(계산대에서 바코드 · QR을 띄우는 앱). 패키지 = Google Play 확인(2026-11-10). iOS ID는 확인 전이라 iPhone에서는 숨긴다 */
+const payApps: Record<string, AppInfo> = {
+    KAKAOPAY: { name: '카카오페이', android: 'com.kakaopay.app' },
+    NAVERPAY: { name: '네이버페이', android: 'com.naverfin.payapp' },
+    TOSSPAY: { name: '토스', android: 'viva.republica.toss' },
+    SAMSUNGWALLET: { name: '삼성 월렛', android: 'com.samsung.android.spay' }
+};
+/**
+ * 앱 여는 링크. Android = Chrome intent(설치 안 됐으면 Play 스토어로), iOS = App Store 페이지, PC = Play 스토어 웹 페이지.
+ * 사용자가 눌러야만 열린다(Chrome 규칙). 편의점 멤버십 · 카드는 앱 확인 전이라 버튼 없음(할 일 문구만)
+ */
+export function appLink(kind: string, code: string, userAgent: string) {
+    const app = kind === 'TELECOM' ? telecomApps[code] : kind === 'PAY' ? payApps[code] : undefined;
+    if (!app) return null;
+    const store = `https://play.google.com/store/apps/details?id=${app.android}`;
+    if (/Android/i.test(userAgent)) return { name: app.name, href: `intent://#Intent;package=${app.android};S.browser_fallback_url=${encodeURIComponent(store)};end` };
+    if (/iPhone|iPad|iPod/i.test(userAgent)) return app.ios ? { name: app.name, href: app.ios } : null;
+    return { name: app.name, href: store };
+}
+/** 이번 결제에 여는 앱: 통신사 멤버십(바코드 먼저) → 간편결제 순 */
+export function appLinks(plan: Plan, userAgent: string) {
+    return [...plan.methods].sort((a, b) => rank(a.kind) - rank(b.kind)).flatMap(method => {
+        const link = appLink(method.kind, method.code, userAgent);
+        return link ? [{ ...link, kind: method.kind, code: method.code }] : [];
+    });
 }
 
 /** 「계산 전에」 할 일: 상품 찾기(행사면 개수) → 바코드 먼저 → 결제 수단 */
@@ -32,15 +61,14 @@ function stepText(kind: string, label: string) {
 
 /** 2번: 매장 30m 안에 들어오면 저절로 열리는 도착 화면(「도착했어요」 버튼으로도 연다) */
 export function ArrivalView({ plan, saved, bought, skip }: { plan: Plan; saved: number; bought: () => void; skip: () => void }) {
-    const [opened, setOpened] = useState(false);
-    const app = appButtonLabel(plan);
+    const apps = appLinks(plan, typeof navigator === 'undefined' ? '' : navigator.userAgent);
     return <section className="arrival" aria-label="도착 화면">
         <header className="arrival-title"><BrandIcon code={plan.brand} /><div><small>도착했어요</small><h1>{plan.placeName}</h1></div></header>
         <div className="arrival-box">
             <h2>계산 전에</h2>
             <Steps plan={plan} />
-            {app && <button type="button" className="secondary app-open" onClick={() => setOpened(true)}><BrandIcon code={app.code} size="xs" />{app.text}</button>}
-            {opened && <p className="arrival-note" role="status">예시 화면이라 실제 앱은 열지 않아요</p>}
+            {apps.map(app => <a key={`${app.kind}-${app.code}`} className="secondary app-open" href={app.href}
+                {...(app.href.startsWith('https') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}><BrandIcon code={app.code} size="xs" />{app.name} 열기</a>)}
             <div className="arrival-row total"><span>예상 결제</span><b>{won(plan.pay)}원</b></div>
         </div>
         <div className="arrival-box">
