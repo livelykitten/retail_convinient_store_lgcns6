@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { byParticle, demoLedger, makePlan, makeReceiptEntry, monthSummary, objectParticle, reverse, totalSaved } from './ledgerData';
+import { byParticle, demoLedger, makePlan, makeReceiptEntry, monthSummary, objectParticle, plannedOf, reverse, totalSaved } from './ledgerData';
 import { emptyWallet } from './storage';
 
 const kt = { code: 'KT', label: 'KT 멤버십' };
@@ -42,6 +42,19 @@ describe('가계부에 적기 · 거꾸로 계산 (피그마 추가 화면 v3)',
 });
 
 describe('도착 화면 계산값', () => {
+    it('행사 상품 + 통신사: 정가보다 싼 만큼은 통신사 몫(카드 · 페이 · 멤버십에 나누지 않음)', () => {
+        const wallet = { ...emptyWallet(), telecom: { provider: 'SKT' as const, grade: 'VIP' as const }, cards: [{ cardId: 'shinhan-mrlife', issuer: 'SHINHAN' as const }], pays: ['KAKAOPAY' as const], memberships: ['CU' as const] };
+        const plan = makePlan({ productKey: 'p', productName: '빙그레 바나나맛우유 240ml', brand: 'CU', storeId: 's', placeName: 'CU 신당다산로점', event: 'TWO_PLUS_ONE', listPrice: 1500, unitPrice: 900,
+            methods: [{ type: 'TELECOM', code: 'SKT' }, { type: 'CARD', code: 'shinhan-mrlife' }, { type: 'PAY', code: 'KAKAOPAY' }, { type: 'MEMBERSHIP', code: 'CU' }] }, wallet);
+        expect(plan.methods.map(method => [method.kind, method.amount])).toEqual([['TELECOM', 300], ['CARD', 0], ['PAY', 0], ['MEMBERSHIP', 0]]);
+        expect(plan.saved).toBe(1800);
+    });
+    it('매장 가격이 정가 묶음보다 비싸면(CU 2+1 개당 1,200원) 미리 채운 그대로 저장할 때 도착 화면 값(900원)을 쓴다', () => {
+        const plan = makePlan({ productKey: 'p', productName: '빙그레 바나나맛우유 240ml', brand: 'CU', storeId: 's', placeName: 'CU 신당다산로점', event: 'TWO_PLUS_ONE', listPrice: 1500, unitPrice: 1200, methods: [] }, emptyWallet());
+        const store = { brand: 'CU' as const, storeId: 's', placeName: 'CU 신당다산로점' };
+        const entry = makeReceiptEntry({ paid: 3600, items: [{ name: plan.productName, event: 'TWO_PLUS_ONE', price: 1500 }], telecom: null, card: null }, store, plan, new Date(), plannedOf(plan));
+        expect([entry.saved, entry.qty, entry.listPrice, entry.lines.map(line => [line.kind, line.amount])]).toEqual([900, 3, 4500, [['EVENT', 900]]]);
+    });
     it('2번: GS25 펩시제로라임 · KT + 신한카드 → 예상 1,710원, KT -200 · 카드 -190', () => {
         const wallet = { ...emptyWallet(), telecom: { provider: 'KT' as const, grade: 'VIP' as const }, cards: [{ cardId: 'shinhan-mrlife', issuer: 'SHINHAN' as const }] };
         const plan = makePlan({ productKey: 'p', productName: '펩시제로라임캔355ml', brand: 'GS25', storeId: 's', placeName: 'GS25 신당퍼스트점', event: 'NONE', listPrice: 2100, unitPrice: 1710,

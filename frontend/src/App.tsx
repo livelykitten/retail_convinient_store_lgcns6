@@ -3,8 +3,8 @@ import { ApiError, api, fixturesEnabled } from './api';
 import { demoCenter } from './demoLocation';
 import { ArrivalView, RecordSheet, storeChoices } from './Arrival';
 import type { StoreChoice } from './Arrival';
-import { demoLedger, makePlan, makeReceiptEntry, methodLabel, readLedger, saveLedger, totalSaved } from './ledgerData';
-import type { LedgerEntry, Receipt } from './ledgerData';
+import { demoLedger, makePlan, makeReceiptEntry, methodLabel, plannedOf, readLedger, saveLedger, totalSaved } from './ledgerData';
+import type { LedgerEntry, Planned, Receipt } from './ledgerData';
 import { LedgerView } from './Ledger';
 import { distanceM, getCurrentLocation, searchDefaultCoordinates, watchLocation } from './location';
 import { MapView } from './MapView';
@@ -142,8 +142,8 @@ export default function App() {
         catch { setStorageError('할인 수단을 저장하지 못했어요. 브라우저 저장 설정을 확인해 주세요.'); return false; }
     }
     function closeArrival() { setArrival('none'); if (destination) setDismissedStore(destination.storeId); }
-    function record(receipt: Receipt, store: StoreChoice) {
-        const entry = makeReceiptEntry(receipt, store, plan && !manualRecord ? plan : { productKey: 'receipt', productName: '영수증 기록' });
+    function record(receipt: Receipt, store: StoreChoice, planned?: Planned) {
+        const entry = makeReceiptEntry(receipt, store, plan && !manualRecord ? plan : { productKey: 'receipt', productName: '영수증 기록' }, new Date(), planned);
         const next = [...ledger, entry];
         try { saveLedger(localStorage, next); } catch { setStorageError('가계부를 저장하지 못했어요. 브라우저 저장 설정을 확인해 주세요.'); return; }
         setLedger(next);
@@ -177,6 +177,7 @@ export default function App() {
             // 앱 계산값에 할인 금액이 잡힌 수단만 미리 고른다(도착 화면 「정가보다 이번에」와 같은 값이 되도록)
             telecom: plan.methods.some(method => method.kind === 'TELECOM' && method.amount > 0), card: plan.methods.find(method => method.kind === 'CARD' && method.amount > 0)?.code ?? ''
         }}
+        planned={manualRecord || !plan ? undefined : plannedOf(plan)}
         telecom={telecomOption} cards={cardOptions} close={() => manualRecord ? setManualRecord(false) : setArrival('screen')} save={record} />;
     const searchForm = <form className="search-form" role="search" onSubmit={event => { event.preventDefault(); void search(); }}>
         <button type="submit" className="search-submit" aria-label="검색"><Icon name="icons/magnifying-glass" size={18} /></button>

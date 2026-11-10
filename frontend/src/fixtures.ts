@@ -51,5 +51,5 @@ export function quotes(input: QuoteRequest): QuoteResponse {
             applicableMethods: [], stockStatus: 'IN_STOCK' }]
     }];
     products.sort(input.sort === 'PRICE' ? (a, b) => a.minUnitPrice - b.minUnitPrice : (a, b) => Math.min(...a.stores.map(store => store.distanceM)) - Math.min(...b.stores.map(store => store.distanceM)));
-    return { query: input.q, products: /우유|바나나|커피|라떼/.test(input.q) ? products : [] };
+    return { query: input.q, products: /우유|바나나|커피|라떼|음료/.test(input.q) ? products : [] };
 }

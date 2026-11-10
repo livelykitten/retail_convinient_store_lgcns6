@@ -1,6 +1,6 @@
 // 추가 화면 v3 2 · 3 · 4번: 도착 화면 · 「가계부에 적기」 시트(영수증 합계 + 1+1 상품으로 거꾸로 계산)
 import { useLayoutEffect, useRef, useState } from 'react';
-import type { EventItem, Plan, Receipt } from './ledgerData';
+import type { EventItem, Plan, Planned, Receipt } from './ledgerData';
 import { byParticle, objectParticle, reverse } from './ledgerData';
 import { events } from './Products';
 import type { Brand, Event, Store } from './types';
@@ -87,11 +87,13 @@ function MoneyInput({ value, change, label, placeholder }: { value: string; chan
  * 통신사 · 카드 할인을 거꾸로 계산한다. 도착 화면에서 열면 앱 계산값으로 미리 채우고,
  * 가계부의 「영수증으로 직접 적기」로 열면 매장을 고른다.
  */
-export function RecordSheet({ store, stores = [], initial, telecom, cards, close, save }: {
+export function RecordSheet({ store, stores = [], initial, planned, telecom, cards, close, save }: {
     store: StoreChoice | null; stores?: StoreChoice[];
     initial: { paid: number | null; items: EventItem[]; telecom: boolean; card: string };
+    /** 도착 화면 값. 미리 채운 값을 그대로 두면 이 내역으로 보여 주고 저장한다 */
+    planned?: Planned;
     telecom: { code: string; label: string } | null; cards: { code: string; label: string }[];
-    close: () => void; save: (receipt: Receipt, store: StoreChoice) => void;
+    close: () => void; save: (receipt: Receipt, store: StoreChoice, planned?: Planned) => void;
 }) {
     const choices = store ? [store] : stores.length ? stores : (['GS25', 'CU', 'SEVEN', 'EMART24'] as Brand[]).map(brand => ({ brand, storeId: `manual-${brand.toLowerCase()}`, placeName: labels[brand] }));
     const [storeId, setStoreId] = useState(choices[0].storeId);
@@ -108,9 +110,11 @@ export function RecordSheet({ store, stores = [], initial, telecom, cards, close
     // 낸 돈(카드 할인 전)이 행사 상품 값보다 적은데 통신사 할인도 안 썼으면 영수증과 맞지 않는다
     const check = reverse({ paid: paidNumber, items, ...methods });
     const short = paidNumber > 0 && !methods.telecom && check.beforeCard < check.eventPaid;
-    const valid = paidNumber > 0 && !halfRow && !short;
+    const untouched = !!planned && paid === String(initial.paid ?? '') && usedTelecom === (initial.telecom && !!telecom) && card === initial.card
+        && JSON.stringify(rows) === JSON.stringify(initial.items.map(item => ({ ...item, price: String(item.price) })));
+    const valid = paidNumber > 0 && !halfRow && (!short || untouched);
     const receipt: Receipt = { paid: valid ? paidNumber : 0, items, ...methods };
-    const result = reverse(receipt);
+    const result = untouched && planned ? planned : reverse(receipt);
     const update = (index: number, patch: Partial<Row>) => setRows(list => list.map((row, at) => at === index ? { ...row, ...patch } : row));
     return <Sheet title="가계부에 적기" close={close}>
         {store ? <div className="paid-product"><BrandIcon code={store.brand} size="s" /><strong>{store.placeName}</strong></div>
@@ -128,7 +132,7 @@ export function RecordSheet({ store, stores = [], initial, telecom, cards, close
             </div>)}
             <button type="button" className="add-event" onClick={() => setRows(list => [...list, { name: '', event: 'ONE_PLUS_ONE', price: '' }])}><Icon name="icons/plus" size={14} />행사 상품 추가</button>
             {halfRow && <p className="record-hint" role="alert">행사 상품은 이름과 정가를 모두 적어 주세요</p>}
-            {!halfRow && short && <p className="record-hint" role="alert">낸 돈이 행사 상품 값({won(check.eventPaid)}원)보다 적어요. 금액을 확인하거나, 통신사 할인을 썼다면 아래에서 체크해 주세요</p>}
+            {!halfRow && short && !untouched && <p className="record-hint" role="alert">낸 돈이 행사 상품 값({won(check.eventPaid)}원)보다 적어요. 금액을 확인하거나, 통신사 할인을 썼다면 아래에서 체크해 주세요</p>}
         </div>
         {(telecom || cards.length > 0) && <div className="record-group">
             <h3>쓴 할인</h3>
@@ -140,7 +144,7 @@ export function RecordSheet({ store, stores = [], initial, telecom, cards, close
             {result.lines.map(line => <div key={`${line.kind}-${line.code}`} className="arrival-row"><span>{line.label}</span><b>{won(line.amount)}원</b></div>)}
             <div className="arrival-row total"><span>이번에 아낀 돈</span><strong>{won(result.saved)}원</strong></div>
         </div>
-        <button type="button" className="primary" disabled={!valid} onClick={() => save(receipt, chosen)}>가계부에 적기</button>
+        <button type="button" className="primary" disabled={!valid} onClick={() => save(receipt, chosen, untouched ? planned : undefined)}>가계부에 적기</button>
         <p className="arrival-note left">통신사 · 카드 할인은 낸 돈으로 거꾸로 계산한 값이에요. 통신사 할인은 1,000원 단위라 한 칸(최대 100원) 덜 잡힐 수 있어요</p>
     </Sheet>;
 }
