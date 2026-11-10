@@ -30,10 +30,11 @@ class GlobalExceptionHandlerTest {
     @Test
     @DisplayName("상품군으로 찾으면 그 상품군의 브랜드별 상품만 온다")
     void productsByCategory() throws Exception {
+        // 상품 CSV(실데이터)는 계속 바뀌므로 특정 상품 대신 "있고, 모두 MILK"인지만 본다
         mockMvc.perform(get("/api/products").param("category", "MILK"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].productKey").value("binggrae-banana-240"))
-                .andExpect(jsonPath("$[0].name").value("빙그레 바나나맛우유 240ml"));
+                .andExpect(jsonPath("$.length()").value(org.hamcrest.Matchers.greaterThan(0)))
+                .andExpect(jsonPath("$[*].category").value(org.hamcrest.Matchers.everyItem(
+                        org.hamcrest.Matchers.is("MILK"))));
     }
 }
