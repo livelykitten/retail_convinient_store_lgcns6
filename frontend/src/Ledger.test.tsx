@@ -54,6 +54,21 @@ describe('추가 화면 v3 · 도착 → 가계부', () => {
         await user.click(screen.getByRole('button', { name: /지금까지 아낀 돈/ }));
         expect(screen.getByRole('heading', { name: '가계부' })).toBeTruthy();
     });
+    it('SKT 등록 · CU 바나나맛우유 2+1: 행사 상품에도 통신사 할인이 붙은 가격이라도 그대로 적힌다', async () => {
+        localStorage.setItem('pyeonri.wallet', JSON.stringify({ telecom: { provider: 'SKT', grade: 'VIP' }, cards: [], pays: [], memberships: [] }));
+        const user = userEvent.setup(); render(<App />);
+        await user.type(screen.getByRole('textbox', { name: '상품 검색' }), '우유');
+        await user.click(screen.getByRole('button', { name: '검색' }));
+        await user.click(await screen.findByRole('button', { name: /빙그레 바나나맛우유/ }));
+        await user.click(screen.getByRole('button', { name: '길찾기' })); // SKT 기준 최저가 = CU
+        await user.click(await screen.findByRole('button', { name: '도착했어요' }));
+        expect(screen.getByRole('heading', { name: 'CU 신당다산로점' })).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '샀어요' }));
+        expect(screen.queryByRole('alert')).toBeNull();
+        expect(screen.getByText('1,800원', { selector: 'strong' })).toBeTruthy();
+        await user.click(screen.getByRole('button', { name: '가계부에 적기' }));
+        expect(await screen.findByText('1,800원 아낌')).toBeTruthy();
+    });
     it('영수증으로 직접 적기: 매장을 고르고 낸 돈 · 행사 상품으로 기록', async () => {
         const user = userEvent.setup(); render(<App />);
         await user.click(screen.getByRole('button', { name: '가계부' }));

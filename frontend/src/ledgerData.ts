@@ -104,7 +104,9 @@ export function reverse(receipt: Receipt) {
     // 통신사: 행사 아닌 금액 Y에서 floor(Y / 1000) × 100을 뺀 값 = target. 맞는 k 중 가장 작은 값(덜 아낀 쪽)
     const target = beforeCard - eventPaid;
     let telecom = 0;
-    if (receipt.telecom && target > 0) {
+    // 낸 돈이 행사 상품 값보다 적으면 행사 상품에도 통신사 할인이 붙은 것(API · 데모 가격은 행사 + 통신사를 겹쳐 계산). 모자란 만큼이 통신사 할인
+    if (receipt.telecom && target < 0) telecom = -target;
+    else if (receipt.telecom && target > 0) {
         let k = 0;
         while (Math.floor((target + TELECOM_OFF * k) / TELECOM_STEP) > k) k++;
         telecom = TELECOM_OFF * k;

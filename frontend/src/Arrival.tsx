@@ -105,9 +105,9 @@ export function RecordSheet({ store, stores = [], initial, telecom, cards, close
     // 행사 상품 줄은 비워 두거나(무시) 이름 · 정가를 다 채워야 한다
     const halfRow = rows.some(row => !!row.name.trim() !== Number(row.price) > 0);
     const methods = { telecom: usedTelecom ? telecom : null, card: cards.find(value => value.code === card) ?? null };
-    // 낸 돈(카드 할인 전)이 행사 상품 값보다 적으면 영수증과 맞지 않는다
+    // 낸 돈(카드 할인 전)이 행사 상품 값보다 적은데 통신사 할인도 안 썼으면 영수증과 맞지 않는다
     const check = reverse({ paid: paidNumber, items, ...methods });
-    const short = paidNumber > 0 && check.beforeCard < check.eventPaid;
+    const short = paidNumber > 0 && !methods.telecom && check.beforeCard < check.eventPaid;
     const valid = paidNumber > 0 && !halfRow && !short;
     const receipt: Receipt = { paid: valid ? paidNumber : 0, items, ...methods };
     const result = reverse(receipt);
@@ -128,7 +128,7 @@ export function RecordSheet({ store, stores = [], initial, telecom, cards, close
             </div>)}
             <button type="button" className="add-event" onClick={() => setRows(list => [...list, { name: '', event: 'ONE_PLUS_ONE', price: '' }])}><Icon name="icons/plus" size={14} />행사 상품 추가</button>
             {halfRow && <p className="record-hint" role="alert">행사 상품은 이름과 정가를 모두 적어 주세요</p>}
-            {!halfRow && short && <p className="record-hint" role="alert">낸 돈이 행사 상품 값({won(check.eventPaid)}원)보다 적어요. 금액을 확인해 주세요</p>}
+            {!halfRow && short && <p className="record-hint" role="alert">낸 돈이 행사 상품 값({won(check.eventPaid)}원)보다 적어요. 금액을 확인하거나, 통신사 할인을 썼다면 아래에서 체크해 주세요</p>}
         </div>
         {(telecom || cards.length > 0) && <div className="record-group">
             <h3>쓴 할인</h3>

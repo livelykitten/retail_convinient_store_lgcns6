@@ -21,6 +21,13 @@ describe('가계부에 적기 · 거꾸로 계산 (피그마 추가 화면 v3)',
         // 2,750원 → 행사 아닌 금액 2,950원, 통신사 200원
         expect(reverse({ paid: 2750, items: [], telecom: kt, card: null }).saved).toBe(200);
     });
+    it('행사 상품에도 통신사 할인이 붙었으면(낸 돈 < 행사 상품 값) 모자란 만큼이 통신사 할인', () => {
+        // CU 바나나맛우유 2+1 · 정가 1,500원 · SKT → 3개 2,700원: 행사 1,500 + SKT 300 = 1,800 (도착 화면 「정가보다 이번에」와 같음)
+        const skt = { code: 'SKT', label: 'SKT 멤버십' };
+        const result = reverse({ paid: 2700, items: [{ name: '빙그레 바나나맛우유 240ml', event: 'TWO_PLUS_ONE', price: 1500 }], telecom: skt, card: null });
+        expect(amounts(result.lines)).toEqual({ 행사: 1500, 'SKT 멤버십': 300 });
+        expect([result.saved, result.gross, result.eventOnly]).toEqual([1800, 4500, true]);
+    });
     it('할인 수단을 안 썼으면 행사만', () => {
         const result = reverse({ paid: 3000, items: [{ name: '빙그레 바나나맛우유', event: 'TWO_PLUS_ONE', price: 1500 }], telecom: null, card: null });
         expect(result.lines).toEqual([{ kind: 'EVENT', code: 'EVENT', label: '행사', amount: 1500 }]);
