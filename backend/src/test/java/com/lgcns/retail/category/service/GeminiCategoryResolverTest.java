@@ -49,5 +49,24 @@ class GeminiCategoryResolverTest {
         assertThat(first.getCategory()).isEqualTo(second.getCategory());
         assertThat(first.getMethod()).isEqualTo(second.getMethod());
     }
-}
 
+    @Test
+    @DisplayName("Gemini가 목록에 없는 상품군을 돌려주면 받지 않는다")
+    void rejectsUnknownCategoryFromGemini() {
+        String raw = "{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"{\\\"category\\\": \\\"SODA\\\", \\\"confidence\\\": 0.9}\"}]}}]}";
+
+        assertThat(geminiCategoryResolver.parseGeminiResponse("탄산수", raw)).isNull();
+    }
+
+    @Test
+    @DisplayName("Gemini가 목록에 있는 상품군을 돌려주면 AI로 받는다")
+    void acceptsKnownCategoryFromGemini() {
+        String raw = "{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"```json\\n{\\\"category\\\": \\\"cider\\\", \\\"confidence\\\": 0.8}\\n```\"}]}}]}";
+
+        CategoryResolveResponse response = geminiCategoryResolver.parseGeminiResponse("칠성", raw);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getCategory()).isEqualTo("CIDER");
+        assertThat(response.getMethod()).isEqualTo("AI");
+    }
+}

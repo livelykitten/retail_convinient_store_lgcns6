@@ -7,9 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Primary
 public class GeminiCategoryResolver implements CategoryResolver {
+
+    // quotes 전체가 3초 안에 끝나야 해서(FR-05) Gemini를 오래 기다리지 않는다
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(2);
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(3);
+    private static final int MAX_CACHE_SIZE = 1000;
 
     private final String apiKey;
     private final String apiUrl;
@@ -38,7 +45,11 @@ public class GeminiCategoryResolver implements CategoryResolver {
         this.apiUrl = apiUrl;
         this.fallbackResolver = fallbackResolver;
         this.keywordDictionary = keywordDictionary;
-        this.restClient = RestClient.builder().build();
+
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(CONNECT_TIMEOUT);
+        requestFactory.setReadTimeout(READ_TIMEOUT);
+        this.restClient = RestClient.builder().requestFactory(requestFactory).build();
     }
 
     @Override
@@ -50,34 +61,45 @@ public class GeminiCategoryResolver implements CategoryResolver {
         String normalizedQuery = q.trim();
 
         // 캐시 확인 (같은 검색어 재사용)
-        if (queryCache.containsKey(normalizedQuery)) {
+        CategoryResolveResponse cached = queryCache.get(normalizedQuery);
+        if (cached != null) {
             log.info("Gemini Category Cache Hit for query: {}", normalizedQuery);
-            return queryCache.get(normalizedQuery);
+            return cached;
         }
 
-        // API Key 미설정 시 키워드 사전으로 Fallback
+        // API Key 미설정 시 키워드 사전으로 Fallback (키가 없으면 결과가 바뀌지 않으므로 캐시해도 된다)
         if (apiKey == null || apiKey.isBlank()) {
             log.warn("Gemini API Key가 설정되지 않아 키워드 사전(KEYWORD)으로 대체합니다.");
             CategoryResolveResponse fallbackResult = fallbackResolver.resolve(normalizedQuery);
-            queryCache.put(normalizedQuery, fallbackResult);
+            putCache(normalizedQuery, fallbackResult);
             return fallbackResult;
         }
 
         // Gemini API 호출
         try {
             CategoryResolveResponse response = callGemini(normalizedQuery);
-            if (response != null && response.getCategory() != null) {
-                queryCache.put(normalizedQuery, response);
+            if (response != null) {
+                putCache(normalizedQuery, response);
                 return response;
             }
+            // Gemini가 정상 응답했지만 상품군을 못 정함 → 키워드 사전 결과를 캐시 (다시 물어도 같음)
+            CategoryResolveResponse fallbackResult = fallbackResolver.resolve(normalizedQuery);
+            putCache(normalizedQuery, fallbackResult);
+            return fallbackResult;
         } catch (Exception e) {
-            log.error("Gemini 호출 중 오류 발생: {}, 키워드 사전으로 폴백합니다.", e.getMessage());
+            // 예외 메시지에 요청 정보가 섞일 수 있어 종류만 남긴다
+            log.error("Gemini 호출 실패({}), 키워드 사전으로 폴백합니다.", e.getClass().getSimpleName());
         }
 
-        // 호출 실패 또는 매칭 불가 시 Fallback
-        CategoryResolveResponse fallbackResult = fallbackResolver.resolve(normalizedQuery);
-        queryCache.put(normalizedQuery, fallbackResult);
-        return fallbackResult;
+        // 호출 실패 시 Fallback. 일시 장애일 수 있으니 캐시하지 않고 다음 요청에서 다시 시도한다
+        return fallbackResolver.resolve(normalizedQuery);
+    }
+
+    private void putCache(String query, CategoryResolveResponse response) {
+        if (queryCache.size() >= MAX_CACHE_SIZE) {
+            queryCache.clear();
+        }
+        queryCache.put(query, response);
     }
 
     private CategoryResolveResponse callGemini(String query) throws Exception {
@@ -92,8 +114,10 @@ public class GeminiCategoryResolver implements CategoryResolver {
                 분류 가이드:
                 - 우유, 바나나우유, 유제품류 -> MILK
                 - 커피, 아메리카노, 라떼, 바리스타룰스 등 -> COFFEE
-                - 콜라, 제로콜라, 사이다, 탄산음료 -> COLA
+                - 콜라, 제로콜라, 탄산음료 -> COLA
+                - 사이다, 칠성사이다, 스프라이트 -> CIDER
                 - 라면, 컵라면, 봉지라면 -> RAMEN
+                - 초콜릿, 초코 -> CHOCOLATE
                 - 과자, 스낵, 감자칩 -> SNACK
                 - 도시락, 김밥, 삼각김밥, 샌드위치 -> LUNCHBOX
                 - 아이스크림 -> ICECREAM
@@ -112,8 +136,10 @@ public class GeminiCategoryResolver implements CategoryResolver {
                         Map.of("parts", List.of(
                                 Map.of("text", prompt)))));
 
+        // 키를 URL 쿼리로 보내면 연결 오류 메시지 · 로그에 URL째로 남을 수 있어 헤더로 보낸다
         String rawResponse = restClient.post()
-                .uri(apiUrl + "?key=" + apiKey)
+                .uri(apiUrl)
+                .header("x-goog-api-key", apiKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(requestBody)
                 .retrieve()
@@ -122,11 +148,11 @@ public class GeminiCategoryResolver implements CategoryResolver {
         return parseGeminiResponse(query, rawResponse);
     }
 
-    private CategoryResolveResponse parseGeminiResponse(String query, String rawResponse) {
+    CategoryResolveResponse parseGeminiResponse(String query, String rawResponse) {
         try {
             JsonNode root = objectMapper.readTree(rawResponse);
-            JsonNode textNode = root.path("candidates").get(0)
-                    .path("content").path("parts").get(0).path("text");
+            JsonNode textNode = root.path("candidates").path(0)
+                    .path("content").path("parts").path(0).path("text");
 
             if (textNode.isMissingNode()) {
                 return null;
@@ -151,14 +177,21 @@ public class GeminiCategoryResolver implements CategoryResolver {
                 return null;
             }
 
+            // 목록 밖 상품군(예: SODA)을 그대로 내보내면 quotes가 상품을 못 찾는다
+            String upperCategory = category.toUpperCase();
+            if (!keywordDictionary.isKnownCategory(upperCategory)) {
+                log.warn("Gemini가 목록에 없는 상품군을 돌려줌: {}", upperCategory);
+                return null;
+            }
+
             return CategoryResolveResponse.builder()
                     .query(query)
-                    .category(category.toUpperCase())
+                    .category(upperCategory)
                     .confidence(confidence)
                     .method("AI")
                     .build();
         } catch (Exception e) {
-            log.warn("Gemini 응답 파싱 실패: {}", e.getMessage());
+            log.warn("Gemini 응답 파싱 실패: {}", e.getClass().getSimpleName());
             return null;
         }
     }
