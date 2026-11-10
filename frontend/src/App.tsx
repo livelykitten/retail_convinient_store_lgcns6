@@ -56,6 +56,7 @@ export default function App() {
     const [manualRecord, setManualRecord] = useState(false); // 가계부 「영수증으로 직접 적기」
     const [cardNames, setCardNames] = useState<Record<string, string>>({});
     const controller = useRef<AbortController | null>(null); const mounted = useRef(true);
+    const destinationRef = useRef(destination); destinationRef.current = destination;
     // 진행 중인 위치 확인. 위치가 오기 전에 검색하면 이걸 기다렸다가 내 위치로 검색한다(기본 좌표로 먼 매장을 고르지 않게)
     const locationRequest = useRef<Promise<Coordinates | null> | null>(null);
     // 목적지로 걷는 동안 받는 위치(남은 거리 · 30m 도착용). 지도 · 도보 경로는 다시 그리지 않게 position과 따로 둔다
@@ -114,11 +115,12 @@ export default function App() {
                 else if (!preserveExpanded) setExpanded(null);
                 // 다시 검색하면 목적지의 가격 · 행사 · 쓸 수 있는 할인 수단 · 정가도 새 결과로 맞춘다(데모 · 실제 공통).
                 // 가격이 같아도 할인 수단은 달라질 수 있으니 하나라도 다르면 저장한다(새로고침 뒤 도착 화면이 이 값을 씀)
-                if (destination) {
-                    const product = value.products.find(item => item.productKey === destination.productKey);
-                    const selected = product?.stores.find(store => store.storeId === destination.storeId);
-                    const next = selected && product ? { ...destination, unitPrice: selected.unitPrice, event: selected.event, methods: selected.applicableMethods, listPrice: product.listPrice } : null;
-                    if (next && JSON.stringify([next.unitPrice, next.event, next.methods, next.listPrice]) !== JSON.stringify([destination.unitPrice, destination.event, destination.methods, destination.listPrice])) {
+                const currentDestination = destinationRef.current;
+                if (currentDestination) {
+                    const product = value.products.find(item => item.productKey === currentDestination.productKey);
+                    const selected = product?.stores.find(store => store.storeId === currentDestination.storeId);
+                    const next = selected && product ? { ...currentDestination, unitPrice: selected.unitPrice, event: selected.event, methods: selected.applicableMethods, listPrice: product.listPrice } : null;
+                    if (next && JSON.stringify([next.unitPrice, next.event, next.methods, next.listPrice]) !== JSON.stringify([currentDestination.unitPrice, currentDestination.event, currentDestination.methods, currentDestination.listPrice])) {
                         setDestination(next);
                         try { saveDestination(sessionStorage, next); } catch { setStorageError('목적지 정보를 저장하지 못했어요.'); }
                     }
