@@ -32,16 +32,17 @@ public class KeywordDictionary {
                 "커피", "카페라떼", "바리스타", "바리스타룰스", "아메리카노", "라떼", "에스프레소", "콜드브루",
                 "칸타타", "티오피", "조지아", "레쓰비", "맥심", "coffee", "latte"));
 
-        // 콜라 · 탄산음료 (사이다는 CIDER)
+        // 콜라 (그 밖의 탄산음료는 SODA)
         categoryKeywords.put("COLA", Arrays.asList(
                 "콜라", "코카콜라", "코카-콜라", "코카 콜라", "펩시", "제로콜라", "제로 콜라", "펩시제로",
-                "환타", "웰치스", "탄산음료", "탄산",
-                "cola", "coca", "pepsi", "coke", "soda"));
+                "cola", "coca", "pepsi", "coke"));
         excludedWords.put("COLA", List.of("콜라겐", "쇼콜라", "니콜라", "리콜라"));
 
-        // 사이다
-        categoryKeywords.put("CIDER", Arrays.asList(
-                "사이다", "칠성사이다", "스프라이트", "cider", "sprite"));
+        // 탄산음료 (사이다 · 과일 탄산 · 탄산수). "콜라 탄산"처럼 같은 길이로 겹치면 위의 COLA가 이긴다
+        categoryKeywords.put("SODA", Arrays.asList(
+                "탄산음료", "탄산", "탄산수", "사이다", "칠성사이다", "스프라이트", "환타", "웰치스",
+                "밀키스", "마운틴듀", "데미소다", "트레비",
+                "soda", "cider", "sprite", "fanta"));
 
         // 라면
         categoryKeywords.put("RAMEN", Arrays.asList(

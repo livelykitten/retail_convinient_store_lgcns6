@@ -114,8 +114,8 @@ public class GeminiCategoryResolver implements CategoryResolver {
                 분류 가이드:
                 - 우유, 바나나우유, 유제품류 -> MILK
                 - 커피, 아메리카노, 라떼, 바리스타룰스 등 -> COFFEE
-                - 콜라, 제로콜라, 탄산음료 -> COLA
-                - 사이다, 칠성사이다, 스프라이트 -> CIDER
+                - 콜라, 코카콜라, 펩시, 제로콜라 -> COLA
+                - 사이다, 환타, 웰치스, 탄산수 등 콜라가 아닌 탄산음료 -> SODA
                 - 라면, 컵라면, 봉지라면 -> RAMEN
                 - 초콜릿, 초코 -> CHOCOLATE
                 - 과자, 스낵, 감자칩 -> SNACK
@@ -177,7 +177,7 @@ public class GeminiCategoryResolver implements CategoryResolver {
                 return null;
             }
 
-            // 목록 밖 상품군(예: SODA)을 그대로 내보내면 quotes가 상품을 못 찾는다
+            // 목록 밖 상품군(예: JUICE)을 그대로 내보내면 quotes가 상품을 못 찾는다
             String upperCategory = category.toUpperCase();
             if (!keywordDictionary.isKnownCategory(upperCategory)) {
                 log.warn("Gemini가 목록에 없는 상품군을 돌려줌: {}", upperCategory);

@@ -13,9 +13,13 @@ class KeywordDictionaryTest {
 
     @ParameterizedTest(name = "{0} → {1}")
     @CsvSource({
-            "사이다, CIDER",
-            "칠성사이다, CIDER",
-            "스프라이트, CIDER",
+            "사이다, SODA",
+            "환타, SODA",
+            "웰치스, SODA",
+            "탄산음료, SODA",
+            "콜라 탄산, COLA",
+            "칠성사이다, SODA",
+            "스프라이트, SODA",
             "초콜릿, CHOCOLATE",
             "초코, CHOCOLATE",
             "가나초콜릿, CHOCOLATE",
