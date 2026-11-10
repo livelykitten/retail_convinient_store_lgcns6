@@ -177,8 +177,20 @@ describe('실제 위치 모드 점검(배포 화면)', () => {
         found!({ coords: { longitude: 127.0161, latitude: 37.5631 } });
         await waitFor(() => expect(api.quotes).toHaveBeenCalledWith(expect.objectContaining({ x: 127.0161, y: 37.5631 }), expect.anything()));
     });
-    it('도보 경로 400(2km 초과)은 「입력값을 확인해 주세요」 대신 이유를 알려 준다', () => {
-        expect(routeErrorMessage(new ApiError('INVALID_PARAM', '입력값을 확인해 주세요', 400))).toBe(tooFarMessage);
+    it('도보 경로 400은 실제 직선거리가 2km를 넘을 때만 거리 안내(좌표 오류 등 다른 400은 기본 문구)', () => {
+        const invalid = new ApiError('INVALID_PARAM', '입력값을 확인해 주세요', 400);
+        expect(routeErrorMessage(invalid, 4125)).toBe(tooFarMessage);
+        expect(routeErrorMessage(invalid, 120)).toBe('입력값을 확인해 주세요');
+        expect(routeErrorMessage(invalid)).toBe('입력값을 확인해 주세요');
+    });
+    it('다시 검색하면 목적지의 행사 · 할인 수단 · 정가도 새 결과로 저장한다(가격이 같아도)', async () => {
+        // 저장된 목적지: GS25 바나나맛우유, 가격은 지금과 같고 할인 수단 · 행사 · 정가는 예전 값
+        sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...stores[0], productKey: 'binggrae-banana-240', productName: '빙그레 바나나맛우유 240ml', unitPrice: 1000, listPrice: 1400, event: 'NONE', methods: [{ type: 'TELECOM', code: 'KT' }] }));
+        render(<App />); await searchMilk();
+        await waitFor(() => {
+            const saved = JSON.parse(sessionStorage.getItem('pyeonri.destination')!);
+            expect([saved.unitPrice, saved.event, saved.methods, saved.listPrice]).toEqual([1000, 'TWO_PLUS_ONE', [], 1500]);
+        });
     });
     it('할인 수단을 바꾸면 보던 검색 결과를 새 기준으로 다시 받는다(실제 API 모드)', async () => {
         render(<App />); const user = await searchMilk();

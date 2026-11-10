@@ -112,13 +112,15 @@ export default function App() {
                 setResult(value);
                 if (expandKey !== null) setExpanded(value.products.some(product => product.productKey === expandKey) ? expandKey : null);
                 else if (!preserveExpanded) setExpanded(null);
-                // 할인 수단이 바뀌어 다시 검색하면 목적지 가격도 맞춘다(데모 · 실제 공통)
+                // 다시 검색하면 목적지의 가격 · 행사 · 쓸 수 있는 할인 수단 · 정가도 새 결과로 맞춘다(데모 · 실제 공통).
+                // 가격이 같아도 할인 수단은 달라질 수 있으니 하나라도 다르면 저장한다(새로고침 뒤 도착 화면이 이 값을 씀)
                 if (destination) {
-                    const selected = value.products.find(product => product.productKey === destination.productKey)?.stores.find(store => store.storeId === destination.storeId);
-                    if (selected && selected.unitPrice !== destination.unitPrice) {
-                        const next = { ...destination, unitPrice: selected.unitPrice };
+                    const product = value.products.find(item => item.productKey === destination.productKey);
+                    const selected = product?.stores.find(store => store.storeId === destination.storeId);
+                    const next = selected && product ? { ...destination, unitPrice: selected.unitPrice, event: selected.event, methods: selected.applicableMethods, listPrice: product.listPrice } : null;
+                    if (next && JSON.stringify([next.unitPrice, next.event, next.methods, next.listPrice]) !== JSON.stringify([destination.unitPrice, destination.event, destination.methods, destination.listPrice])) {
                         setDestination(next);
-                        try { saveDestination(sessionStorage, next); } catch { setStorageError('목적지 가격을 저장하지 못했어요.'); }
+                        try { saveDestination(sessionStorage, next); } catch { setStorageError('목적지 정보를 저장하지 못했어요.'); }
                     }
                 }
             }
