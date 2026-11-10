@@ -1,0 +1,35 @@
+{
+  "source": "https://new.7-elevenapp.co.kr/api/v1/open/search/goods",
+  "generated_at_utc": "2026-11-10T01:22:18.456188+00:00",
+  "note": "SEVEN-only. Not merged with existing product CSV. Promotions/prices unverified at physical stores.",
+  "pages_by_query": {
+    "콜라": 3,
+    "코카콜라": 2,
+    "펩시": 2,
+    "큰사발": 2,
+    "컵라면": 2,
+    "라면": 3,
+    "도시락": 2,
+    "삼각": 2,
+    "우유": 3,
+    "바나나우유": 2,
+    "커피": 3
+  },
+  "groups": 196,
+  "products": 196,
+  "by_category": {
+    "COFFEE": 8,
+    "COLA": 31,
+    "LUNCHBOX": 12,
+    "MILK": 54,
+    "RAMEN_BAG": 17,
+    "RAMEN_CUP": 61,
+    "TRIANGLE_KIMBAP": 13
+  },
+  "source_rows": 714,
+  "excluded_category": 474,
+  "invalid_rows": 0,
+  "unsupported_events": 0,
+  "duplicates": 44,
+  "rejected_examples": []
+}

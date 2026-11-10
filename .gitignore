@@ -58,3 +58,10 @@ out/
 # Environment variables
 .env
 *.env
+
+### Python collectors ###
+__pycache__/
+*.py[cod]
+
+### Large collector response snapshots (CSV reports remain versioned) ###
+/data_artifacts/**/raw_responses.jsonl

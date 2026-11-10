@@ -7,8 +7,8 @@ This collector intentionally writes a standalone SEVEN-only export, not a merge
 into the project's existing multi-brand CSVs. Review / merge separately.
 
 Usage:
-    python seven_to_csv.py --out-dir ./seven_csv_output --query 콜라 --query 도시락
-    python seven_to_csv.py --input-json ./saved_response.json --out-dir ./seven_csv_output
+    python tools/catalog/seven_to_csv.py --query 콜라 --query 도시락
+    python tools/catalog/seven_to_csv.py --input-json ./saved_response.json
 
 Notes:
     - Data source is a non-partner endpoint used by the provider's app/web.
@@ -39,7 +39,13 @@ IMAGE_PREFIX = "https://www.7-eleven.co.kr/upload/product"
 DEFAULT_QUERIES = ["콜라", "코카콜라", "펩시", "큰사발", "컵라면", "라면", "도시락", "삼각", "우유", "바나나우유", "커피"]
 GROUP_COLS = ["product_key", "name", "maker", "category", "size", "unit", "image_url"]
 PRODUCT_COLS = ["product_id", "product_key", "brand", "source_name", "list_price", "event"]
-SUPPORTED_EVENTS = {"NONE", "ONE_PLUS_ONE", "TWO_PLUS_ONE", "THREE_PLUS_ONE"}
+SUPPORTED_EVENTS = {
+    "NONE",
+    "ONE_PLUS_ONE",
+    "TWO_PLUS_ONE",
+    "THREE_PLUS_ONE",
+    "OTHER",
+}
 log = logging.getLogger("seven_to_csv")
 
 
@@ -100,11 +106,21 @@ def product_category(provider_class: str, name: str) -> str | None:
 
 def event_from_source(value: Any) -> str:
     raw = re.sub(r"\s+", "", str(value or ""))
-    if raw == "":
-        return "NONE"
-    table = {"1+1": "ONE_PLUS_ONE", "2+1": "TWO_PLUS_ONE", "3+1": "THREE_PLUS_ONE"}
+
+    table = {
+        "": "NONE",
+        "1+1": "ONE_PLUS_ONE",
+        "2+1": "TWO_PLUS_ONE",
+        "3+1": "THREE_PLUS_ONE",
+        "0+1": "OTHER",
+        "1+0": "OTHER",
+        "2+0": "OTHER",
+        "3+0": "OTHER",
+    }
+
     if raw not in table:
-        raise ValueError(f"unknown/non-representable event {raw!r}; requires review")
+        raise ValueError(f"unrecognized event {raw!r}; requires review")
+
     return table[raw]
 
 
@@ -412,7 +428,7 @@ def write_csv_atomic(path: Path, columns: list[str], rows: list[dict[str, str]])
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="7-Eleven JSON -> feat/db-schema CSV (SEVEN only)")
-    parser.add_argument("--out-dir", type=Path, default=Path("seven_csv_output"))
+    parser.add_argument("--out-dir", type=Path, default=Path(__file__).resolve().parents[2] / 'data_artifacts/seven_csv_output')
     parser.add_argument("--query", action="append", dest="queries", help="repeatable; defaults to 11 predefined queries")
     parser.add_argument("--input-json", type=Path, help="offline: a single saved HTTP response, instead of calling the API")
     parser.add_argument("--list-count", type=int, default=100)

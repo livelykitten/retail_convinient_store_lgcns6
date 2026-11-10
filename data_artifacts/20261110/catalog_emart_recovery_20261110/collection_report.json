@@ -1,0 +1,79 @@
+{
+  "generated_at_utc": "2026-11-10T02:17:22.786892+00:00",
+  "source": "live",
+  "endpoints": {
+    "SEVEN": "https://new.7-elevenapp.co.kr/api/v1/open/search/goods",
+    "GS25": "https://b2c-apigw.woodongs.com/search/v3/totalSearch",
+    "EMART24": "https://everse.emart24.co.kr/stock/stock/search",
+    "CU": "https://cu.bgfretail.com/product/productAjax.do"
+  },
+  "scope": "Search sampling, not complete catalogs; no store inventory collected",
+  "brands": {
+    "SEVEN": {
+      "status": "not_started",
+      "received": 0,
+      "duplicate": 0,
+      "errors": [],
+      "truncated": [],
+      "pages": 0,
+      "unique_source_rows": 0,
+      "exported": 0,
+      "excluded": 0,
+      "unmapped": 0,
+      "conflict_rows": 0,
+      "unverified_event_rows": 0
+    },
+    "GS25": {
+      "status": "not_started",
+      "received": 0,
+      "duplicate": 0,
+      "errors": [],
+      "truncated": [],
+      "pages": 0,
+      "unique_source_rows": 0,
+      "exported": 0,
+      "excluded": 0,
+      "unmapped": 0,
+      "conflict_rows": 0,
+      "unverified_event_rows": 0
+    },
+    "EMART24": {
+      "status": "success",
+      "received": 1074,
+      "duplicate": 122,
+      "errors": [],
+      "truncated": [],
+      "pages": 128,
+      "unique_source_rows": 952,
+      "exported": 473,
+      "excluded": 2,
+      "unmapped": 345,
+      "conflict_rows": 9,
+      "unverified_event_rows": 0
+    },
+    "CU": {
+      "status": "not_started",
+      "received": 0,
+      "duplicate": 0,
+      "errors": [],
+      "truncated": [],
+      "pages": 0,
+      "unique_source_rows": 0,
+      "exported": 0,
+      "excluded": 0,
+      "unmapped": 0,
+      "conflict_rows": 0,
+      "unverified_event_rows": 0
+    }
+  },
+  "groups": 473,
+  "products": 473,
+  "normalization_changes": 72,
+  "notes": [
+    "OTHER is not NONE; no promotion discount is calculated.",
+    "GS25 without a matching oneplus entry is OTHER (unverified promotion).",
+    "CU SKU uses view(id); image barcode is not required.",
+    "Reference categories are matched by normalized name, never barcode alone."
+  ],
+  "validation": "passed: columns, lengths, enums, PK, FK, UNIQUE and actual schema CHECKs"
+}
