@@ -81,7 +81,10 @@ export function makePlan(input: {
     const telecom = input.event === 'NONE' ? Math.floor(gross / TELECOM_STEP) * TELECOM_OFF : 0;
     const weights = input.methods.map(method => method.type === 'TELECOM' ? telecom : method.type === 'CARD' ? Math.round((gross - telecom) * CARD_RATE) : 0);
     const methodSave = Math.max(0, gross - pay);
-    const amounts = split(methodSave, weights.some(value => value > 0) ? weights : input.methods.map(() => 1));
+    // 행사 상품에 붙은 할인은 통신사 몫으로 본다(API · 데모 가격은 행사 + 통신사를 겹쳐 계산, 가계부 거꾸로 계산과 같은 기준)
+    const eventTelecom = input.event !== 'NONE' && input.methods.some(method => method.type === 'TELECOM');
+    const amounts = eventTelecom ? input.methods.map(method => method.type === 'TELECOM' ? methodSave : 0)
+        : split(methodSave, weights.some(value => value > 0) ? weights : input.methods.map(() => 1));
     const methods = input.methods.map((method, index) => ({ kind: method.type, code: method.code, label: methodLabel(method.type, method.code, wallet, cardNames), amount: amounts[index] }));
     return { ...input, qty, pay, saved, methods };
 }
@@ -104,7 +107,9 @@ export function reverse(receipt: Receipt) {
     // 통신사: 행사 아닌 금액 Y에서 floor(Y / 1000) × 100을 뺀 값 = target. 맞는 k 중 가장 작은 값(덜 아낀 쪽)
     const target = beforeCard - eventPaid;
     let telecom = 0;
-    if (receipt.telecom && target > 0) {
+    // 낸 돈이 행사 상품 값보다 적으면 행사 상품에도 통신사 할인이 붙은 것(API · 데모 가격은 행사 + 통신사를 겹쳐 계산). 모자란 만큼이 통신사 할인
+    if (receipt.telecom && target < 0) telecom = -target;
+    else if (receipt.telecom && target > 0) {
         let k = 0;
         while (Math.floor((target + TELECOM_OFF * k) / TELECOM_STEP) > k) k++;
         telecom = TELECOM_OFF * k;
@@ -114,16 +119,27 @@ export function reverse(receipt: Receipt) {
     if (receipt.card) lines.push({ kind: 'CARD', code: receipt.card.code, label: receipt.card.label, amount: card });
     return { lines, saved: eventSave + telecom + card, gross: beforeCard + telecom + eventSave, eventOnly: receipt.items.length === 1 && target <= 0, eventPaid, beforeCard };
 }
-export function makeReceiptEntry(receipt: Receipt, store: { brand: Brand; storeId: string; placeName: string }, fallback: { productKey: string; productName: string }, at = new Date()): LedgerEntry {
-    const { lines, saved, gross, eventOnly } = reverse(receipt);
+/**
+ * 도착 화면 값 그대로의 내역. 「가계부에 적기」를 미리 채운 값 그대로 저장하면 거꾸로 계산 대신 이 값을 쓴다
+ * (매장 가격이 정가 × 묶음과 다른 경우 등 영수증 두 칸만으로는 도착 화면 숫자가 다시 안 나오기 때문)
+ */
+export interface Planned { saved: number; qty: number; lines: SaveLine[] }
+export function plannedOf(plan: Plan): Planned {
+    const methods = plan.methods.filter(method => method.amount > 0).map(({ kind, code, label, amount }) => ({ kind, code, label, amount }));
+    const event = plan.saved - methods.reduce((sum, method) => sum + method.amount, 0);
+    return { saved: plan.saved, qty: plan.qty, lines: [{ kind: 'EVENT', code: 'EVENT', label: '행사', amount: Math.max(0, event) }, ...methods] };
+}
+export function makeReceiptEntry(receipt: Receipt, store: { brand: Brand; storeId: string; placeName: string }, fallback: { productKey: string; productName: string }, at = new Date(), planned?: Planned): LedgerEntry {
+    const calculated = reverse(receipt);
+    const { lines, saved } = planned ?? calculated;
     const first = receipt.items[0];
     return {
         id: `${at.getTime()}-${Math.random().toString(36).slice(2, 8)}`, at: at.toISOString(),
         productKey: first ? `receipt-${first.name}` : fallback.productKey, productName: first?.name ?? fallback.productName,
         brand: store.brand, storeId: store.storeId, placeName: store.placeName,
         // 행사 상품 하나만 샀으면 받은 개수(「2개」)를 같이 적는다
-        qty: eventOnly ? bundle(first.event)[0] : 1,
-        paid: receipt.paid, listPrice: gross, saved,
+        qty: planned ? planned.qty : calculated.eventOnly ? bundle(first.event)[0] : 1,
+        paid: receipt.paid, listPrice: receipt.paid + saved, saved,
         lines: lines.filter(line => line.amount > 0).map(line => line.kind === 'EVENT' ? { ...line, label: '행사 (1+1 · 2+1)' } : line)
     };
 }

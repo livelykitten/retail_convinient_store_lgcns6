@@ -144,7 +144,8 @@ export function MapView({ position, locationError, locating, locate, destination
                     : route ? (route.path.length > 0 && <p className="route-summary"><b>{fixturesEnabled ? '예상 ' : ''}도보 {minutes}분</b><span>{fixturesEnabled ? '약 ' : ''}{route.distanceM}m{fixturesEnabled ? '' : ` · ${arrival(route.durationSeconds)} 도착`}</span></p>)
                     : <p className="route-error" role="status">{mapPosition ? error : '현재 위치를 확인하면 도보 경로를 안내해요.'}</p>}
             </div><button className="icon-button" aria-label="목적지 해제" onClick={clear}><Icon name="icons/x" size={20} /></button></div>
-            {arrive && remainingM !== null && <p className="remaining" role="status">남은 거리 약 {remainingM}m · {remainingM <= 30 ? '매장 앞이면 「도착했어요」를 눌러 주세요' : '30m 안이면 도착 화면이 열려요'}</p>}
+            {/* 데모는 위치가 고정이라 자동으로 열리지 않고, 남은 거리는 위 예시 경로 거리와 맞춘다 */}
+            {arrive && remainingM !== null && <p className="remaining" role="status">남은 거리 약 {fixturesEnabled && route ? route.distanceM : remainingM}m · {fixturesEnabled || remainingM <= 30 ? '매장 앞이면 「도착했어요」를 눌러 주세요' : '30m 안이면 도착 화면이 열려요'}</p>}
             {fixturesEnabled && route && <p className="route-note">예시 경로 · 실제 길찾기 결과 아님 · 도로 형태 참고 · 출입구·보행 가능 여부 미검증 · 시간·거리 추정 · 도로 자료 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p>}
             <div className="destination-product"><ProductImage imageUrl={destinationProduct?.imageUrl ?? null} productKey={destination.productKey} className="s" /><span className="product-info"><small>사러 가는 상품</small><strong>{destination.productName}</strong></span><PriceLine price={destination.unitPrice} listPrice={destinationProduct?.listPrice} size="row" /></div>
             {!busy && !route && error && <button className="secondary" onClick={() => setReload(value => value + 1)}>다시 시도</button>}
