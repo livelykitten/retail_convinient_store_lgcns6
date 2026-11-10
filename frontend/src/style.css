@@ -389,6 +389,8 @@ legend { padding: 0; margin-bottom: 6px; font-size: 12px; font-weight: 600; colo
 .ledger-row { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--color-line); font-size: 13px; color: var(--color-sub); }
 .ledger-row b { font-size: 14px; font-weight: 700; color: var(--color-text); }
 .ledger-label { font-size: 13px; font-weight: 700; color: var(--color-sub); padding: 8px 4px 0; }
+/* 날짜 묶음도 「어떻게 아꼈나」처럼 제목 · 목록 사이 10px(.ledger gap과 같게) */
+.ledger-day { display: flex; flex-direction: column; gap: 10px; }
 .ledger-list { list-style: none; margin: 0; padding: 0; background: var(--color-bg); border-radius: var(--radius-l); box-shadow: var(--shadow-rest); }
 .ledger-list > li { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 10px 12px; }
 .ledger-list > li + li { border-top: 1px solid var(--color-line); }
