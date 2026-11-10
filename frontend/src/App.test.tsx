@@ -103,6 +103,15 @@ describe('주요 사용자 흐름', () => {
         await user.click(card);
         expect(screen.getByText('목적지')).toBeTruthy(); expect(screen.getByText('GS25 신당퍼스트점')).toBeTruthy();
     });
+    it('통신사가 등록돼 있으면 그 통신사에만 「등록됨」, 다른 통신사는 막고 이유를 보여 준다', async () => {
+        localStorage.setItem('pyeonri.wallet', JSON.stringify({ ...emptyWallet(), telecom: { provider: 'SKT', grade: 'VIP' } }));
+        const user = userEvent.setup(); render(<App />);
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(await screen.findByRole('button', { name: /할인 수단 추가/ }));
+        const skt = await screen.findByRole('button', { name: 'SKT' }); const kt = screen.getByRole('button', { name: 'KT' });
+        expect([skt.textContent?.includes('등록됨'), kt.textContent?.includes('등록됨'), kt.hasAttribute('disabled')]).toEqual([true, false, true]);
+        expect(screen.getByText(/통신사 멤버십은 하나만 등록돼요/)).toBeTruthy();
+    });
     it('저장된 수단과 목적지를 새 마운트에서 복원한다', async () => {
         localStorage.setItem('pyeonri.wallet', JSON.stringify({ ...emptyWallet(), pays: ['KAKAOPAY'] }));
         sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...cuStore, productKey: 'milk', productName: '우유', unitPrice: 1000 }));
