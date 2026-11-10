@@ -417,7 +417,8 @@ legend { padding: 0; margin-bottom: 6px; font-size: 12px; font-weight: 600; colo
 .paid-input.small input { width: 64px; font-size: 14px; }
 .event-row .icon-button { min-width: 32px; min-height: 32px; }
 .add-event { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 40px; border: 1px dashed var(--color-mute); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--color-sub); }
-.check-row { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 13.5px; }
+/* 줄 전체가 아니라 체크 박스 + 글자만 눌리게(오른쪽 빈칸 클릭으로 체크되던 문제) */
+.check-row { display: flex; align-items: center; gap: 8px; width: fit-content; align-self: flex-start; min-height: 40px; font-size: 13.5px; cursor: pointer; }
 .check-row input { width: 18px; height: 18px; accent-color: var(--color-main); }
 .paid-result .arrival-row.total { margin-top: 4px; }
 .paid-result .arrival-row.total strong { font-size: 20px; font-weight: 800; color: var(--color-main); }
