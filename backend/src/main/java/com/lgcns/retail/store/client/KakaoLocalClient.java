@@ -26,6 +26,7 @@ public class KakaoLocalClient {
 
     private static final String BASE_URL = "https://dapi.kakao.com";
     private static final String CONVENIENCE_STORE_CODE = "CS2";
+    private static final String ERROR_MESSAGE = "매장 정보를 불러오지 못했어요";
     private static final int PAGE_SIZE = 15;
     // 카카오는 한 영역에서 최대 45건까지만 내려주므로 넘치면 영역을 4등분해 다시 조회한다.
     private static final int MAX_PAGEABLE = 45;
@@ -62,7 +63,8 @@ public class KakaoLocalClient {
      */
     public List<Place> findConvenienceStores(double x, double y, int radiusMeters) {
         if (restApiKey.isBlank()) {
-            throw new KakaoApiException("환경변수 KAKAO_REST_API_KEY가 설정되지 않았습니다.");
+            log.error("환경변수 KAKAO_REST_API_KEY가 설정되지 않았습니다.");
+            throw new KakaoApiException(ERROR_MESSAGE);
         }
 
         double latDelta = radiusMeters / METERS_PER_LAT_DEGREE;
@@ -119,13 +121,15 @@ public class KakaoLocalClient {
                     .retrieve()
                     .body(SearchResponse.class);
             if (response == null) {
-                throw new KakaoApiException("카카오 응답이 비어 있습니다.");
+                log.warn("카카오 매장 조회 응답이 비어 있습니다.");
+                throw new KakaoApiException(ERROR_MESSAGE);
             }
             return response;
         } catch (HttpClientErrorException.TooManyRequests e) {
             throw new KakaoRateLimitException();
         } catch (RestClientException e) {
-            throw new KakaoApiException("카카오 API 호출에 실패했습니다.", e);
+            log.warn("카카오 매장 조회 실패: {}", e.getMessage());
+            throw new KakaoApiException(ERROR_MESSAGE, e);
         }
     }
 

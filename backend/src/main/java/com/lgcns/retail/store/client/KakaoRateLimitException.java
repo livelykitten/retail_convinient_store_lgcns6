@@ -1,13 +1,12 @@
 package com.lgcns.retail.store.client;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.lgcns.retail.common.error.BusinessException;
+import com.lgcns.retail.common.error.ErrorCode;
 
-/** 카카오 429. api-spec의 KAKAO_RATE_LIMIT에 해당한다. */
-@ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-public class KakaoRateLimitException extends RuntimeException {
+/** 카카오 429. 429 KAKAO_RATE_LIMIT으로 나간다. */
+public class KakaoRateLimitException extends BusinessException {
 
     public KakaoRateLimitException() {
-        super("잠시 뒤 다시 시도해 주세요");
+        super(ErrorCode.KAKAO_RATE_LIMIT, "잠시 뒤 다시 시도해 주세요");
     }
 }

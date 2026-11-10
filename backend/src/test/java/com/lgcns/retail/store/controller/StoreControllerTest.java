@@ -1,8 +1,13 @@
 package com.lgcns.retail.store.controller;
 
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
@@ -48,10 +53,29 @@ class StoreControllerTest {
     }
 
     @Test
-    @DisplayName("radius가 2000을 넘으면 400")
+    @DisplayName("radius가 2000을 넘으면 카카오를 부르지 않고 400 INVALID_PARAM")
     void radiusTooLarge() throws Exception {
         mockMvc.perform(get("/api/stores").param("x", "127.05").param("y", "37.54").param("radius", "2001"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_PARAM"));
+        verify(storeService, never()).findNearbyWithWalkMin(anyDouble(), anyDouble(), anyInt());
+    }
+
+    @Test
+    @DisplayName("radius 2000은 최대값이라 허용한다")
+    void radiusMax() throws Exception {
+        when(storeService.findNearbyWithWalkMin(127.05, 37.54, 2000)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/stores").param("x", "127.05").param("y", "37.54").param("radius", "2000"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("radius가 1보다 작으면 400 INVALID_PARAM")
+    void radiusTooSmall() throws Exception {
+        mockMvc.perform(get("/api/stores").param("x", "127.05").param("y", "37.54").param("radius", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_PARAM"));
     }
 
     @Test
