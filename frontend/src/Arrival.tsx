@@ -42,7 +42,7 @@ export function ArrivalView({ plan, saved, bought, skip }: { plan: Plan; saved: 
             <Steps plan={plan} />
             {app && <button type="button" className="secondary app-open" onClick={() => setOpened(true)}><BrandIcon code={app.code} size="xs" />{app.text}</button>}
             {opened && <p className="arrival-note" role="status">예시 화면이라 실제 앱은 열지 않아요</p>}
-            <div className="arrival-row total"><span>예상 결제</span><b>{won(plan.pay)}원</b></div>
+            <div className="arrival-row total"><span>예상 결제</span><b>{isBundleEvent(plan.event) ? '약 ' : ''}{won(plan.pay)}원</b></div>
         </div>
         <div className="arrival-box">
             <div className="arrival-row"><span>정가보다 이번에</span><b className="big">{won(plan.saved)}원</b></div>

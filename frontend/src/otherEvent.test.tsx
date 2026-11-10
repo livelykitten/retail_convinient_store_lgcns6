@@ -20,6 +20,13 @@ const plan = () => makePlan({ productKey: 'p', productName: product.name, brand:
 afterEach(() => { cleanup(); localStorage.clear(); sessionStorage.clear(); });
 
 describe('OTHER 행사 응답', () => {
+    it('잘린 개당 가격으로 계산한 묶음 총액을 추정치로 표시한다', () => {
+        const bundled = { ...store, event: 'TWO_PLUS_ONE' as const, unitPrice: 666 };
+        const item = { ...product, event: bundled.event, listPrice: 1000, minUnitPrice: 666, stores: [bundled] };
+        render(<Products result={{ query: '콜라', products: [item] }} busy={false} error="" sort="PRICE"
+            changeSort={vi.fn()} destination={null} wallet={emptyWallet()} choose={vi.fn()} retry={vi.fn()} expanded="p" toggle={vi.fn()} />);
+        expect(screen.getByText('예상 결제 약 1,998원')).toBeTruthy();
+    });
     it('상품·매장 가격은 유지하고 행사 배지와 묶음 구매 안내를 표시하지 않는다', () => {
         const { container } = render(<Products result={{ query: '콜라', products: [product] }} busy={false} error="" sort="PRICE"
             changeSort={vi.fn()} destination={null} wallet={emptyWallet()} choose={vi.fn()} retry={vi.fn()} expanded="p" toggle={vi.fn()} />);

@@ -36,6 +36,54 @@ async function searchMilk() {
     await screen.findByText('빙그레 바나나맛우유 240ml'); return user;
 }
 describe('주요 사용자 흐름', () => {
+    it('검색 응답을 기다리는 사이 해제한 목적지를 이전 응답으로 복원하지 않는다', async () => {
+        render(<App />); const user = await searchMilk();
+        await user.click(screen.getByRole('button', { name: /빙그레 바나나맛우유/ }));
+        await user.click(screen.getByRole('button', { name: '길찾기' }));
+        await user.click(screen.getByRole('button', { name: '상품 목록' }));
+        const response = quotes({ q: '우유', x: 127, y: 37, wallet: emptyWallet() });
+        let finish!: (value: typeof response) => void;
+        vi.mocked(api.quotes).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+        await user.selectOptions(screen.getByRole('combobox', { name: '정렬' }), 'PRICE');
+        await user.click(screen.getByRole('button', { name: '지도' }));
+        await user.click(screen.getByRole('button', { name: '목적지 해제' }));
+        expect(sessionStorage.getItem('pyeonri.destination')).toBeNull();
+        finish(response);
+        await user.click(screen.getByRole('button', { name: '상품 목록' }));
+        await screen.findByText('빙그레 바나나맛우유 240ml');
+        expect(sessionStorage.getItem('pyeonri.destination')).toBeNull();
+        expect(screen.queryByText('목적지')).toBeNull();
+    });
+    it('실제 API 모드에서도 할인 수단 추가·수정·삭제 후 가격과 선택한 목적지를 자동 갱신한다', async () => {
+        render(<App />); const user = await searchMilk();
+        await user.click(screen.getByRole('button', { name: /빙그레 바나나맛우유/ }));
+        await user.click(screen.getByRole('button', { name: /다른 매장 1곳/ }));
+        await user.click(screen.getByRole('button', { name: /CU 신당다산로점/ }));
+        const selectedId = JSON.parse(sessionStorage.getItem('pyeonri.destination')!).storeId;
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(screen.getByRole('button', { name: '할인 수단 추가' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.click(await within(dialog).findByRole('button', { name: 'SKT' }));
+        await user.click(within(dialog).getByRole('button', { name: 'VIP' }));
+        await user.click(within(dialog).getByRole('button', { name: '추가' }));
+        await waitFor(() => expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!)).toMatchObject({
+            storeId: selectedId, unitPrice: 900, methods: [{ type: 'TELECOM', code: 'SKT' }]
+        }));
+        await user.click(screen.getByRole('button', { name: 'SKT 수정' }));
+        await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: '일반' }));
+        await user.click(screen.getByRole('button', { name: '수정 완료' }));
+        await waitFor(() => expect(api.quotes).toHaveBeenLastCalledWith(expect.objectContaining({
+            wallet: expect.objectContaining({ telecom: { provider: 'SKT', grade: 'NORMAL' } })
+        }), expect.any(AbortSignal)));
+        await user.click(screen.getByRole('button', { name: 'SKT 삭제' }));
+        await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: '삭제' }));
+        await waitFor(() => expect(JSON.parse(sessionStorage.getItem('pyeonri.destination')!)).toMatchObject({
+            storeId: selectedId, unitPrice: 1200, methods: []
+        }));
+        await user.click(screen.getByRole('button', { name: '상품 목록' }));
+        expect(screen.getByText('목적지')).toBeTruthy();
+        expect(screen.getByText(/200원 더 싸요/)).toBeTruthy();
+    });
     it('검색·서버 정렬·매장 펼침·재고 표시·목적지 유지가 이어진다', async () => {
         render(<App />); expect(screen.queryByText('빙그레 바나나맛우유 240ml')).toBeNull();
         const user = await searchMilk();

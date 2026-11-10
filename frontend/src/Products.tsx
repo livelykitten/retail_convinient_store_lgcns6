@@ -69,7 +69,7 @@ function FeaturedCard({ product, store, label, isDestination, wallet, select }: 
         <div className="featured-title"><BrandIcon code={store.brand} /><div><strong>{store.placeName}</strong><small>도보 약 {store.walkMin}분 · {store.distanceM}m <LowStock store={store} /></small>{(store.stockStatus === 'OUT' || allOut) && <small className="diff out">{OUT_TEXT}</small>}</div>
             <button type="button" className="primary small">{isDestination ? '지도 보기' : '길찾기'}</button></div>
         <Methods store={store} wallet={wallet} />
-        {isBundleEvent(store.event) && <p className="bundle-pay"><span>{bundleCount[store.event]}개 사면</span><b>결제 {won(store.unitPrice * bundleCount[store.event])}원</b></p>}
+        {isBundleEvent(store.event) && <p className="bundle-pay"><span>{bundleCount[store.event]}개 사면</span><b>예상 결제 약 {won(store.unitPrice * bundleCount[store.event])}원</b></p>}
     </div>;
 }
 function OtherStores({ featured, others, choose }: { featured: QuoteStore; others: QuoteStore[]; choose: (store: QuoteStore) => void }) {
