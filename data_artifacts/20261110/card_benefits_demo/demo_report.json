@@ -1,0 +1,25 @@
+{
+  "source_rows": 50,
+  "card_rows": 46,
+  "demo_cards": 38,
+  "rule_rows": 96,
+  "withheld_rows": 12,
+  "rules_by_brand": {
+    "CU": 35,
+    "GS25": 30,
+    "SEVEN": 20,
+    "EMART24": 11
+  },
+  "rules_by_kind": {
+    "DISCOUNT": 84,
+    "POINT": 12
+  },
+  "source_sha256": "a3be7643f0ce44eb11689f8f67fe4750e5796e398d012378506e25263e1aa8bb",
+  "warning": "DEMO ONLY: supplied research approximated with user authorization. Not verified actual benefits. Original db_importable=false is preserved in audit.",
+  "validation": "PASS: CSV headers/lengths/IDs/foreign keys/unique combinations/rates; percentage, cap, minimum, POINT and fixed-discount boundary assertions",
+  "backend_behavior": "Card rules reduce prices; POINT does not. Multiple CARD/PAY discounts select largest, not sum. Cards without rules are absent from wallet options. No Java/API/enum/schema changes.",
+  "checked_at_policy": "Copied research checked_at; not a fresh benefit verification date",
+  "scope": "resources/data CSVs are backend seed data and affect backend API calculations when loaded. VITE_USE_FIXTURES is unrelated; these files are not gated by frontend fixture mode.",
+  "h2_validation": "PASS: unmodified schema.sql; card_product=46 and discount_rule=96; PK/FK/UNIQUE/CHECK constraints accepted",
+  "gradle_test": "FAILED before tests: existing QuoteService.java:181 non-exhaustive Event switch; no Java sources changed"
+}
