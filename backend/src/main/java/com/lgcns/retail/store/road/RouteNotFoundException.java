@@ -1,4 +1,4 @@
-package com.lgcns.retail.store.rode;
+package com.lgcns.retail.store.road;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

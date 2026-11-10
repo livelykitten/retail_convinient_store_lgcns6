@@ -1,4 +1,4 @@
-package com.lgcns.retail.store.rode;
+package com.lgcns.retail.store.road;
 
 import java.util.List;
 
