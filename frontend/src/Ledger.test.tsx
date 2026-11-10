@@ -67,4 +67,30 @@ describe('추가 화면 v3 · 도착 → 가계부', () => {
         expect(await screen.findByText('펩시제로라임캔355ml 2개')).toBeTruthy();
         expect(screen.getByText('1,890원 아낌')).toBeTruthy();
     });
+    it('금액 칸: 쉼표 바로 뒤에서 지우면 앞 숫자가 지워지고 커서는 그 자리에 남는다', async () => {
+        const user = userEvent.setup(); render(<App />);
+        await user.click(screen.getByRole('button', { name: '가계부' }));
+        await user.click(screen.getByRole('button', { name: '영수증으로 직접 적기' }));
+        const paid = screen.getByRole('textbox', { name: '낸 돈 합계' }) as HTMLInputElement;
+        await user.type(paid, '30000');
+        expect(paid.value).toBe('30,000');
+        await user.type(paid, '{Backspace}', { initialSelectionStart: 3, initialSelectionEnd: 3 });
+        expect(paid.value).toBe('3,000');
+        expect(paid.selectionStart).toBe(1);
+        await user.type(paid, '5', { initialSelectionStart: 1, initialSelectionEnd: 1 });
+        expect(paid.value).toBe('35,000');
+        expect(paid.selectionStart).toBe(2);
+    });
+    it('낸 돈이 행사 상품 값보다 적거나 행사 상품 정가가 비면 적을 수 없다', async () => {
+        const user = userEvent.setup(); render(<App />);
+        await user.click(screen.getByRole('button', { name: '가계부' }));
+        await user.click(screen.getByRole('button', { name: '영수증으로 직접 적기' }));
+        await user.type(screen.getByRole('textbox', { name: '낸 돈 합계' }), '1000');
+        await user.click(screen.getByRole('button', { name: '행사 상품 추가' }));
+        await user.type(screen.getByRole('textbox', { name: '행사 상품 1 이름' }), '코카콜라캔350ml');
+        expect(screen.getByRole('alert').textContent).toContain('이름과 정가를 모두');
+        await user.type(screen.getByRole('textbox', { name: '행사 상품 1 정가' }), '2200');
+        expect(screen.getByRole('alert').textContent).toContain('행사 상품 값(2,200원)보다 적어요');
+        expect(screen.getByRole('button', { name: '가계부에 적기' }).hasAttribute('disabled')).toBe(true);
+    });
 });

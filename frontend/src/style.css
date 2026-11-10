@@ -349,6 +349,7 @@ legend { padding: 0; margin-bottom: 6px; font-size: 12px; font-weight: 600; colo
 .app-open .brand-icon { box-shadow: none; }
 .arrival-note { font-size: 12px; line-height: 1.5; color: var(--color-sub); text-align: center; }
 .arrival-note.left { text-align: left; padding: 0 4px; }
+.record-hint { margin: 0; font-size: 12px; color: var(--color-low); }
 
 /* 2번 도착 화면 */
 .arrival { display: flex; flex-direction: column; gap: 12px; padding: 6px 16px 20px; }

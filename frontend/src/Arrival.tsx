@@ -1,5 +1,5 @@
 // 추가 화면 v3 2 · 3 · 4번: 도착 화면 · 「가계부에 적기」 시트(영수증 합계 + 1+1 상품으로 거꾸로 계산)
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { EventItem, Plan, Receipt } from './ledgerData';
 import { byParticle, objectParticle, reverse } from './ledgerData';
 import { events } from './Products';
@@ -55,7 +55,32 @@ export function ArrivalView({ plan, saved, bought, skip }: { plan: Plan; saved: 
 
 interface Row { name: string; event: Exclude<Event, 'NONE'>; price: string }
 type StoreChoice = { brand: Brand; storeId: string; placeName: string };
-const digits = (value: string) => value.replace(/\D/g, '').slice(0, 7);
+const MAX_DIGITS = 7;
+
+/**
+ * 쉼표가 붙는 금액 입력칸. 값은 숫자 문자열(「3000」), 화면은 「3,000」.
+ * 쉼표가 생기고 사라져도 커서가 맨 끝으로 튀지 않게 커서 왼쪽 숫자 개수로 자리를 되돌리고,
+ * 쉼표 바로 뒤에서 지우면(쉼표만 지워짐) 그 앞 숫자를 지운다.
+ */
+function MoneyInput({ value, change, label, placeholder }: { value: string; change: (value: string) => void; label: string; placeholder?: string }) {
+    const ref = useRef<HTMLInputElement>(null);
+    const caret = useRef<number | null>(null); // 커서 왼쪽 숫자 개수
+    const shown = value && won(Number(value));
+    useLayoutEffect(() => {
+        const input = ref.current;
+        if (!input || caret.current === null || document.activeElement !== input) return;
+        let seen = 0, at = 0;
+        while (at < input.value.length && seen < caret.current) { if (/\d/.test(input.value[at])) seen++; at++; }
+        input.setSelectionRange(at, at); caret.current = null;
+    });
+    return <input ref={ref} inputMode="numeric" aria-label={label} placeholder={placeholder} value={shown} onChange={event => {
+        const raw = event.target.value; const position = event.target.selectionStart ?? raw.length;
+        let next = raw.replace(/\D/g, ''); let left = raw.slice(0, position).replace(/\D/g, '').length;
+        if (next === value && raw.length < shown.length && left > 0) { next = next.slice(0, left - 1) + next.slice(left); left--; }
+        const trimmed = next.replace(/^0+(?=\d)/, ''); left = Math.max(0, left - (next.length - trimmed.length));
+        caret.current = Math.min(left, MAX_DIGITS); change(trimmed.slice(0, MAX_DIGITS));
+    }} />;
+}
 
 /**
  * 3 · 4번 「가계부에 적기」. 장바구니 없이 낸 돈 합계와 1+1 · 2+1로 산 상품(이름 · 정가)만 받아
@@ -78,25 +103,32 @@ export function RecordSheet({ store, stores = [], initial, telecom, cards, close
     const items: EventItem[] = rows.filter(row => row.name.trim() && Number(row.price) > 0).map(row => ({ name: row.name.trim(), event: row.event, price: Number(row.price) }));
     const paidNumber = Number(paid);
     // 행사 상품 줄은 비워 두거나(무시) 이름 · 정가를 다 채워야 한다
-    const valid = paidNumber > 0 && rows.every(row => (!row.name.trim() && !row.price) || (!!row.name.trim() && Number(row.price) > 0));
-    const receipt: Receipt = { paid: valid ? paidNumber : 0, items, telecom: usedTelecom ? telecom : null, card: cards.find(value => value.code === card) ?? null };
+    const halfRow = rows.some(row => !!row.name.trim() !== Number(row.price) > 0);
+    const methods = { telecom: usedTelecom ? telecom : null, card: cards.find(value => value.code === card) ?? null };
+    // 낸 돈(카드 할인 전)이 행사 상품 값보다 적으면 영수증과 맞지 않는다
+    const check = reverse({ paid: paidNumber, items, ...methods });
+    const short = paidNumber > 0 && check.beforeCard < check.eventPaid;
+    const valid = paidNumber > 0 && !halfRow && !short;
+    const receipt: Receipt = { paid: valid ? paidNumber : 0, items, ...methods };
     const result = reverse(receipt);
     const update = (index: number, patch: Partial<Row>) => setRows(list => list.map((row, at) => at === index ? { ...row, ...patch } : row));
     return <Sheet title="가계부에 적기" close={close}>
         {store ? <div className="paid-product"><BrandIcon code={store.brand} size="s" /><strong>{store.placeName}</strong></div>
             : <label className="paid-row"><span>산 매장</span><select className="record-select" aria-label="산 매장" value={storeId} onChange={event => setStoreId(event.target.value)}>
                 {choices.map(value => <option key={value.storeId} value={value.storeId}>{value.placeName}</option>)}</select></label>}
-        <label className="paid-row"><span>낸 돈 합계</span><span className="paid-input"><input inputMode="numeric" aria-label="낸 돈 합계" value={paid && won(Number(paid))} onChange={event => setPaid(digits(event.target.value))} /><small>원</small></span></label>
+        <label className="paid-row"><span>낸 돈 합계</span><span className="paid-input"><MoneyInput label="낸 돈 합계" value={paid} change={setPaid} /><small>원</small></span></label>
         <div className="record-group">
             <h3>1+1 · 2+1로 산 상품</h3>
             {rows.map((row, index) => <div key={index} className="event-row">
                 <input aria-label={`행사 상품 ${index + 1} 이름`} placeholder="상품 이름" value={row.name} maxLength={40} onChange={event => update(index, { name: event.target.value })} />
                 <select aria-label={`행사 상품 ${index + 1} 행사`} value={row.event} onChange={event => update(index, { event: event.target.value as Row['event'] })}>
                     {(['ONE_PLUS_ONE', 'TWO_PLUS_ONE', 'THREE_PLUS_ONE'] as const).map(value => <option key={value} value={value}>{events[value]}</option>)}</select>
-                <span className="paid-input small"><input inputMode="numeric" aria-label={`행사 상품 ${index + 1} 정가`} placeholder="정가" value={row.price && won(Number(row.price))} onChange={event => update(index, { price: digits(event.target.value) })} /><small>원</small></span>
+                <span className="paid-input small"><MoneyInput label={`행사 상품 ${index + 1} 정가`} placeholder="정가" value={row.price} change={price => update(index, { price })} /><small>원</small></span>
                 <button type="button" className="icon-button" aria-label={`행사 상품 ${index + 1} 빼기`} onClick={() => setRows(list => list.filter((_, at) => at !== index))}><Icon name="icons/x" size={16} /></button>
             </div>)}
             <button type="button" className="add-event" onClick={() => setRows(list => [...list, { name: '', event: 'ONE_PLUS_ONE', price: '' }])}><Icon name="icons/plus" size={14} />행사 상품 추가</button>
+            {halfRow && <p className="record-hint" role="alert">행사 상품은 이름과 정가를 모두 적어 주세요</p>}
+            {!halfRow && short && <p className="record-hint" role="alert">낸 돈이 행사 상품 값({won(check.eventPaid)}원)보다 적어요. 금액을 확인해 주세요</p>}
         </div>
         {(telecom || cards.length > 0) && <div className="record-group">
             <h3>쓴 할인</h3>

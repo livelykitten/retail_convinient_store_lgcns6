@@ -112,7 +112,7 @@ export function reverse(receipt: Receipt) {
     const lines: SaveLine[] = [{ kind: 'EVENT', code: 'EVENT', label: '행사', amount: eventSave }];
     if (receipt.telecom) lines.push({ kind: 'TELECOM', code: receipt.telecom.code, label: receipt.telecom.label, amount: telecom });
     if (receipt.card) lines.push({ kind: 'CARD', code: receipt.card.code, label: receipt.card.label, amount: card });
-    return { lines, saved: eventSave + telecom + card, gross: beforeCard + telecom + eventSave, eventOnly: receipt.items.length === 1 && target <= 0 };
+    return { lines, saved: eventSave + telecom + card, gross: beforeCard + telecom + eventSave, eventOnly: receipt.items.length === 1 && target <= 0, eventPaid, beforeCard };
 }
 export function makeReceiptEntry(receipt: Receipt, store: { brand: Brand; storeId: string; placeName: string }, fallback: { productKey: string; productName: string }, at = new Date()): LedgerEntry {
     const { lines, saved, gross, eventOnly } = reverse(receipt);
