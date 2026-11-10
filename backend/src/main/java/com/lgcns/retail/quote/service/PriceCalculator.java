@@ -65,7 +65,8 @@ public final class PriceCalculator {
 
     static int bundleQty(Event event) {
         return switch (event) {
-            case NONE -> 1;
+            // OTHER는 원본 코드를 유지하되 N+1 행사 할인은 계산하지 않는다.
+            case NONE, OTHER -> 1;
             case ONE_PLUS_ONE -> 2;
             case TWO_PLUS_ONE -> 3;
             case THREE_PLUS_ONE -> 4;

@@ -43,6 +43,7 @@ class PriceCalculatorTest {
     @ParameterizedTest(name = "{0}: 정가 {1} → 묶음 {2}개, 개당 {3}원")
     @CsvSource({
             "NONE, 2500, 1, 2500",
+            "OTHER, 2500, 1, 2500",
             "ONE_PLUS_ONE, 2500, 2, 1250",
             "TWO_PLUS_ONE, 2600, 3, 1733",
             "THREE_PLUS_ONE, 1000, 4, 750"
@@ -53,6 +54,22 @@ class PriceCalculatorTest {
 
         assertThat(r.bundleQty()).isEqualTo(bundle);
         assertThat(r.unitPrice()).isEqualTo(unit);
+    }
+
+    @Test
+    @DisplayName("OTHER는 정가 1개 기준으로 계산하고 별도 카드 할인은 유지한다")
+    void otherKeepsCardDiscountWithoutBundleDiscount() {
+        List<MatchedRule> rules = List.of(rule(DEEP_DREAM, RuleKind.DISCOUNT, "0.150", null, null, true));
+
+        PriceCalculator.Result r = PriceCalculator.calculate(2000, Event.OTHER, rules);
+
+        assertThat(r.bundleQty()).isEqualTo(1);
+        assertThat(r.paidQty()).isEqualTo(1);
+        assertThat(r.eventPrice()).isEqualTo(2000);
+        assertThat(r.paymentDiscount()).isEqualTo(300);
+        assertThat(r.finalPrice()).isEqualTo(1700);
+        assertThat(r.unitPrice()).isEqualTo(1700);
+        assertThat(r.applicableMethods()).containsExactly(DEEP_DREAM);
     }
 
     @Test
