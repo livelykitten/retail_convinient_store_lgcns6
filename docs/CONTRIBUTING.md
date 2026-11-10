@@ -159,7 +159,7 @@ PR을 리뷰 요청하기 전에 모두 채워요.
 1. 요구사항명세서의 수용 기준([reference/requirements.md](reference/requirements.md#1-요구사항-목록))을 만족해요.
 2. 필드 이름 · enum이 API 명세([reference/api-spec.md](reference/api-spec.md))와 같아요.
 3. PR 본문에 요청 · 응답 예시(`curl`과 응답 JSON)가 있고, 1명이 승인했어요.
-4. 목업 값에는 "예시 데이터" 표시가 나가도록 플래그(`estimated` · `mockRule` 등)를 채웠어요.
+4. 응답 필드는 `API명세최종.md`([reference/api-spec.md](reference/api-spec.md))에 있는 것만 써요. 명세에 없는 목업 플래그(`estimated` · `mockRule` 등)를 넣지 않아요.
 
 ### PR 본문 쓰는 법
 
