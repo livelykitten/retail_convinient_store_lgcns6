@@ -1,234 +1,427 @@
-> **요구사항명세서 5절 사본 · 초안.** 2026-11-09 요구사항명세서의 API 절을 옮기고, 담당 · 검증 규칙 · 오류 코드를 덧붙였어요. 경로 · 필드 · enum을 바꾸려면 PM2(민경완)에게 먼저 말해 명세서를 고친 뒤 이 사본을 맞춰요. 둘이 다르면 명세서를 따라요. `(안)` = 제안값, `미정` = 아직 정하지 않은 값이에요.
+> **`API명세최종.md` 사본.** 프런트(진성민)가 정한 최종 API 명세(2026-11-09)를 그대로 옮겼어요. 경로 · 필드 · enum · 오류 코드는 이 문서가 기준이에요. 바꾸려면 [스펙 변경](../CONTRIBUTING.md#스펙-변경) 순서대로 진성민 · PM2(민경완)와 먼저 맞추고 원본과 이 사본을 함께 고쳐요. 옛 요구사항명세서 5절의 `category` · `qty` · `items[]` · `discounts[]`(`applied` · `reason`) · `finalPrice` 정렬 · `pointAmount` · `notice` · `mockRule` · `estimated` · `dataMonth`는 쓰지 않아요 (결정 2026-11-10).
 
-# API 명세
+# 편리 REST API 명세 v1.1 — B 매대 가격표 화면 기준
 
-## 1. 공통
+| 항목 | 값 |
+|---|---|
+| 기준 | 피그마 「편리 · B 매대 가격표 · 전체 화면 (11.09)」 하나만. 화면에 보이는 값과 동작에서 API를 뽑았다 |
+| 화면 | 메인 컷 · P1~P4 상품 목록 · M1~M3 지도 · D1~D4 할인 수단 |
+| API | **4개** — `GET /api/wallet-options` · `POST /api/quotes` · `GET /api/stores` · **`GET /api/routes/walking`** |
+| 원안 | 프론트 진성민, 2026-11-09 |
+| 개정 내용 | M2 실제 보행 경로 API 추가, 추정 도보시간과 실제 소요시간 구분, 샘플 데이터 일관성 수정 |
+| 범위 | 최신 Figma P1~P4 / M1~M3 / D1~D4 화면 + 실제 도보 경로 구현 요구 |
 
-| 항목 | 내용 |
-| --- | --- |
-| 기본 주소 | 로컬 `http://localhost:8080` (안) |
-| 경로 접두어 | `/api` |
-| 형식 | 요청과 응답 모두 JSON, UTF-8. 필드 이름은 camelCase |
-| 인증 | 없음 |
-| 길찾기 (FR-06) | API가 아니라 프런트에서 카카오맵 링크를 열어요: `https://map.kakao.com/link/to/{placeName},{y},{x}` |
+---
 
-## 2. 오류 응답
+## 1. 화면이 보여 주는 것 → 필요한 데이터
 
-모든 API는 오류가 나면 같은 모양으로 응답해요.
+| 화면 | 화면에 보이는 것 | 데이터 출처 |
+|---|---|---|
+| 메인 컷 | 「편리」 로고, 문구 | 없음(정적) |
+| P1 첫 화면 | 검색창, 「원하는 상품을 검색해 보세요.」 | 없음 |
+| P2 검색 결과 | 「'우유' 검색 결과 2」, 정렬 「가까운 순」, 상품마다 **이미지 · 정확한 상품명 · 행사 배지(2+1) · 정가 · 개당 최저가 · 주변 N개 매장** | `POST /api/quotes` |
+| P3 매장 펼침 | 상품 아래 매장마다 **브랜드 · 매장명 · 할인 유형(2+1 행사) · 도보 N분 · 거리 · 내 할인 수단 아이콘(최대 4 + …) · 개당 가격 · 재고** | P2 응답에 포함(추가 호출 없음) |
+| P4 목적지 유지 | 고른 매장에 「목적지」 표시 | 프론트 상태 |
+| M1 지도 | 내 위치, 주변 4사 매장 마커(브랜드), 「주변 편의점 4곳」 | `GET /api/stores` + 브라우저 위치 |
+| M2 매장 선택 | 목적지 마커 강조, 내 위치 → 매장 **실제 도보 경로**, **매장명 · 실제 도보 N분 · 경로 거리 · 고른 상품명 · 개당 가격** | P3에서 선택한 매장 + **`GET /api/routes/walking`** |
+| M3 위치 없음 | 「현재 위치를 확인할 수 없어요」, 다시 시도 | 브라우저 위치 |
+| D1 할인 수단 목록 | 등록한 수단마다 **아이콘 · 종류 · 이름 · 등급(통신사만)**, 수정 · 삭제, 추가 버튼 | 브라우저 저장(localStorage) |
+| D2 미등록 | 「아직 등록한 할인 수단이 없어요」 | 브라우저 저장 |
+| D3 추가 폼 | 종류 4개 → 선택지(통신사 · 등급 / 카드 상품 · 카드사 / 간편결제 / 편의점 멤버십), 이미 등록한 것은 「등록됨」 | `GET /api/wallet-options` + 브라우저 저장 |
+| D4 삭제 확인 | 「SKT 멤버십을 삭제할까요?」 | 브라우저 저장 |
+
+할인 수단 목록 · 추가 · 수정 · 삭제는 **서버에 저장하지 않는다**(로그인 없음). 검색할 때 요청 본문 `wallet` 으로 함께 보낸다.
+
+---
+
+## 2. 공통
+
+- JSON, 경로 접두어 `/api`, 인증 없음, UTF-8
+- 필드 camelCase, 코드값 대문자 enum(3절)
+- 금액 = 원 단위 정수, 원 미만 버림. 거리 = 미터 정수. 시간 = 초 정수(표시용 분은 올림). 좌표 = **`x` 경도 · `y` 위도 (WGS84)**
+- **도보시간 구분:** `POST /api/quotes`/`GET /api/stores`의 `walkMin`은 **직선거리 기반 추정치**. M2의 **실제 경로 거리·소요시간은 `GET /api/routes/walking` 응답**으로 표시한다.
+- `GET /api/routes/walking`의 REST API 인증키는 백엔드 환경변수에 보관한다. 브라우저에는 노출하지 않는다. 지도/마커/Polyline 렌더링은 카카오맵 JavaScript SDK로 프론트에서 수행한다.
+- 오류 응답 본문
 
 ```json
 { "code": "KAKAO_RATE_LIMIT", "message": "잠시 뒤 다시 시도해 주세요" }
 ```
 
-| 상태 | code | 언제 |
-| --- | --- | --- |
-| 400 | `INVALID_PARAM` | 필수 값이 없거나 범위를 벗어날 때 |
-| 429 | `KAKAO_RATE_LIMIT` | 카카오 API가 429를 줄 때 |
-| 502 | `KAKAO_ERROR` | 그 밖의 카카오 API 오류 (`GET /api/stores`만. quotes는 매장 없이 200) |
-| 500 | `INTERNAL_ERROR` (안) | 예상하지 못한 서버 오류. 명세에 없어 이서현이 확정 |
+| HTTP | code | 언제 | 화면 |
+|---|---|---|---|
+| 400 | `INVALID_PARAM` | 필수값 없음 · 범위 밖 | 검색창 아래 문구 |
+| 429 | `KAKAO_RATE_LIMIT` | 매장 조회 한도 초과 | 「잠시 뒤 다시 시도해 주세요」 |
+| 502 | `KAKAO_ERROR` | 카카오 매장/경로 조회 실패 | 매장 정보 또는 경로 조회 실패 안내 |
+| 404 | `ROUTE_NOT_FOUND` | 보행 경로를 찾지 못함 | 매장 마커는 유지하고 「도보 경로를 찾지 못했어요」 |
+| 500 | `INTERNAL` | 그 밖 | 공통 오류 문구 |
 
-- `message`는 화면에 그대로 보여도 되는 한국어 문구로 써요 (안). 스택 트레이스를 싣지 않아요.
-- 어떤 칸이 틀렸는지 알려 주는 `field` 칸은 명세에 없어요. 필요하면 스펙 변경으로 다뤄요.
+---
 
-## 3. 한눈에 보기
+## 3. 코드값
 
-| 메서드 · 경로 | 요청 | 성공 응답 | 실패 | 담당 |
-| --- | --- | --- | --- | --- |
-| `GET /api/wallet-options` | 없음 | 200 `{ telecoms: [{ provider, grades: [string] }], cards: [string], pays: [string] }` | | 함석원 |
-| `GET /api/categories/resolve?q=` | `q` 필수, 1 ~ 30자 | 200 `{ query, category, confidence, method }`. 못 찾으면 `category` = null. `method` = `AI` · `KEYWORD` | 400 `INVALID_PARAM` | 한예림 |
-| `GET /api/products?category=` | `category` 필수 | 200 `Product[]` (product 칸, camelCase) | 400 `INVALID_PARAM` | 이서현 |
-| `GET /api/stores?x=&y=&radius=` | `x` 경도 · `y` 위도 필수, `radius` 미터(기본 500, 최대 2000, 안) | 200 `[{ storeId, brand, placeName, distanceM, x, y, roadAddress }]` 거리순 | 400 `INVALID_PARAM` · 429 `KAKAO_RATE_LIMIT` · 502 `KAKAO_ERROR` | 노건우 |
-| `POST /api/quotes` | [5절](#5-post-apiquotes) | 200 [5절](#5-post-apiquotes) | 400 `INVALID_PARAM` · 429 `KAKAO_RATE_LIMIT`. 그 밖의 매장 조회 실패는 502가 아니라 200(매장 칸 null) | 함석원 |
+| 이름 | 값 | 화면 표기 |
+|---|---|---|
+| `Brand` | `CU` · `GS25` · `SEVEN` · `EMART24` | CU · GS25 · 세븐일레븐 · 이마트24 |
+| `MethodType` | `TELECOM` · `CARD` · `PAY` · `MEMBERSHIP` | 통신사 멤버십 · 신용·체크카드 · 간편결제 · 편의점 멤버십 |
+| `Telecom` | `SKT` · `KT` · `LGU` | SKT · KT · LG U+ |
+| `TelecomGrade` | `VIP` · `NORMAL` · `UNKNOWN` | VIP · 일반 · 모름 |
+| `Pay` | `KAKAOPAY` · `NAVERPAY` · `TOSSPAY` · `SAMSUNGWALLET` | 카카오페이 · 네이버페이 · 토스페이 · 삼성월렛 |
+| `CardIssuer` | `SHINHAN` · `KB` · `SAMSUNG` · `HYUNDAI` · `LOTTE` · `WOORI` · `HANA` · `BC` · `NH` | 신한 · KB국민 · 삼성 · 현대 · 롯데 · 우리 · 하나 · BC · NH농협 |
+| `Event` | `NONE` · `ONE_PLUS_ONE` · `TWO_PLUS_ONE` · `THREE_PLUS_ONE` | (없음) · 1+1 · 2+1 · 3+1 |
+| `StockStatus` | `IN_STOCK` · `LOW` · `OUT` | 있음 · 적음 · 없음 |
+| `Sort` | `DISTANCE` · `PRICE` | 가까운 순 · 싼 순 |
 
-## 4. API별 상세
+---
 
-### 4-1. `GET /api/wallet-options` (FR-11)
+## 4. API
 
-할인 규칙표(`discount_rule`)에 있는 통신사 · 등급 · 카드 · 페이만 돌려줘요.
+### 4-1. `GET /api/wallet-options` — 할인 수단 선택지 (D3)
+
+요청 값 없음. 서버 할인 규칙에 있는 것만 내려준다.
+
+**응답 200**
 
 ```json
 {
   "telecoms": [
-    { "provider": "KT", "grades": ["VIP", "GOLD"] }
+    { "code": "SKT", "name": "SKT", "grades": ["VIP", "NORMAL", "UNKNOWN"] },
+    { "code": "KT", "name": "KT", "grades": ["VIP", "NORMAL", "UNKNOWN"] },
+    { "code": "LGU", "name": "LG U+", "grades": ["VIP", "NORMAL", "UNKNOWN"] }
   ],
-  "cards": ["신한카드"],
-  "pays": ["네이버페이"]
+  "cards": [
+    { "cardId": "shinhan-deepdream-check", "name": "신한카드 Deep Dream 체크", "issuer": "SHINHAN" },
+    { "cardId": "shinhan-mrlife", "name": "신한카드 Mr.Life", "issuer": "SHINHAN" }
+  ],
+  "cardIssuers": [
+    { "code": "SHINHAN", "name": "신한" },
+    { "code": "KB", "name": "KB국민" },
+    { "code": "WOORI", "name": "우리" }
+  ],
+  "pays": [
+    { "code": "KAKAOPAY", "name": "카카오페이" },
+    { "code": "NAVERPAY", "name": "네이버페이" },
+    { "code": "TOSSPAY", "name": "토스페이" },
+    { "code": "SAMSUNGWALLET", "name": "삼성월렛" }
+  ],
+  "memberships": [
+    { "brand": "CU", "name": "CU 멤버십" },
+    { "brand": "GS25", "name": "GS&POINT" },
+    { "brand": "SEVEN", "name": "세븐일레븐 멤버십" },
+    { "brand": "EMART24", "name": "이마트24 멤버십" }
+  ]
 }
 ```
 
-- 값은 예시예요. 실제 값은 할인 규칙표(류지범)를 따라요.
-- 목록 순서: 미정(함석원). 안: 이름 가나다순
+| 필드 | 화면 쓰임 |
+|---|---|
+| `telecoms[].grades` | D3 통신사 폼의 등급 칩(VIP · 일반 · 모름) |
+| `cards` | D3 카드 폼의 「카드 상품명 검색」 목록. 프론트가 입력값으로 걸러 보여 준다 |
+| `cardIssuers` | D3 카드 「직접 입력」 때 카드사 칩 |
+| `pays` · `memberships` | D3 간편결제 · 편의점 멤버십 선택지 |
 
-### 4-2. `GET /api/categories/resolve?q=` (FR-02)
+### 4-2. `POST /api/quotes` — 상품 검색 · 매장별 개당 가격 (P2 · P3)
 
-| 파라미터 | 필수 | 규칙 |
-| --- | --- | --- |
-| `q` | Y | 1 ~ 30자. 앞뒤 공백을 지운 뒤 잰다 (안) |
-
-```json
-{ "query": "코크", "category": "COLA", "confidence": 0.95, "method": "AI" }
-```
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `query` | string | 받은 검색어 |
-| `category` | string \| null | 상품군. 못 찾으면 null |
-| `confidence` | number | 0 ~ 1. 키워드 사전으로 찾았을 때의 값은 미정(한예림), 안: 1.0 |
-| `method` | string | `AI` · `KEYWORD` |
-
-- AI 호출이 실패하면 키워드 사전으로 대체하고 `method` = `KEYWORD`로 돌려줘요. 오류로 응답하지 않아요.
-
-### 4-3. `GET /api/products?category=` (FR-07 · FR-09)
-
-| 파라미터 | 필수 | 규칙 |
-| --- | --- | --- |
-| `category` | Y | 상품군 목록에 있는 값. 없는 값의 처리: 미정(이서현), 안: 400 `INVALID_PARAM` |
-
-```json
-[
-  {
-    "productId": "gs25-1001",
-    "brand": "GS25",
-    "name": "펩시콜라600ml",
-    "maker": "롯데",
-    "category": "COLA",
-    "size": 600,
-    "unit": "ML",
-    "listPrice": 2500,
-    "event": "ONE_PLUS_ONE",
-    "dataMonth": "2026-08",
-    "estimated": false,
-    "pb": false
-  }
-]
-```
-
-필드 정의는 [erd.md 3-1](erd.md#3-1-상품-product)의 칸을 camelCase로 바꾼 것이에요.
-
-### 4-4. `GET /api/stores?x=&y=&radius=` (FR-03)
-
-| 파라미터 | 필수 | 규칙 |
-| --- | --- | --- |
-| `x` | Y | 경도 |
-| `y` | Y | 위도 |
-| `radius` | N | 미터. 기본 500, 최대 2000 (안). 넘으면 400인지 2000으로 줄이는지는 미정(노건우) |
-
-```json
-[
-  {
-    "storeId": "12345678",
-    "brand": "GS25",
-    "placeName": "GS25 역삼점",
-    "distanceM": 120,
-    "x": 127.03,
-    "y": 37.50,
-    "roadAddress": "서울 강남구 ..."
-  }
-]
-```
-
-- `storeId` · `placeName` · `x` · `y`는 카카오 응답의 `id` · `place_name` · `x` · `y`예요.
-- 브랜드 판별: `place_name`이 `CU` · `GS25` · `세븐일레븐` · `이마트24`로 시작해요. 나머지 매장은 빼요. `brand` 값은 `CU` · `GS25` · `SEVEN` · `EMART24`
-- 거리순(`distanceM` 오름차순)으로 돌려줘요.
-- `distanceM`은 카카오가 주는 직선거리예요. **도보 거리 · 도보 시간은 백엔드가 주지 않아요.** 프런트가 매장 좌표(`x` · `y`)로 TMAP 보행자 경로 API를 불러서 받아요 (결정 2026-11-09).
-- 카카오 응답은 저장하지 않아요.
-
-## 5. `POST /api/quotes`
-
-### 요청
+**요청**
 
 ```json
 {
-  "category": "COLA",
-  "qty": 1,
-  "x": 127.0276, "y": 37.4979, "radius": 500,
+  "q": "우유",
+  "x": 127.0563,
+  "y": 37.5446,
+  "radius": 500,
+  "sort": "DISTANCE",
   "wallet": {
-    "telecom": { "provider": "KT", "grade": "VIP" },
-    "cards": ["신한카드"],
-    "pays": ["네이버페이"],
-    "prevMonthMet": true
+    "telecom": { "provider": "SKT", "grade": "VIP" },
+    "cards": [
+      { "cardId": "shinhan-deepdream-check", "issuer": "SHINHAN" },
+      { "cardId": null, "name": "우리카드 카드의정석 체크", "issuer": "WOORI" }
+    ],
+    "pays": ["KAKAOPAY", "NAVERPAY"],
+    "memberships": ["CU"]
   }
 }
 ```
 
 | 필드 | 필수 | 규칙 |
-| --- | --- | --- |
-| `category` | Y | 상품군 |
-| `qty` | Y | 1 ~ 10 |
-| `x` · `y` | Y | 경도 · 위도 |
-| `radius` | N | `GET /api/stores`와 같음 (안) |
-| `wallet` | Y (안) | 아무것도 고르지 않았으면 `telecom` null, 빈 배열로 보내요 (FR-01: 할인 없이 계산) |
-| `wallet.telecom` | N | null 가능 |
-| `wallet.cards` · `wallet.pays` | Y | 빈 배열 가능 |
-| `wallet.prevMonthMet` | Y (안) | 전월 실적 충족 여부 |
+|---|---|---|
+| `q` | 필수 | 검색창 입력. 1~30자. 「콜라」 「바나나우유」처럼 대충 쓴 말도 받는다 |
+| `x` · `y` | 필수 | 내 위치. 위치를 못 얻으면 프론트가 기본 좌표(교육장)를 보낸다 |
+| `radius` | 선택 | 미터. 기본 500, 최대 2000 |
+| `sort` | 선택 | 기본 `DISTANCE`. 화면 「가까운 순 ⌄」 |
+| `wallet` | 선택 | D1에 등록한 수단. 없으면 할인 없이 계산 |
+| `wallet.telecom` | 선택 | null 가능. `grade` 는 `VIP` · `NORMAL` · `UNKNOWN` |
+| `wallet.cards[]` | 선택 | 목록에서 고른 카드 = `cardId` + `issuer`. 직접 입력한 카드 = `cardId: null` + `name` + `issuer` |
+| `wallet.pays[]` · `wallet.memberships[]` | 선택 | 빈 배열 가능 |
 
-### 응답
-
-```json
-{
-  "items": [{
-    "brand": "GS25", "storeId": "12345678", "placeName": "GS25 역삼점",
-    "distanceM": 120, "x": 127.03, "y": 37.50,
-    "product": { "productId": "gs25-1001", "name": "펩시콜라600ml", "size": 600, "unit": "ML", "pb": false },
-    "listPrice": 2500, "qty": 1, "paidQty": 1, "receivedQty": 2,
-    "event": "ONE_PLUS_ONE", "eventPrice": 2500,
-    "discounts": [{ "ruleId": "kt-vip-gs25", "type": "TELECOM", "label": "KT VIP", "amount": 0, "applied": false, "reason": "행사 상품 중복 불가" }],
-    "finalPrice": 2500, "pointAmount": 0,
-    "stockStatus": "IN_STOCK",
-    "dataMonth": "2026-08", "estimated": false, "mockRule": false
-  }],
-  "notice": "매장마다 취급 상품이 다를 수 있음"
-}
-```
-
-| 필드 | 설명 |
-| --- | --- |
-| `items[]` | 행 = 브랜드 × 상품. 그 브랜드에서 가장 가까운 매장 1곳 기준 |
-| `brand` · `storeId` · `placeName` · `distanceM` · `x` · `y` | 매장 (`GET /api/stores`와 같음). `distanceM`은 직선거리 |
-| `product` | `productId` · `name` · `size` · `unit` · `pb` |
-| `listPrice` · `qty` · `paidQty` · `receivedQty` · `event` · `eventPrice` | 1단계 행사 ([requirements.md 2절](requirements.md#2-최종-결제액-계산-규칙-fr-04)) |
-| `discounts[]` | 2 ~ 4단계 규칙. **적용 안 된 규칙도** `applied` = false와 `reason`으로 담아요 (화면 "상품별 할인 내역") |
-| `discounts[].type` | `TELECOM` · `CARD` · `PAY` |
-| `finalPrice` | `eventPrice` − 통신사 할인 − 결제 할인 |
-| `pointAmount` | 4단계 적립액. 결제액에서 빼지 않아요 |
-| `stockStatus` | `IN_STOCK` · `LOW` · `OUT` ([requirements.md 3절](requirements.md#3-재고-더미-규칙-fr-10)) |
-| `dataMonth` · `estimated` | 상품의 기준 월, 추정 값 여부 (NFR-01) |
-| `mockRule` | 적용된 할인 규칙 중 `source`가 NULL인 것이 있으면 true (NFR-01) |
-| `notice` | 목록 아래 고정 문구 |
-
-- 정렬: `finalPrice` 오름차순 → 같으면 `distanceM` 오름차순. `OUT` 행은 맨 아래 (안). 명세 2절 그대로예요. TMAP 도보 시간으로 다시 정렬할지는 프런트가 정해요.
-- 반경 안에 그 브랜드 매장이 없으면 그 브랜드 행은 나오지 않아요.
-- `discounts[]`에 담는 범위(사용자가 고른 수단의 규칙만인지, 브랜드가 맞는 규칙만인지), 적립 규칙의 `type` 표기: 미정(함석원)
-- 1+1처럼 2개 받는 행사도 개당 가격이 아니라 `finalPrice`로 정렬해요. 개당 가격 칸은 두지 않아요 (결정 2026-11-09).
-
-### 매장 조회가 실패했을 때 (결정 2026-11-09, NFR-02 기준)
-
-명세 원본은 API 표(502)와 NFR-02(상품 목록만)가 달랐어요. NFR-02를 따르기로 정했어요. 요구사항명세서 원본 수정이 필요해요 (PM2).
-
-| 카카오 결과 | 응답 |
-| --- | --- |
-| 429 | 429 `{ "code": "KAKAO_RATE_LIMIT", "message": "잠시 뒤 다시 시도해 주세요" }` |
-| 그 밖의 오류 | 200. 그 상품군의 4사 상품을 모두 행으로 내고, 매장 칸과 재고는 null. 계산 · 할인 내역은 그대로 |
+**응답 200**
 
 ```json
 {
-  "items": [{
-    "brand": "GS25", "storeId": null, "placeName": null,
-    "distanceM": null, "x": null, "y": null,
-    "product": { "productId": "gs25-1001", "name": "펩시콜라600ml", "size": 600, "unit": "ML", "pb": false },
-    "listPrice": 2500, "qty": 1, "paidQty": 1, "receivedQty": 2,
-    "event": "ONE_PLUS_ONE", "eventPrice": 2500,
-    "discounts": [],
-    "finalPrice": 2500, "pointAmount": 0,
-    "stockStatus": null,
-    "dataMonth": "2026-08", "estimated": false, "mockRule": false
-  }],
-  "notice": "매장마다 취급 상품이 다를 수 있음"
+  "query": "우유",
+  "products": [
+    {
+      "productKey": "binggrae-banana-240",
+      "name": "빙그레 바나나맛우유 240ml",
+      "imageUrl": "https://example.com/banana.png",
+      "event": "TWO_PLUS_ONE",
+      "listPrice": 1500,
+      "minUnitPrice": 1000,
+      "storeCount": 2,
+      "stores": [
+        {
+          "storeId": "12345678",
+          "brand": "CU",
+          "placeName": "CU 성수연무장점",
+          "x": 127.0571, "y": 37.5431,
+          "distanceM": 240,
+          "walkMin": 4,
+          "event": "TWO_PLUS_ONE",
+          "eventLabel": "2+1 행사",
+          "unitPrice": 1000,
+          "applicableMethods": [
+            { "type": "TELECOM", "code": "SKT" },
+            { "type": "CARD", "code": "shinhan-deepdream-check" },
+            { "type": "PAY", "code": "KAKAOPAY" },
+            { "type": "PAY", "code": "NAVERPAY" },
+            { "type": "MEMBERSHIP", "code": "CU" }
+          ],
+          "stockStatus": "IN_STOCK"
+        },
+        {
+          "storeId": "87654321",
+          "brand": "GS25",
+          "placeName": "GS25 성수역점",
+          "x": 127.0559, "y": 37.5448,
+          "distanceM": 380,
+          "walkMin": 6,
+          "event": "TWO_PLUS_ONE",
+          "eventLabel": "2+1 행사",
+          "unitPrice": 1000,
+          "applicableMethods": [
+            { "type": "CARD", "code": "shinhan-deepdream-check" },
+            { "type": "PAY", "code": "KAKAOPAY" },
+            { "type": "PAY", "code": "NAVERPAY" }
+          ],
+          "stockStatus": "LOW"
+        }
+      ]
+    },
+    {
+      "productKey": "maeil-barista-latte-325",
+      "name": "매일 바리스타룰스 카페라떼 325ml",
+      "imageUrl": null,
+      "event": "ONE_PLUS_ONE",
+      "listPrice": 2500,
+      "minUnitPrice": 1250,
+      "storeCount": 1,
+      "stores": [
+        {
+          "storeId": "example-cafe-01",
+          "brand": "SEVEN",
+          "placeName": "세븐일레븐 예시점",
+          "x": 127.0580, "y": 37.5450,
+          "distanceM": 210,
+          "walkMin": 4,
+          "event": "ONE_PLUS_ONE",
+          "eventLabel": "1+1 행사",
+          "unitPrice": 1250,
+          "applicableMethods": [],
+          "stockStatus": "IN_STOCK"
+        }
+      ]
+    }
+  ]
 }
 ```
 
-- 이때 정렬은 `finalPrice` 오름차순만 써요 (거리 · 재고 기준 없음).
-- 화면은 **`storeId`가 null인지로** "매장 정보를 불러오지 못함"을 알아요. 따로 표시 칸을 두지 않아요 (결정 2026-11-09).
-- 그래서 매장 조회는 **전부 성공하거나 전부 실패**예요. 카카오를 여러 번(페이지) 부르다가 한 번이라도 실패하면 전체를 실패로 보고, 모든 행의 매장 칸을 null로 내요. 일부 행만 null인 응답은 없어요.
-- 반경 안에 4사 매장이 하나도 없으면 null 행이 아니라 `items: []`예요.
-- 프런트는 `storeId`가 null인 행에서 길찾기(FR-06)와 TMAP 도보 시간 조회를 꺼요.
+> 모든 가격·매장·경로 값은 API 형식 설명을 위한 **예시 데이터**이며 실제 판매·운영 정보를 뜻하지 않는다.
+
+**상품(`products[]`) 필드**
+
+| 필드 | 화면 | 뜻 |
+|---|---|---|
+| `productKey` | 상품 펼침 · 닫힘 구분 | 4사의 **같은 상품**을 하나로 묶는 키 |
+| `name` | 상품명 | 정확한 상품명(용량 포함) |
+| `imageUrl` | 상품 이미지 | 없으면 null → 프론트 기본 그림 |
+| `event` | 상품명 옆 행사 배지 | 매장들 중 개당 가격이 가장 싼 매장의 행사 |
+| `listPrice` | 「정가 1,500원」 | 정가 |
+| `minUnitPrice` | 「개당 최저가 1,000원」 | `stores[].unitPrice` 중 최솟값 |
+| `storeCount` | 「주변 2개 매장」 | `stores` 개수 |
+| `stores` | P3 매장 목록 | 아래 |
+
+**매장(`stores[]`) 필드**
+
+| 필드 | 화면 | 뜻 |
+|---|---|---|
+| `storeId` | 목적지 선택 구분 | 매장 고유 id |
+| `brand` | 브랜드 아이콘 | `Brand` |
+| `placeName` | 매장명 | 「CU 성수연무장점」 |
+| `x` · `y` | M2 목적지 마커 · 경로 | 매장 좌표 |
+| `distanceM` | 「240m」 | 내 위치에서 직선 거리 |
+| `walkMin` | 상품/매장 목록의 「도보 약 N분」 | **추정치** = ⌈ `distanceM` ÷ 67 ⌉ (직선거리 기준, 시속 약 4km). M2 상세에서는 실제 경로 API의 `durationSeconds`를 사용 |
+| `event` · `eventLabel` | 할인 유형 배지 「2+1 행사」 | 이 매장의 이 상품 행사 |
+| `unitPrice` | 매장 행 오른쪽 「1,000원 개당」 | 5절 계산 결과 |
+| `applicableMethods` | 내 할인 수단 아이콘 | 요청 `wallet` 수단 중 **이 매장 브랜드에서 쓸 수 있는 것**. 혜택 큰 순. 프론트는 앞 4개 + 「+N」 |
+| `stockStatus` | 재고 배지 + 「예시 데이터」 | 5절 재고 규칙 |
+
+**목록 규칙**
+
+- `stores` = 브랜드마다 반경 안 **가장 가까운 매장 1곳**(최대 4곳). 그 브랜드에 상품이 없거나 반경 안에 매장이 없으면 빠진다
+- `stores` 정렬: `unitPrice` 오름차순 → 같으면 `distanceM` 오름차순 → 재고 `OUT` 은 맨 아래
+- `products` 정렬: `sort=DISTANCE` 면 가장 가까운 매장의 `distanceM` 오름차순, `sort=PRICE` 면 `minUnitPrice` 오름차순
+- `stores` 가 빈 상품은 빼고, 결과가 없으면 `products: []` → 「검색 결과 없음」
+
+### 4-3. `GET /api/stores?x=&y=&radius=` — 주변 편의점 (M1)
+
+| 파라미터 | 필수 | 규칙 |
+|---|---|---|
+| `x` · `y` | 필수 | 내 위치 |
+| `radius` | 선택 | 기본 500, 최대 2000 |
+
+**응답 200** — 거리순
+
+```json
+[
+  { "storeId": "12345678", "brand": "CU", "placeName": "CU 성수연무장점",
+    "x": 127.0571, "y": 37.5431, "distanceM": 240, "walkMin": 4 },
+  { "storeId": "87654321", "brand": "GS25", "placeName": "GS25 성수역점",
+    "x": 127.0559, "y": 37.5448, "distanceM": 380, "walkMin": 6 }
+]
+```
+
+- 4사(CU · GS25 · 세븐일레븐 · 이마트24) 매장만. 매장 이름이 4사 이름으로 시작하는지로 판별하고 나머지는 뺀다
+- 화면 「주변 편의점 4곳」 = 배열 길이
+
+---
+
+### 4-4. `GET /api/routes/walking` — 실제 도보 경로 조회 (M2) **[신규]**
+
+**목적:** P3에서 선택한 매장을 목적지로 지정하면, 백엔드가 카카오맵 **도보 경로 REST API**를 호출해 실제 보행로 기준 경로·거리·소요시간을 반환한다. 카카오맵 SDK로 경로를 그리는 작업은 프론트엔드가 담당한다.
+
+**요청 예시**
+
+```http
+GET /api/routes/walking?startX=127.0563&startY=37.5446&endX=127.0571&endY=37.5431
+```
+
+| 파라미터 | 필수 | 타입 | 설명 |
+|---|---|---|---|
+| `startX` | O | number | 사용자 현재 위치 경도(WGS84, -180~180) |
+| `startY` | O | number | 사용자 현재 위치 위도(WGS84, -90~90) |
+| `endX` | O | number | 목적지 매장 경도(WGS84, -180~180) |
+| `endY` | O | number | 목적지 매장 위도(WGS84, -90~90) |
+
+**응답 200 예시 (가상 경로)**
+
+```json
+{
+  "distanceM": 410,
+  "durationSeconds": 390,
+  "path": [
+    { "x": 127.0563, "y": 37.5446 },
+    { "x": 127.0565, "y": 37.5443 },
+    { "x": 127.0570, "y": 37.5437 },
+    { "x": 127.0571, "y": 37.5431 }
+  ],
+  "landingUrl": "https://map.kakao.com/..."
+}
+```
+
+| 필드 | 타입 | 의미 | 화면 사용처 |
+|---|---|---|---|
+| `distanceM` | number | 실제 보행 경로 거리(m) | M2 거리 텍스트 |
+| `durationSeconds` | number | 실제 보행 예상시간(초) | M2 `Math.ceil(durationSeconds/60)`분 |
+| `path` | `{x: number, y: number}[]` | 순서가 있는 경로 좌표(경도/위도, WGS84) | M2 지도 Polyline |
+| `landingUrl` | string \| null | 카카오맵 상세 길찾기 링크(있을 때) | 외부 길찾기 버튼(선택) |
+
+**백엔드 처리 규칙**
+
+1. 입력 좌표 유효성을 검사한다.
+2. 카카오 공식 REST API `GET https://dapi.kakao.com/v2/routing/walk`를 호출한다. 인증 헤더는 `Authorization: KakaoAK ${REST_API_KEY}`를 사용하고, `start_x`, `start_y`, `end_x`, `end_y`, `input_coord=WGS84`, `output_coord=WGS84`를 전달한다.
+3. 카카오 응답 `status=OK`인 경우, `route.properties.totalDistance`와 `totalTime`을 각각 `distanceM`, `durationSeconds`로 변환한다.
+4. `route.legs[].steps[].path.points`에 있는 `[x, y]` 좌표들을 **탐색 순서대로 합쳐서** 응답 `path` 객체 배열로 변환한다. 연결점 중복은 제거 가능하나 경로 순서는 유지한다.
+5. 카카오 경로 탐색 상태가 `SAME_POINT`이면 거리·시간 0, `path: []`를 반환해 프론트에서 목적지 마커만 표시한다. 나머지 경로 탐색 실패 상태는 `404 ROUTE_NOT_FOUND`로 정규화한다.
+6. 도보 경로 API의 쿼터/일시 장애를 고려해 요청 제한 및 짧은 캐싱을 적용할 수 있다. 장애 시 **직선을 실제 도보 경로인 것처럼 표시하지 않는다**.
+
+**오류**
+
+| HTTP | code | 프론트 처리 |
+|---|---|---|
+| 400 | `INVALID_PARAM` | 좌표 검증 후 재시도 안내 |
+| 404 | `ROUTE_NOT_FOUND` | 매장 마커는 표시하고 경로 없음 안내 |
+| 429 | `KAKAO_RATE_LIMIT` | 「잠시 뒤 다시 시도해 주세요」 |
+| 502 | `KAKAO_ERROR` | 「도보 경로를 불러오지 못했어요」 |
+
+**구현 참고:** [카카오맵 도보 경로 조회 REST API 공식 문서](https://developers.kakao.com/docs/ko/kakaomap/rest-api). 실제 카카오 응답 형식과 본 서비스의 응답 형식은 다르며, 위 JSON은 백엔드에서 정규화한 **우리 서비스의 API 계약**이다. 다른 경로 제공업체를 사용하더라도 이 계약을 유지할 수 있다.
+
+---
+
+## 5. 서버 계산 규칙
+
+### 5-1. 개당 가격 `unitPrice`
+
+화면에 수량 선택이 없으므로 **행사 묶음 한 번 살 때** 기준으로 계산한다.
+
+| 단계 | 규칙 |
+|---|---|
+| 1. 묶음 | N+1 행사면 묶음 = N+1개, 내는 개수 = N개. 행사 없으면 1개 · 1개 |
+| 2. 행사가 | 행사가 = 정가 × 내는 개수 |
+| 3. 통신사 할인 | 내 통신사 · 등급 · 매장 브랜드가 맞는 규칙 1개. 행사 상품에 중복 안 되는 규칙이면 0원. 등급 `UNKNOWN` 은 등급 무관 규칙만 |
+| 4. 결제 할인 | 내 카드 · 간편결제 중 이 브랜드에서 **할인액이 가장 큰 1개**(결제는 한 수단으로). 기준 = 3단계 뒤 금액. 전월 실적 조건은 **충족한 것으로 본다** |
+| 5. 편의점 멤버십 | 적립형은 가격에서 빼지 않는다. 할인형이면 4단계 후보에 같이 넣어 큰 것 1개 |
+| 결과 | 결제액 = 행사가 − 통신사 할인 − 결제 할인. **`unitPrice` = ⌊ 결제액 ÷ 묶음 개수 ⌋** |
+
+예: 바나나맛우유 정가 1,500원, 2+1, 할인 없음 → 행사가 1,500 × 2 = 3,000 → 개당 ⌊3,000 ÷ 3⌋ = **1,000원**
+
+카드 직접 입력(`cardId: null`)은 그 카드사 **공통 규칙**만 맞춘다.
+
+### 5-2. 적용 가능 수단 `applicableMethods`
+
+- 요청 `wallet` 의 수단 중 이 매장 **브랜드에 맞는 할인 · 적립 규칙이 하나라도 있으면** 넣는다(이번 상품에 실제로 금액이 빠졌는지와 별개)
+- 정렬: 이 상품에서 실제 혜택 금액 큰 순 → 같으면 `TELECOM` · `CARD` · `PAY` · `MEMBERSHIP` 순
+
+### 5-3. 재고 `stockStatus` (예시 데이터)
+
+- 실제 재고 연동 없음. `storeId + ":" + productKey` 문자열 해시를 10으로 나눈 나머지(음수면 양수로): 0~5 = `IN_STOCK`, 6~8 = `LOW`, 9 = `OUT`
+- 저장하지 않고 요청마다 같은 규칙으로 계산 → 같은 매장 · 같은 상품은 늘 같은 값
+- 화면은 재고 배지 옆에 항상 「예시 데이터」
+
+---
+
+## 6. 서버 없이 프론트가 하는 것
+
+| 기능 | 화면 | 방법 |
+|---|---|---|
+| 할인 수단 저장 · 수정 · 삭제 | D1 · D2 · D3 · D4 | localStorage 키 `pyeonri.wallet`. 모양은 4-2 요청의 `wallet` 과 같게 |
+| 「등록됨」 표시 | D3 | 저장된 `wallet` 과 선택지 비교 |
+| 내 위치 | M1 · M3 | 브라우저 Geolocation. 거부 · 실패면 M3 안내, 검색은 기본 좌표(교육장)로 |
+| 고른 매장 유지 | P4 · M2 | 프론트 상태(새로고침 시 sessionStorage) |
+| 지도 · 마커 | M1 · M2 | 카카오맵 JS SDK |
+| 도보 경로 선 | M2 | **`GET /api/routes/walking`의 `path`로 Polyline 표시**. 프론트는 경로 계산을 수행하지 않음 |
+| M2 거리·시간 | M2 | 경로 API의 `distanceM`, `durationSeconds`를 표시. P3 목록의 추정 `walkMin`과 구분 |
+| 아이콘 최대 4개 + 「+N」 | P3 | `applicableMethods` 앞 4개 |
+
+---
+
+## 7. 프론트엔드 ↔ 백엔드 연동 순서 (시연 흐름)
+
+1. **P1 → P2:** 검색어, 사용자 좌표, 보유 할인 수단을 `POST /api/quotes`로 전송 → 상품 목록과 중첩 매장 목록 표시.
+2. **P2 → P3:** 상품 행 클릭 → 응답에 포함된 `stores[]` 펼침(추가 API 호출 없음). 목록의 `walkMin`은 직선거리 추정치.
+3. **P3 → M2:** 매장 선택 → `storeId`, `placeName`, `x`, `y`, 선택한 `productKey`와 `unitPrice`를 프론트 상태에 저장 → 지도 화면으로 이동. 사용자 현재 좌표와 매장 좌표로 `GET /api/routes/walking` 호출.
+4. **M2:** 지도와 마커는 카카오맵 JS SDK로 표시. 경로 API의 `path`로 Polyline을 그리고, `distanceM`/`durationSeconds`로 거리·시간 표시.
+5. **M1:** 지도 탭에 직접 진입할 때 `GET /api/stores`로 주변 4사 매장 마커 표시(현 Figma 기준).
+6. **D1~D4:** `GET /api/wallet-options`에서 선택지 조회, 등록 목록은 `localStorage` 저장. 등록 후 다시 상품 검색 시 `wallet` 재전송.
+
+### 연동 검증 기준
+
+- `POST /api/quotes` 응답의 `storeCount`가 실제 `stores.length`와 일치한다.
+- 목록에서 240m → 추정 4분, 380m → 추정 6분으로 표시한다. 실제 M2 도보시간은 별도 경로 응답을 사용한다.
+- M2에서 선택 매장의 좌표와 경로 끝점이 대체로 일치하며, API `path`를 실제 도보 경로로 표시한다.
+- 경로 조회가 실패해도 선택 매장 마커와 상품/가격 정보는 유지하고, 경로와 소요시간의 오류를 안내한다.
+- 실제/목업 구분: 행사·재고 등이 예시 데이터일 때 표시를 유지한다. **경로 API 성공값만 실제 보행 경로로 표시한다.**
+
+### 구현 범위 메모
+
+- 이번 개정은 Figma M2의 실제 도보 경로 표시 요구를 명확히 추가한 것이다.
+- 새로운 필수 백엔드 엔드포인트는 `GET /api/routes/walking` 하나이며, 기존 API 3개의 주요 응답 구조는 유지했다.
+- API 키, CORS, 외부 API 한도는 배포 환경별로 별도 설정한다.

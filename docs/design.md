@@ -66,53 +66,52 @@ flowchart LR
 
 ## 3. `POST /api/quotes` 흐름 (함석원)
 
-요청 · 응답 형식은 [reference/api-spec.md 5절](reference/api-spec.md#5-post-apiquotes)에 있어요.
+요청 · 응답 형식은 [reference/api-spec.md](reference/api-spec.md) 4-2(`API명세최종.md` 사본)에 있어요.
 
 ```
 POST /api/quotes (함석원)
- ├─ StoreService.findNearby(x, y, radius) ── 노건우 ── 카카오 로컬 API
- ├─ 브랜드별 가장 가까운 매장 1곳 (그 브랜드 매장이 없으면 그 브랜드 행은 뺀다)
+ ├─ CategoryResolver.resolve(q) ─────────── 한예림 ── AI → 실패 시 키워드 사전. 못 찾으면 products: []
  ├─ ProductService.findByCategory ────────── 이서현 ── product 테이블
- ├─ DiscountRuleService.findFor ──────────── 함석원 ── discount_rule 테이블
- ├─ 4단계 계산 × 상품 수 ────────────────── 함석원 ── 검증 예시(류지범)
- ├─ StockService.statusOf ───────────────── 노건우
- └─ 정렬 · notice · mockRule → 응답
+ ├─ StoreService.findNearby(x, y, radius) ── 노건우 ── 카카오 로컬 API
+ ├─ 브랜드별 가장 가까운 매장 1곳 (반경 안에 없거나 상품이 없으면 그 브랜드는 빠진다)
+ ├─ DiscountRuleService.findFor ──────────── 함석원 ── discount_rule 테이블 (브랜드당 1번)
+ ├─ 개당 가격 계산 × 매장 ────────────────── 함석원 ── 검증 예시(류지범)
+ ├─ StockService.statusOf ───────────────── 노건우 ── 해시 예시값 (명세 5-3)
+ └─ productKey로 묶기 → stores · products 정렬 → 응답
 ```
 
-### 매장 조회가 실패했을 때 (7장 1번 결정)
+### 매장 조회가 실패했을 때
 
 | 카카오 결과 | quotes 응답 |
 | --- | --- |
-| 429 | 429 `KAKAO_RATE_LIMIT` (`message` = "잠시 뒤 다시 시도해 주세요") |
-| 그 밖의 오류 (`KAKAO_ERROR`) | 200. 매장 없이 상품 목록만: 그 상품군의 4사 상품을 모두 행으로 내고, 매장 칸(`storeId` · `placeName` · `distanceM` · `x` · `y`)과 `stockStatus`는 null. 계산과 할인 내역은 그대로 |
+| 429 | 429 `KAKAO_RATE_LIMIT` |
+| 그 밖의 오류 · 타임아웃 | 502 `KAKAO_ERROR` |
 
-- `StoreService.findNearby`가 던진 예외 타입으로 둘을 나눠요.
-- **전부 성공하거나 전부 실패**예요. `StoreService`는 카카오를 여러 번(페이지) 부르다가 한 번이라도 실패하면 받은 결과를 버리고 예외를 던져요. 그래서 일부 행만 null인 응답은 없고, 프런트는 `storeId`가 null인지만 보면 돼요 (따로 표시 칸 없음).
-- 타임아웃도 그 밖의 오류로 봐요.
-- 매장이 없으면 거리 기준 정렬과 `OUT` 맨 아래 규칙은 적용하지 않아요. `finalPrice` 오름차순만 써요.
+- `StoreService.findNearby`가 던진 예외 타입으로 둘을 나눠요. 오류 응답은 `{ code, message }`예요 (명세 2절).
+- 반경 안에 4사 매장이 하나도 없으면 오류가 아니라 `products: []`예요.
 
-### 4단계 계산
+### 개당 가격 계산
 
-규칙 원문은 [reference/requirements.md 2절](reference/requirements.md#2-최종-결제액-계산-규칙-fr-04)이에요. 코드로 옮길 때 지킬 것만 적어요.
+규칙 원문은 [reference/api-spec.md](reference/api-spec.md) 5절이에요. 코드로 옮길 때 지킬 것만 적어요.
 
 | 순서 | 단계 | 코드로 옮길 때 |
 | --- | --- | --- |
-| 1 | 행사 | N+1의 N: `ONE_PLUS_ONE` = 1, `TWO_PLUS_ONE` = 2, `THREE_PLUS_ONE` = 3. `paidQty`는 1부터 늘려 가며 조건을 만족하는 첫 값 (`qty` ≤ 10이라 반복으로 충분해요) |
-| 2 | 통신사 할인 | 규칙은 1개만. `event` ≠ `NONE`이고 `stackWithEvent` = false면 `applied` = false, `reason` = "행사 상품 중복 불가" |
-| 3 | 결제 할인 | 카드 · 페이 후보를 모두 계산한 뒤 할인액이 가장 큰 1개만 `applied` = true. 나머지도 `applied` = false와 이유를 담아요 |
-| 4 | 적립 | `kind` = POINT 중 가장 큰 1개 → `pointAmount`. `finalPrice`에서 빼지 않아요 |
+| 1 | 묶음 · 행사가 | N+1이면 묶음 N+1개, 내는 개수 N개. 행사가 = 정가 × 내는 개수 |
+| 2 | 통신사 할인 | 맞는 규칙 중 가장 큰 1개. 행사 상품에 중복 안 되는 규칙(`stackWithEvent` = false)이면 0원. 등급 `UNKNOWN`은 등급 무관 규칙만 |
+| 3 | 결제 할인 | 카드 · 간편결제 · 할인형 멤버십 중 할인액이 가장 큰 1개. 기준 = 2단계 뒤 금액. 전월 실적은 충족한 것으로 봐요 |
+| 4 | 적립 | 적립형(`kind` = POINT)은 가격에서 빼지 않아요 |
+| 결과 | `unitPrice` | ⌊ (행사가 − 통신사 할인 − 결제 할인) ÷ 묶음 개수 ⌋ |
 
-- 금액은 원 단위 정수(`int`/`long`)로 계산하고, `rate`를 곱할 때만 `BigDecimal`을 써요. `double`을 쓰지 않아요 (안).
-- ⌊ ⌋(버림)은 `BigDecimal.setScale(0, RoundingMode.FLOOR)`로 해요 (안).
-- `reason` 문구 목록(행사 중복 불가, 전월 실적 미충족, 최소 결제액 미만, 더 큰 할인 선택 등): 미정(함석원). 프런트와 맞춰요.
+- 금액은 원 단위 정수로 계산하고, `rate`를 곱할 때만 `BigDecimal`을 써요. ⌊ ⌋(버림)은 `RoundingMode.FLOOR`예요.
+- 적용 안 된 규칙의 이유(`applied` · `reason`)는 응답에 없어요. 대신 `applicableMethods`에 이 브랜드에서 쓸 수 있는 수단을 혜택 큰 순으로 담아요 (명세 5-2).
 - **검증 예시(류지범 손계산)를 단위 테스트로 만들고, 모두 맞아야 완료**예요. 명세대로 5건이에요 (7장 8번 결정).
 
 ### 정렬과 표시
 
-- 정렬: `finalPrice` 오름차순 → 같으면 `distanceM` 오름차순. `stockStatus` = `OUT` 행은 맨 아래 (안). 명세 2절 그대로예요 (7장 2번 결정).
-- 1+1처럼 2개 받는 행사도 개당 가격이 아니라 `finalPrice`로 정렬해요 (7장 6번 결정).
-- `mockRule`: 적용된(`applied` = true) 규칙 중 `source`가 NULL인 것이 있으면 true (NFR-01)
-- `notice`: "매장마다 취급 상품이 다를 수 있음" 고정
+- `stores` 정렬: `unitPrice` 오름차순 → 같으면 `distanceM` 오름차순 → `stockStatus` = `OUT`은 맨 아래 (명세 4-2)
+- `products` 정렬: `sort` = `DISTANCE`면 가장 가까운 매장의 `distanceM`, `PRICE`면 `minUnitPrice` 오름차순
+- `walkMin` = ⌈ `distanceM` ÷ 67 ⌉ (직선거리 추정치). M2 실제 도보 시간은 `GET /api/routes/walking`
+- 「예시 데이터」 표시는 프런트가 재고 배지 옆에 늘 붙여요 (명세 5-3). 응답에 목업 플래그(`estimated` · `dataMonth` · `mockRule`)는 없어요
 
 ## 4. 데이터
 
@@ -182,10 +181,11 @@ int n = Math.floorMod((storeId + ":" + productId).hashCode(), 10);
 
 | # | 결정 | 반영한 곳 |
 | --- | --- | --- |
-| 1 | 매장 조회 실패 시: 카카오 429면 quotes도 429 `KAKAO_RATE_LIMIT`. **그 밖의 오류는 502로 끝내지 않고 매장 없이 상품 목록만** 200으로 줘요(NFR-02 기준). 이때 매장 칸(`storeId` · `placeName` · `distanceM` · `x` · `y`)과 `stockStatus`는 **null**. 화면은 `storeId`가 null인지로 판단하고, 매장 조회는 전부 성공하거나 전부 실패예요 | [api-spec.md 5절](reference/api-spec.md#5-post-apiquotes), 이 문서 3장 |
-| 2 | quotes 정렬은 **명세 2절 그대로** `finalPrice` 오름차순 → `distanceM` 오름차순, `OUT`은 맨 아래. 화면의 "가격순 우선 후 도보 시간순"은 프런트가 TMAP 도보 시간으로 다시 정렬해요 (백엔드 범위 밖) | 이 문서 3장, [api-spec.md 5절](reference/api-spec.md#5-post-apiquotes), [roles.md](roles.md) |
+| 1 | ~~매장 조회 실패 시 200 · 매장 칸 null~~ → **`API명세최종.md`로 대체** (2026-11-10): 429 `KAKAO_RATE_LIMIT`, 그 밖 502 `KAKAO_ERROR` | 이 문서 3장 |
+| 2 | ~~quotes 정렬 `finalPrice` → `distanceM`~~ → **`API명세최종.md`로 대체** (2026-11-10): `stores`는 `unitPrice` → `distanceM` → `OUT` 맨 아래, `products`는 `sort`(`DISTANCE` · `PRICE`) | 이 문서 3장, [api-spec.md](reference/api-spec.md) 4-2 |
 | 3 | 원천에 상품군이 없는 상품의 `category`는 **변환 때 키워드로 채워요** (한예림 변환 스크립트). FR-08은 키워드로도 못 채운 것(NULL)만 다뤄요 | 이 문서 4장 |
 | 4 | 제로 콜라는 **`COLA`에 넣어요** | [erd.md 3-1](reference/erd.md#3-1-상품-product) |
-| 6 | 개당 가격 정렬은 **추가하지 않아요.** 1+1도 실제로 내는 금액(`finalPrice`) 기준으로 정렬해요. 응답 변경 없음 | — |
-| 7 | **`walkMinutes`는 만들지 않고, 도보 거리 · 시간 API도 백엔드에 두지 않아요.** 프런트가 매장 좌표로 TMAP 보행자 경로 API를 불러 도보 거리 · 시간을 받아요. 백엔드 응답의 거리 칸은 `distanceM`(카카오 직선거리) 하나예요 | 이 문서 1 · 2장, [api-spec.md](reference/api-spec.md), [roles.md](roles.md) |
+| 6 | ~~개당 가격 정렬은 추가하지 않음 (`finalPrice` 기준)~~ → **`API명세최종.md`로 대체** (2026-11-10): 개당 가격 `unitPrice` · `minUnitPrice` 기준 | 이 문서 3장 |
+| 7 | ~~`walkMinutes`를 만들지 않음~~ → **`API명세최종.md`로 대체** (2026-11-10): 목록은 `walkMin` = ⌈`distanceM` ÷ 67⌉ 추정치, M2 실제 도보 경로는 `GET /api/routes/walking`(노건우) | 이 문서 3장, [api-spec.md](reference/api-spec.md) 4-2 · 4-4 |
+| 9 | 옛 요구사항명세서 5절의 `applied` · `reason` · `finalPrice` 정렬 · `pointAmount` · `notice` · `mockRule` · `estimated` · `dataMonth`는 **폐기**. `API명세최종.md`대로 구현해요 (2026-11-10) | 이 문서 3장, [roles.md](roles.md), [api-spec.md](reference/api-spec.md) |
 | 8 | FR-04 검증 예시는 **명세대로 5건** | 이 문서 3장, [roles.md](roles.md) |
