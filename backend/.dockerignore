@@ -1,0 +1,10 @@
+# 빌드 결과 · 로컬 DB · 비밀 값은 이미지에 넣지 않는다
+build/
+.gradle/
+data/
+bin/
+out/
+.idea/
+*.iml
+.env
+*.env
