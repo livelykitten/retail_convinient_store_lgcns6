@@ -110,10 +110,12 @@ public class ClaudeCategoryResolver implements CategoryResolver {
                 - 커피, 아메리카노, 라떼, 바리스타룰스 등 -> COFFEE
                 - 콜라, 제로콜라, 펩시 -> COLA
                 - 사이다, 환타, 웰치스, 탄산수 등 콜라가 아닌 탄산음료 -> SODA
-                - 라면, 컵라면, 봉지라면 -> RAMEN
+                - 라면, 컵라면, 큰사발, 컵 · 봉지를 말하지 않은 라면 제품명 -> RAMEN_CUP
+                - 봉지라면, 라면 봉지, 멀티팩 -> RAMEN_BAG
                 - 초콜릿, 초코 -> CHOCOLATE
                 - 과자, 스낵, 감자칩 -> SNACK
-                - 도시락, 김밥, 삼각김밥, 샌드위치 -> LUNCHBOX
+                - 도시락, 김밥, 샌드위치 -> LUNCHBOX
+                - 삼각김밥, 주먹밥 -> TRIANGLE_KIMBAP
                 - 아이스크림 -> ICECREAM
                 - 맥주, 소주, 주류 -> BEER
 
