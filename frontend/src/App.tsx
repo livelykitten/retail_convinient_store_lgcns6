@@ -75,11 +75,12 @@ export default function App() {
     // P1 「내 주변 편의점」: 아직 받은 매장이 없을 때만 한 번 부른다
     const storesPoint = fixturesEnabled ? demoCenter : position;
     useEffect(() => {
-        if (splash || tab !== 'products' || !storesPoint || nearbyStores.length) return;
+        // 가계부 「영수증으로 직접 적기」의 매장 선택지도 이 목록을 쓴다
+        if (splash || (tab !== 'products' && !manualRecord) || !storesPoint || nearbyStores.length) return;
         const controller = new AbortController();
         api.stores(storesPoint, controller.signal).then(value => { if (!controller.signal.aborted) setNearbyStores(value); }).catch(() => { /* 첫 화면은 목록만 숨긴다 */ });
         return () => controller.abort();
-    }, [splash, tab, storesPoint, nearbyStores.length]);
+    }, [splash, tab, manualRecord, storesPoint, nearbyStores.length]);
     // 목적지로 걷는 동안 위치를 계속 받아 매장 30m 안이면 도착 화면을 연다(실제 위치 모드만)
     useEffect(() => {
         if (fixturesEnabled || splash || !destination || tab !== 'map') return;
@@ -111,7 +112,8 @@ export default function App() {
                 setResult(value);
                 if (expandKey !== null) setExpanded(value.products.some(product => product.productKey === expandKey) ? expandKey : null);
                 else if (!preserveExpanded) setExpanded(null);
-                if (fixturesEnabled && destination) {
+                // 할인 수단이 바뀌어 다시 검색하면 목적지 가격도 맞춘다(데모 · 실제 공통)
+                if (destination) {
                     const selected = value.products.find(product => product.productKey === destination.productKey)?.stores.find(store => store.storeId === destination.storeId);
                     if (selected && selected.unitPrice !== destination.unitPrice) {
                         const next = { ...destination, unitPrice: selected.unitPrice };
@@ -146,7 +148,8 @@ export default function App() {
     function updateWallet(next: Wallet) {
         try {
             saveWallet(localStorage, next); setWallet(next); setStorageError('');
-            if (fixturesEnabled && result) void search(sort, next, result.query, true);
+            // 할인 수단을 바꾸면 보던 검색 결과를 새 기준으로 다시 받는다(실제 API 모드에서도. 전에는 데모만 다시 받아 가격이 예전 기준으로 남았음)
+            if (result) void search(sort, next, result.query, true);
             return true;
         }
         catch { setStorageError('할인 수단을 저장하지 못했어요. 브라우저 저장 설정을 확인해 주세요.'); return false; }

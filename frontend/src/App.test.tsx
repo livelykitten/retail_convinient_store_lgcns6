@@ -180,6 +180,14 @@ describe('실제 위치 모드 점검(배포 화면)', () => {
     it('도보 경로 400(2km 초과)은 「입력값을 확인해 주세요」 대신 이유를 알려 준다', () => {
         expect(routeErrorMessage(new ApiError('INVALID_PARAM', '입력값을 확인해 주세요', 400))).toBe(tooFarMessage);
     });
+    it('할인 수단을 바꾸면 보던 검색 결과를 새 기준으로 다시 받는다(실제 API 모드)', async () => {
+        render(<App />); const user = await searchMilk();
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(await screen.findByRole('button', { name: /할인 수단 추가/ }));
+        await user.click(await screen.findByRole('button', { name: 'SKT' }));
+        await user.click(screen.getByRole('button', { name: '추가' }));
+        await waitFor(() => expect(api.quotes).toHaveBeenLastCalledWith(expect.objectContaining({ q: '우유', wallet: expect.objectContaining({ telecom: expect.objectContaining({ provider: 'SKT' }) }) }), expect.anything()));
+    });
     it('할인 수단 선택지가 비어 있으면 안내한다', async () => {
         vi.mocked(api.walletOptions).mockResolvedValue({ ...walletOptions, pays: [], memberships: [] });
         const user = userEvent.setup(); render(<App />);

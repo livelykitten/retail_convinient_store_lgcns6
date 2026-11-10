@@ -77,6 +77,7 @@ describe('가계부 요약', () => {
     });
     it('조사', () => {
         expect(objectParticle('펩시제로라임캔355ml')).toBe('을'); expect(objectParticle('착한제육비빔밥')).toBe('을'); expect(objectParticle('바나나우유')).toBe('를');
-        expect(byParticle('신한카드 Mr.Life')).toBe('로'); expect(byParticle('카카오페이')).toBe('로'); expect(byParticle('신한카드')).toBe('로'); expect(byParticle('현대카드 M')).toBe('로');
+        expect(byParticle('신한카드 Mr.Life')).toBe('로'); expect(byParticle('카카오페이')).toBe('로'); expect(byParticle('신한카드')).toBe('로'); expect(byParticle('현대카드 M')).toBe('으로');
+        expect(['SKT', 'KT', 'LG U+', '카카오페이', 'CU 멤버십', '[시연용] CU모닝 신한 체크카드', '간장도시락(아워홈)'].map(objectParticle)).toEqual(['를', '를', '를', '를', '을', '를', '을']);
     });
 });

@@ -176,20 +176,29 @@ export function groupByDay(list: LedgerEntry[]) {
     return groups;
 }
 
-/** 받침에 맞는 목적격 조사. 한글이 아니면(용량 ml 등) 「을」 */
-export function objectParticle(word: string) {
-    const last = word.trim().at(-1) ?? '';
-    const code = last.charCodeAt(0) - 0xAC00;
-    if (code < 0 || code > 11171) return '을';
-    return code % 28 ? '을' : '를';
+/**
+ * 끝 글자의 받침: none(없음) · rieul(ㄹ) · other(그 밖). 영문 · 숫자는 읽는 소리 기준
+ * (SKT 「티」 → 없음, ml 「엘」 → ㄹ, M 「엠」 → 있음, 1 「일」 → ㄹ), 괄호 같은 기호는 건너뛴다
+ */
+function finalSound(word: string): 'none' | 'rieul' | 'other' {
+    const chars = [...word.trim()];
+    for (let index = chars.length - 1; index >= 0; index--) {
+        const char = chars[index];
+        const code = char.charCodeAt(0) - 0xAC00;
+        if (code >= 0 && code <= 11171) { const final = code % 28; return final === 0 ? 'none' : final === 8 ? 'rieul' : 'other'; }
+        if (/[a-z]/i.test(char)) return /[lr]/i.test(char) ? 'rieul' : /[mn]/i.test(char) ? 'other' : 'none';
+        if (/[0-9]/.test(char)) return '178'.includes(char) ? 'rieul' : '036'.includes(char) ? 'other' : 'none';
+        if (char === '+') return 'none'; // 플러스
+    }
+    return 'other';
 }
-/** 「~로/~으로」. 받침 없음 · ㄹ 받침 · 한글 아님(Mr.Life 등)은 「로」 */
+/** 받침에 맞는 목적격 조사 「을/를」 */
+export function objectParticle(word: string) {
+    return finalSound(word) === 'none' ? '를' : '을';
+}
+/** 「~로/~으로」. 받침 없음 · ㄹ 받침은 「로」 */
 export function byParticle(word: string) {
-    const last = word.trim().at(-1) ?? '';
-    const code = last.charCodeAt(0) - 0xAC00;
-    if (code < 0 || code > 11171) return '로';
-    const final = code % 28;
-    return final === 0 || final === 8 ? '로' : '으로';
+    return finalSound(word) === 'other' ? '으로' : '로';
 }
 
 /** 발표용 예시 기록(데모 모드에서 저장된 적이 없을 때만). 피그마 v3 5번 화면 값 */
