@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import App from './App';
 import { api, ApiError } from './api';
 import { quotes, stores, walletOptions } from './fixtures';
-import { MapView } from './MapView';
+import { MapView, routeErrorMessage, tooFarMessage } from './MapView';
 import { emptyWallet } from './storage';
 import type { KakaoMaps } from './kakao';
 import { latLng, loadKakao } from './kakao';
@@ -163,5 +163,49 @@ describe('경로 지도 계약', () => {
         const retry = vi.fn();
         render(<MapView position={null} destination={destination} locationError="거부됨" locating={false} locate={retry} clear={vi.fn()} />);
         expect(api.walking).not.toHaveBeenCalled(); fireEvent.click(screen.getByRole('button', { name: '다시 시도' })); expect(retry).toHaveBeenCalledOnce();
+    });
+});
+
+describe('실제 위치 모드 점검(배포 화면)', () => {
+    it('위치 확인 전에 검색하면 위치를 기다렸다가 내 위치로 검색한다(기본 좌표로 먼 매장을 고르지 않음)', async () => {
+        let found: ((value: { coords: { longitude: number; latitude: number } }) => void) | null = null;
+        Object.defineProperty(navigator, 'geolocation', { configurable: true, value: { getCurrentPosition: vi.fn(success => { found = success; }) } });
+        const user = userEvent.setup(); render(<App />);
+        await user.type(screen.getByRole('textbox', { name: '상품 검색' }), '우유');
+        await user.click(screen.getByRole('button', { name: '검색' }));
+        expect(api.quotes).not.toHaveBeenCalled();
+        found!({ coords: { longitude: 127.0161, latitude: 37.5631 } });
+        await waitFor(() => expect(api.quotes).toHaveBeenCalledWith(expect.objectContaining({ x: 127.0161, y: 37.5631 }), expect.anything()));
+    });
+    it('도보 경로 400은 실제 직선거리가 2km를 넘을 때만 거리 안내(좌표 오류 등 다른 400은 기본 문구)', () => {
+        const invalid = new ApiError('INVALID_PARAM', '입력값을 확인해 주세요', 400);
+        expect(routeErrorMessage(invalid, 4125)).toBe(tooFarMessage);
+        expect(routeErrorMessage(invalid, 120)).toBe('입력값을 확인해 주세요');
+        expect(routeErrorMessage(invalid)).toBe('입력값을 확인해 주세요');
+    });
+    it('다시 검색하면 목적지의 행사 · 할인 수단 · 정가도 새 결과로 저장한다(가격이 같아도)', async () => {
+        // 저장된 목적지: GS25 바나나맛우유, 가격은 지금과 같고 할인 수단 · 행사 · 정가는 예전 값
+        sessionStorage.setItem('pyeonri.destination', JSON.stringify({ ...stores[0], productKey: 'binggrae-banana-240', productName: '빙그레 바나나맛우유 240ml', unitPrice: 1000, listPrice: 1400, event: 'NONE', methods: [{ type: 'TELECOM', code: 'KT' }] }));
+        render(<App />); await searchMilk();
+        await waitFor(() => {
+            const saved = JSON.parse(sessionStorage.getItem('pyeonri.destination')!);
+            expect([saved.unitPrice, saved.event, saved.methods, saved.listPrice]).toEqual([1000, 'TWO_PLUS_ONE', [], 1500]);
+        });
+    });
+    it('할인 수단을 바꾸면 보던 검색 결과를 새 기준으로 다시 받는다(실제 API 모드)', async () => {
+        render(<App />); const user = await searchMilk();
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(await screen.findByRole('button', { name: /할인 수단 추가/ }));
+        await user.click(await screen.findByRole('button', { name: 'SKT' }));
+        await user.click(screen.getByRole('button', { name: '추가' }));
+        await waitFor(() => expect(api.quotes).toHaveBeenLastCalledWith(expect.objectContaining({ q: '우유', wallet: expect.objectContaining({ telecom: expect.objectContaining({ provider: 'SKT' }) }) }), expect.anything()));
+    });
+    it('할인 수단 선택지가 비어 있으면 안내한다', async () => {
+        vi.mocked(api.walletOptions).mockResolvedValue({ ...walletOptions, pays: [], memberships: [] });
+        const user = userEvent.setup(); render(<App />);
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(await screen.findByRole('button', { name: /할인 수단 추가/ }));
+        await user.click(await screen.findByRole('button', { name: /간편결제/ }));
+        expect(screen.getByText('지금은 고를 수 있는 항목이 없어요')).toBeTruthy();
     });
 });

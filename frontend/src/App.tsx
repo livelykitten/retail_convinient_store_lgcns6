@@ -55,31 +55,39 @@ export default function App() {
     const [dismissedStore, setDismissedStore] = useState<string | null>(null); // 닫은 도착 화면은 같은 매장에서 다시 띄우지 않는다
     const [manualRecord, setManualRecord] = useState(false); // 가계부 「영수증으로 직접 적기」
     const [cardNames, setCardNames] = useState<Record<string, string>>({});
-    const controller = useRef<AbortController | null>(null); const locationPending = useRef(false); const mounted = useRef(true);
+    const controller = useRef<AbortController | null>(null); const mounted = useRef(true);
+    // 진행 중인 위치 확인. 위치가 오기 전에 검색하면 이걸 기다렸다가 내 위치로 검색한다(기본 좌표로 먼 매장을 고르지 않게)
+    const locationRequest = useRef<Promise<Coordinates | null> | null>(null);
+    // 목적지로 걷는 동안 받는 위치(남은 거리 · 30m 도착용). 지도 · 도보 경로는 다시 그리지 않게 position과 따로 둔다
+    const [livePosition, setLivePosition] = useState<Coordinates | null>(null);
     useEffect(() => { mounted.current = true; return () => { mounted.current = false; controller.current?.abort(); }; }, []);
-    const locate = useCallback(() => {
-        if (fixturesEnabled) return;
-        if (locationPending.current) return;
-        locationPending.current = true; setLocating(true); setLocationError('');
-        getCurrentLocation().then(value => { if (mounted.current) setPosition(value); })
-            .catch(error => { if (mounted.current) { setPosition(null); setLocationError(errorMessage(error)); } })
-            .finally(() => { locationPending.current = false; if (mounted.current) setLocating(false); });
+    const locate = useCallback((): Promise<Coordinates | null> => {
+        if (fixturesEnabled) return Promise.resolve(null);
+        if (locationRequest.current) return locationRequest.current;
+        setLocating(true); setLocationError('');
+        const pending = getCurrentLocation().then(value => { if (mounted.current) setPosition(value); return value; })
+            .catch(error => { if (mounted.current) { setPosition(null); setLocationError(errorMessage(error)); } return null; })
+            .finally(() => { locationRequest.current = null; if (mounted.current) setLocating(false); });
+        locationRequest.current = pending;
+        return pending;
     }, []);
     useEffect(() => { if (!splash) locate(); }, [splash, locate]);
     // P1 「내 주변 편의점」: 아직 받은 매장이 없을 때만 한 번 부른다
     const storesPoint = fixturesEnabled ? demoCenter : position;
     useEffect(() => {
-        if (splash || tab !== 'products' || !storesPoint || nearbyStores.length) return;
+        // 가계부 「영수증으로 직접 적기」의 매장 선택지도 이 목록을 쓴다
+        if (splash || (tab !== 'products' && !manualRecord) || !storesPoint || nearbyStores.length) return;
         const controller = new AbortController();
         api.stores(storesPoint, controller.signal).then(value => { if (!controller.signal.aborted) setNearbyStores(value); }).catch(() => { /* 첫 화면은 목록만 숨긴다 */ });
         return () => controller.abort();
-    }, [splash, tab, storesPoint, nearbyStores.length]);
+    }, [splash, tab, manualRecord, storesPoint, nearbyStores.length]);
     // 목적지로 걷는 동안 위치를 계속 받아 매장 30m 안이면 도착 화면을 연다(실제 위치 모드만)
     useEffect(() => {
         if (fixturesEnabled || splash || !destination || tab !== 'map') return;
-        return watchLocation(value => { if (mounted.current) setPosition(value); });
+        const stop = watchLocation(value => { if (mounted.current) setLivePosition(value); });
+        return () => { stop(); setLivePosition(null); };
     }, [splash, destination, tab]);
-    const walkingFrom = fixturesEnabled ? demoCenter : position;
+    const walkingFrom = fixturesEnabled ? demoCenter : livePosition ?? position;
     const remainingM = walkingFrom && destination ? Math.round(distanceM(walkingFrom, destination)) : null;
     const near = !fixturesEnabled && remainingM !== null && remainingM <= ARRIVE_M;
     useEffect(() => {
@@ -97,17 +105,22 @@ export default function App() {
         controller.current?.abort(); const current = new AbortController(); controller.current = current; setError(''); setParamError('');
         try {
             setBusy(true);
-            const value = await api.quotes({ q: query, ...(fixturesEnabled ? demoCenter : position ?? searchDefaultCoordinates), radius: 500, sort: nextSort, wallet: nextWallet }, current.signal);
+            const point = fixturesEnabled ? demoCenter : position ?? (locationRequest.current ? await locationRequest.current : null) ?? searchDefaultCoordinates;
+            if (current.signal.aborted) return;
+            const value = await api.quotes({ q: query, ...point, radius: 500, sort: nextSort, wallet: nextWallet }, current.signal);
             if (!current.signal.aborted) {
                 setResult(value);
                 if (expandKey !== null) setExpanded(value.products.some(product => product.productKey === expandKey) ? expandKey : null);
                 else if (!preserveExpanded) setExpanded(null);
-                if (fixturesEnabled && destination) {
-                    const selected = value.products.find(product => product.productKey === destination.productKey)?.stores.find(store => store.storeId === destination.storeId);
-                    if (selected && selected.unitPrice !== destination.unitPrice) {
-                        const next = { ...destination, unitPrice: selected.unitPrice };
+                // 다시 검색하면 목적지의 가격 · 행사 · 쓸 수 있는 할인 수단 · 정가도 새 결과로 맞춘다(데모 · 실제 공통).
+                // 가격이 같아도 할인 수단은 달라질 수 있으니 하나라도 다르면 저장한다(새로고침 뒤 도착 화면이 이 값을 씀)
+                if (destination) {
+                    const product = value.products.find(item => item.productKey === destination.productKey);
+                    const selected = product?.stores.find(store => store.storeId === destination.storeId);
+                    const next = selected && product ? { ...destination, unitPrice: selected.unitPrice, event: selected.event, methods: selected.applicableMethods, listPrice: product.listPrice } : null;
+                    if (next && JSON.stringify([next.unitPrice, next.event, next.methods, next.listPrice]) !== JSON.stringify([destination.unitPrice, destination.event, destination.methods, destination.listPrice])) {
                         setDestination(next);
-                        try { saveDestination(sessionStorage, next); } catch { setStorageError('목적지 가격을 저장하지 못했어요.'); }
+                        try { saveDestination(sessionStorage, next); } catch { setStorageError('목적지 정보를 저장하지 못했어요.'); }
                     }
                 }
             }
@@ -137,7 +150,8 @@ export default function App() {
     function updateWallet(next: Wallet) {
         try {
             saveWallet(localStorage, next); setWallet(next); setStorageError('');
-            if (fixturesEnabled && result) void search(sort, next, result.query, true);
+            // 할인 수단을 바꾸면 보던 검색 결과를 새 기준으로 다시 받는다(실제 API 모드에서도. 전에는 데모만 다시 받아 가격이 예전 기준으로 남았음)
+            if (result) void search(sort, next, result.query, true);
             return true;
         }
         catch { setStorageError('할인 수단을 저장하지 못했어요. 브라우저 저장 설정을 확인해 주세요.'); return false; }
@@ -197,7 +211,7 @@ export default function App() {
                 {locationError && <p className="search-location-note">위치를 확인할 수 없어 기본 위치(교육장)로 검색해요.</p>}
                 <Products result={result} busy={busy} error={error} sort={sort} changeSort={value => { setSort(value); void search(value, wallet, q, true); }} destination={destination} wallet={wallet} choose={choose} retry={() => void search()} expanded={expanded} toggle={toggle} />
             </> : <>
-                <header className="search-header"><div className="logo-row"><span className="logo"><img src="/assets/brand/pyeonri-logo-h.png" alt="편리" /></span><button className="header-location" onClick={locate} disabled={locating || fixturesEnabled}><Icon name="icons/map-pin" size={14} />{fixturesEnabled ? '신당동 강의장' : locating ? '위치 확인 중' : position ? '내 위치 기준' : '기본 위치 기준'}</button></div>{searchForm}{paramError && <p className="search-error" role="alert">{paramError}</p>}</header>
+                <header className="search-header"><div className="logo-row"><span className="logo"><img src="/assets/brand/pyeonri-logo-h.png" alt="편리" /></span><button className="header-location" onClick={() => void locate()} disabled={locating || fixturesEnabled}><Icon name="icons/map-pin" size={14} />{fixturesEnabled ? '신당동 강의장' : locating ? '위치 확인 중' : position ? '내 위치 기준' : '기본 위치 기준'}</button></div>{searchForm}{paramError && <p className="search-error" role="alert">{paramError}</p>}</header>
                 <Home wallet={wallet} recent={recent} nearby={nearbyStores} saved={ledger.length ? saved : null} goLedger={() => switchTab('ledger')} search={query => searchFor(query)} openRecent={item => searchFor(item.query, item.productKey)} goWallet={() => switchTab('wallet')} goMap={() => switchTab('map')} />
             </>)}
             {tab === 'map' && (plan && (arrival === 'screen' || arrival === 'record')

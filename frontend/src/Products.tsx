@@ -27,7 +27,7 @@ export function ProductImage({ imageUrl, productKey, className = '' }: { imageUr
     const fallback = productKey === 'binggrae-banana-240' ? '/assets/banana.svg'
         : productKey === 'maeil-barista-latte-325' ? '/assets/latte.svg' : null;
     const source = (!failed && imageUrl) || fallback;
-    return <span className={`product-image ${className}`}>{source ? <img src={source} alt="" onError={() => setFailed(true)} /> : <span className="image-placeholder" aria-label="상품 이미지 없음"><Icon name="box" size={24} /></span>}</span>;
+    return <span className={`product-image ${className}`}>{source ? <img src={source} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)} /> : <span className="image-placeholder" aria-label="상품 이미지 없음"><Icon name="box" size={24} /></span>}</span>;
 }
 
 /** CARD 코드는 카드 ID라서 저장된 wallet에서 카드사를 찾는다. 못 찾으면 「카드」 */
@@ -137,9 +137,11 @@ export function Home({ wallet, recent, nearby, search, openRecent, goWallet, goM
     </div>;
 }
 function ProductImageInner({ item }: { item: RecentItem }) {
+    const [failed, setFailed] = useState(false);
     const fallback = item.productKey === 'binggrae-banana-240' ? '/assets/banana.svg' : item.productKey === 'maeil-barista-latte-325' ? '/assets/latte.svg' : null;
-    const source = item.imageUrl || fallback;
-    return source ? <img src={source} alt="" /> : <Icon name="box" size={24} />;
+    // 이미지 주소가 깨지면 상자 아이콘(검색 결과 카드와 같게)
+    const source = (!failed && item.imageUrl) || fallback;
+    return source ? <img src={source} alt="" loading="lazy" onError={() => setFailed(true)} /> : <Icon name="box" size={24} />;
 }
 
 export function Products({ result, busy, error, sort, changeSort, destination, wallet, choose, retry, expanded, toggle }: {
