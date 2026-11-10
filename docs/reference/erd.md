@@ -1,4 +1,4 @@
-> **DB 설계 초안 v1.3 (함석원).** **REST API 명세 v1.1(B 매대 가격표 화면 기준, 2026-11-09)만 기준**으로 설계했어요. 요구사항명세서 4절의 칸을 바탕으로 했고, 데이터 수집 · 가공 가이드의 DB 안(매장 · 재고 저장)은 쓰지 않아요 (결정 2026-11-09). DDL은 [`backend/src/main/resources/schema.sql`](../../backend/src/main/resources/schema.sql)이에요. 스키마 변경 PR은 이서현이 리뷰해요. `(안)` = 제안값이에요.
+> **DB 설계 초안 v1.3 (함석원).** **`API명세최종.md`(편리 REST API 명세 v1.1, B 매대 가격표 화면 기준, 2026-11-09)만 기준**으로 설계했어요. 이 문서에서 "API" · "API 5-1"처럼 적은 것은 이 파일과 그 절 번호예요. 요구사항명세서 4절의 칸을 바탕으로 했고, 데이터 수집 · 가공 가이드의 DB 안(매장 · 재고 저장)은 쓰지 않아요 (결정 2026-11-09). DDL은 [`backend/src/main/resources/schema.sql`](../../backend/src/main/resources/schema.sql)이에요. 스키마 변경 PR은 이서현이 리뷰해요. `(안)` = 제안값이에요.
 
 # ERD · 테이블 명세
 
@@ -26,7 +26,7 @@
 
 ### 요구사항명세서 4절(테이블 2개)에서 바뀐 점
 
-| # | 바뀐 점 | 이유 (API v1.1) |
+| # | 바뀐 점 | 이유 (`API명세최종.md`) |
 | --- | --- | --- |
 | 1 | 상품을 **`product_group`(상품 묶음)과 `product`(브랜드별 상품)로 나눔** | 응답이 `products[]`(같은 상품) 아래 `stores[]`(브랜드별 가격)예요. 상품명 · 이미지 · 상품군은 묶음 단위, 정가 · 행사는 브랜드 단위예요 |
 | 2 | `product_group.image_url` 추가 | P2 상품 이미지 (`imageUrl`, NULL 가능) |
@@ -102,7 +102,22 @@ erDiagram
 | `unit` | VARCHAR(5) | Y | `ML` | — | `ML` · `G` |
 | `image_url` | VARCHAR(300) | Y | `https://…/banana.png` | `imageUrl` | NULL = 프론트 기본 그림 |
 
-**상품군(`category`)**: `COLA` · `CIDER` · `COFFEE` · `MILK` · `RAMEN_CUP` · `RAMEN_BAG` · `CHOCOLATE` (요구사항명세서 4-1 + `MILK`, 결정 2026-11-09)
+**상품군(`category`)** (결정 2026-11-10): **이 목록을 DB 데이터, 키워드 사전(`category` 모듈), CSV가 똑같이 써요.** 이름이 다르면 검색에서 조용히 빠져요.
+
+| 값 | 상품 | 예 |
+| --- | --- | --- |
+| `COLA` | 콜라 | 코카콜라, 펩시, 제로콜라 |
+| `SODA` | 탄산음료 (콜라 제외) | 사이다, 칠성사이다, 환타, 웰치스, 탄산수 |
+| `COFFEE` | 커피 | 바리스타룰스, 칸타타 |
+| `MILK` | 우유 | 바나나맛우유, 초코우유 |
+| `RAMEN` | 라면 (컵 · 봉지 구분 없음) | 신라면, 큰사발, 진라면 |
+| `CHOCOLATE` | 초콜릿 | 가나초콜릿, 킷캣 |
+| `SNACK` | 과자 · 스낵 | 새우깡, 초코파이 |
+| `LUNCHBOX` | 도시락 · 김밥 · 삼각김밥 · 샌드위치 | 삼각김밥 참치마요 |
+| `ICECREAM` | 아이스크림 | 메로나, 월드콘 |
+| `BEER` | 주류 | 맥주, 소주 |
+
+- 요구사항명세서 4-1에서 바뀐 점: `RAMEN_CUP` · `RAMEN_BAG` → **`RAMEN` 하나로** (검색 결과는 상품군 하나라서 "라면"이 컵 · 봉지를 모두 찾게), `CIDER` → **`SODA`(탄산음료)로 넓힘** (사이다 · 환타 · 웰치스 등), `SNACK` · `LUNCHBOX` · `ICECREAM` · `BEER` 추가. 요구사항명세서 원본 수정 필요 (PO · PM2)
 - 값 검사(CHECK)를 하지 않아서 상품군이 늘어도 스키마는 그대로예요.
 - 제로 콜라는 `COLA` (결정 2026-11-09)
 - 원천에 상품군이 없는 상품은 변환 때 키워드로 채우고, 못 채우면 NULL(미분류)이에요 (결정 2026-11-09)
@@ -190,7 +205,7 @@ erDiagram
 | 편의점 멤버십 | `<브랜드>-membership` | `cu-membership` |
 | 같은 수단 · 브랜드에 적립 규칙이 따로 있음 | 뒤에 `-point` | `shinhan-cu-point` |
 
-## 5. API v1.1 ↔ DB 대조
+## 5. `API명세최종.md` ↔ DB 대조
 
 ### 5-1. `GET /api/wallet-options`
 
@@ -271,6 +286,6 @@ POST /api/quotes { q, x, y, radius, sort, wallet }
 | # | 내용 | 정하는 사람 |
 | --- | --- | --- |
 | 1 | `productKey` 만드는 규칙(원천 `comparison_matrix`의 같은 상품 줄 = 같은 키 (안))과 상품 이미지(`image_url`) 출처 | 미정(한예림) |
-| 2 | 원천 데이터에 우유(`MILK`) 상품이 있는지. 없으면 v1.1 대표 검색어 "우유"가 빈 결과예요 | 미정(한예림) |
+| 2 | 원천 데이터에 우유(`MILK`) 상품이 있는지. 없으면 `API명세최종.md`의 대표 검색어 "우유"가 빈 결과예요 | 미정(한예림) |
 | 3 | 할인 규칙표 · 카드 상품 CSV 형식: [discount-rule-csv.md](discount-rule-csv.md) 초안. "1,000원당 100원" · 정액 할인을 칸으로 표현할지 | 함석원 |
 | 4 | H2 파일 경로, `spring.sql.init.mode=always`, `ddl-auto=validate` 설정 | 미정(이서현) |
