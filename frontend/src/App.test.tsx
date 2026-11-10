@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import App from './App';
 import { api, ApiError } from './api';
 import { quotes, stores, walletOptions } from './fixtures';
-import { MapView } from './MapView';
+import { MapView, routeErrorMessage, tooFarMessage } from './MapView';
 import { emptyWallet } from './storage';
 import type { KakaoMaps } from './kakao';
 import { latLng, loadKakao } from './kakao';
@@ -163,5 +163,29 @@ describe('경로 지도 계약', () => {
         const retry = vi.fn();
         render(<MapView position={null} destination={destination} locationError="거부됨" locating={false} locate={retry} clear={vi.fn()} />);
         expect(api.walking).not.toHaveBeenCalled(); fireEvent.click(screen.getByRole('button', { name: '다시 시도' })); expect(retry).toHaveBeenCalledOnce();
+    });
+});
+
+describe('실제 위치 모드 점검(배포 화면)', () => {
+    it('위치 확인 전에 검색하면 위치를 기다렸다가 내 위치로 검색한다(기본 좌표로 먼 매장을 고르지 않음)', async () => {
+        let found: ((value: { coords: { longitude: number; latitude: number } }) => void) | null = null;
+        Object.defineProperty(navigator, 'geolocation', { configurable: true, value: { getCurrentPosition: vi.fn(success => { found = success; }) } });
+        const user = userEvent.setup(); render(<App />);
+        await user.type(screen.getByRole('textbox', { name: '상품 검색' }), '우유');
+        await user.click(screen.getByRole('button', { name: '검색' }));
+        expect(api.quotes).not.toHaveBeenCalled();
+        found!({ coords: { longitude: 127.0161, latitude: 37.5631 } });
+        await waitFor(() => expect(api.quotes).toHaveBeenCalledWith(expect.objectContaining({ x: 127.0161, y: 37.5631 }), expect.anything()));
+    });
+    it('도보 경로 400(2km 초과)은 「입력값을 확인해 주세요」 대신 이유를 알려 준다', () => {
+        expect(routeErrorMessage(new ApiError('INVALID_PARAM', '입력값을 확인해 주세요', 400))).toBe(tooFarMessage);
+    });
+    it('할인 수단 선택지가 비어 있으면 안내한다', async () => {
+        vi.mocked(api.walletOptions).mockResolvedValue({ ...walletOptions, pays: [], memberships: [] });
+        const user = userEvent.setup(); render(<App />);
+        await user.click(screen.getByRole('button', { name: '할인 수단' }));
+        await user.click(await screen.findByRole('button', { name: /할인 수단 추가/ }));
+        await user.click(await screen.findByRole('button', { name: /간편결제/ }));
+        expect(screen.getByText('지금은 고를 수 있는 항목이 없어요')).toBeTruthy();
     });
 });

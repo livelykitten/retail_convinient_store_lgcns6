@@ -8,9 +8,12 @@ import type { Coordinates, Destination, Product, Store, WalkingRoute } from './t
 import { Icon, Notice, PriceLine, errorMessage, fallbackMessage, labels, logoUrl, won } from './ui';
 
 /** M2 경로 실패 문구. 데모는 실제 404가 아니므로 받은 안내를 그대로 쓴다 */
+export const tooFarMessage = '매장이 2km보다 멀어 도보 경로를 안내할 수 없어요. 상품 목록에서 내 위치 근처로 다시 검색해 주세요.';
 export function routeErrorMessage(error: unknown) {
     if (fixturesEnabled || !(error instanceof ApiError)) return errorMessage(error);
     if (error.status === 404) return '도보 경로를 찾지 못했어요';
+    // 도보 경로 API는 출발 · 도착이 2km를 넘으면 400(INVALID_PARAM). 「입력값을 확인해 주세요」 대신 이유를 알려 준다
+    if (error.status === 400) return tooFarMessage;
     if (error.status === 429) return fallbackMessage;
     if (error.status === 502) return '도보 경로를 불러오지 못했어요';
     return errorMessage(error);
@@ -148,7 +151,7 @@ export function MapView({ position, locationError, locating, locate, destination
             {arrive && remainingM !== null && <p className="remaining" role="status">남은 거리 약 {fixturesEnabled && route ? route.distanceM : remainingM}m · {fixturesEnabled || remainingM <= 30 ? '매장 앞이면 「도착했어요」를 눌러 주세요' : '30m 안이면 도착 화면이 열려요'}</p>}
             {fixturesEnabled && route && <p className="route-note">예시 경로 · 실제 길찾기 결과 아님 · 도로 형태 참고 · 출입구·보행 가능 여부 미검증 · 시간·거리 추정 · 도로 자료 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p>}
             <div className="destination-product"><ProductImage imageUrl={destinationProduct?.imageUrl ?? null} productKey={destination.productKey} className="s" /><span className="product-info"><small>사러 가는 상품</small><strong>{destination.productName}</strong></span><PriceLine price={destination.unitPrice} listPrice={destinationProduct?.listPrice} size="row" /></div>
-            {!busy && !route && error && <button className="secondary" onClick={() => setReload(value => value + 1)}>다시 시도</button>}
+            {!busy && !route && error && error !== tooFarMessage && <button className="secondary" onClick={() => setReload(value => value + 1)}>다시 시도</button>}
             {routeUrl && <a className="external-route" href={routeUrl} target="_blank" rel="noreferrer">카카오맵에서 길찾기</a>}
             {arrive && <button type="button" className="secondary" onClick={arrive}>도착했어요</button>}
         </div> : mapPosition && <div className="nearby-card"><i className="handle" />{busy ? <span role="status">주변 편의점을 찾고 있어요…</span> : error ? <Notice retry={() => setReload(value => value + 1)}>{error}</Notice> : <><strong>주변 편의점 {stores.length}곳</strong><small>상품을 검색하면 매장별 가격과 길을 보여 드려요</small></>}</div>}
