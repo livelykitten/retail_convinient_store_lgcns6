@@ -46,10 +46,12 @@ public class GlobalExceptionHandler {
         return toResponse(ErrorCode.INVALID_PARAM, ErrorCode.INVALID_PARAM.getDefaultMessage());
     }
 
-    // 없는 경로. 잡지 않으면 아래 Exception 처리로 가서 500이 된다
+    // 없는 경로. API명세최종.md 2절에 404 코드가 없어서 그 밖의 오류(500 INTERNAL)로 돌려준다.
+    // 브라우저의 favicon 요청 등으로 자주 생기므로 오류 로그(스택 트레이스)는 남기지 않는다
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(NoResourceFoundException e) {
-        return toResponse(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.getDefaultMessage());
+    public ResponseEntity<ApiError> handleNoResource(NoResourceFoundException e) {
+        log.debug("없는 경로 요청: {}", e.getResourcePath());
+        return toResponse(ErrorCode.INTERNAL, ErrorCode.INTERNAL.getDefaultMessage());
     }
 
     @ExceptionHandler(Exception.class)

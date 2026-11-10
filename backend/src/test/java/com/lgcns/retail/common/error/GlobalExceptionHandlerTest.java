@@ -19,11 +19,12 @@ class GlobalExceptionHandlerTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("없는 경로는 500이 아니라 404 NOT_FOUND")
-    void unknownPathIs404() throws Exception {
+    @DisplayName("없는 경로는 API명세최종.md대로 500 INTERNAL, 형식은 {code, message}")
+    void unknownPathIsInternal() throws Exception {
         mockMvc.perform(get("/api/no-such-path"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.code").value("INTERNAL"))
+                .andExpect(jsonPath("$.message").value("서버 오류가 발생했습니다"));
     }
 
     @Test
