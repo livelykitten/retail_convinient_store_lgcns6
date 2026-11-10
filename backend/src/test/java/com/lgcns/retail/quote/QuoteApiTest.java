@@ -218,9 +218,10 @@ class QuoteApiTest {
                 .andExpect(jsonPath("$.telecoms.length()").value(1))
                 .andExpect(jsonPath("$.telecoms[0].code").value("SKT"))
                 .andExpect(jsonPath("$.telecoms[0].grades.length()").value(3))
-                .andExpect(jsonPath("$.cards[0].cardId").value("shinhan-deepdream-check"))
-                .andExpect(jsonPath("$.cardIssuers[0].code").value("SHINHAN"))
-                .andExpect(jsonPath("$.cardIssuers[0].name").value("신한"))
+                // 카드 · 카드사는 할인 규칙 CSV(실데이터)에도 있으므로 순서 대신 포함 여부만 본다
+                .andExpect(jsonPath("$.cards[*].cardId").value(org.hamcrest.Matchers.hasItem("shinhan-deepdream-check")))
+                .andExpect(jsonPath("$.cardIssuers[?(@.code == 'SHINHAN')].name").value(
+                        org.hamcrest.Matchers.hasItem("신한")))
                 .andExpect(jsonPath("$.pays[0].code").value("KAKAOPAY"))
                 .andExpect(jsonPath("$.memberships[0].brand").value("CU"))
                 .andExpect(jsonPath("$.memberships[0].name").value("CU 멤버십"));
