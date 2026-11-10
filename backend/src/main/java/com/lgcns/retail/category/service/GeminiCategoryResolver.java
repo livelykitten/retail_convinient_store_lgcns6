@@ -31,7 +31,7 @@ public class GeminiCategoryResolver implements CategoryResolver {
 
     public GeminiCategoryResolver(
             @Value("${gemini.api.key:}") String apiKey,
-            @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent}") String apiUrl,
+            @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent}") String apiUrl,
             KeywordCategoryResolver fallbackResolver,
             KeywordDictionary keywordDictionary) {
         this.apiKey = apiKey;
