@@ -325,6 +325,7 @@ legend { padding: 0; margin-bottom: 6px; font-size: 12px; font-weight: 600; colo
 .grade-options { display: flex; gap: 7px; align-items: center; margin-top: 10px; font-size: 12px; color: var(--color-sub); }
 .chip { padding: 8px 12px; min-height: 44px; color: var(--color-text); font-size: 12.5px; }
 .form-error { font-size: 12px; color: var(--color-text); }
+.choice-note { margin-top: 8px; font-size: 12px; color: var(--color-sub); }
 
 @media (min-width: 500px) { .app-shell { box-shadow: var(--shadow-lift); } }
 
@@ -381,10 +382,11 @@ legend { padding: 0; margin-bottom: 6px; font-size: 12px; font-weight: 600; colo
 
 /* 5번 가계부 */
 .ledger { display: flex; flex-direction: column; gap: 10px; padding: 0 12px 20px; }
-.ledger-head { display: flex; flex-direction: column; gap: 4px; padding: 0 4px 4px; }
-.ledger-head .logo { margin-bottom: 6px; }
-.ledger-head h1 { font-size: 21px; font-weight: 800; }
-.ledger-head p { font-size: 13px; color: var(--color-sub); }
+/* 탭 제목은 할인 수단(.wallet-header)과 같은 크기 · 위치 */
+.ledger-head { display: flex; flex-direction: column; gap: 1px; padding: 0 2px 4px; }
+.ledger-head .logo { margin-bottom: 9px; }
+.ledger-head h1 { font-size: 19px; font-weight: 700; letter-spacing: -.02em; }
+.ledger-head p { font-size: 12.5px; color: var(--color-sub); }
 .ledger-card { display: flex; flex-direction: column; gap: 6px; padding: 16px; background: var(--color-bg); border-radius: var(--radius-l); box-shadow: var(--shadow-rest); }
 .ledger-card > small { font-size: 12.5px; color: var(--color-sub); }
 .ledger-total { font-size: 15px; font-weight: 700; color: var(--color-main); }
