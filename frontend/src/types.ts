@@ -4,7 +4,12 @@ export type Telecom = 'SKT' | 'KT' | 'LGU';
 export type TelecomGrade = 'VIP' | 'NORMAL' | 'UNKNOWN';
 export type Pay = 'KAKAOPAY' | 'NAVERPAY' | 'TOSSPAY' | 'SAMSUNGWALLET';
 export type CardIssuer = 'SHINHAN' | 'KB' | 'SAMSUNG' | 'HYUNDAI' | 'LOTTE' | 'WOORI' | 'HANA' | 'BC' | 'NH';
-export type Event = 'NONE' | 'ONE_PLUS_ONE' | 'TWO_PLUS_ONE' | 'THREE_PLUS_ONE';
+export type Event = 'NONE' | 'ONE_PLUS_ONE' | 'TWO_PLUS_ONE' | 'THREE_PLUS_ONE' | 'OTHER';
+export type BundleEvent = Exclude<Event, 'NONE' | 'OTHER'>;
+/** OTHER는 미확인 행사를 포함하므로 N+1 묶음으로 취급하지 않는다. */
+export function isBundleEvent(event: Event): event is BundleEvent {
+    return event === 'ONE_PLUS_ONE' || event === 'TWO_PLUS_ONE' || event === 'THREE_PLUS_ONE';
+}
 export type StockStatus = 'IN_STOCK' | 'LOW' | 'OUT';
 export type Sort = 'DISTANCE' | 'PRICE';
 export interface Coordinates { x: number; y: number }
@@ -26,7 +31,7 @@ export interface Store extends Coordinates {
     storeId: string; brand: Brand; placeName: string; distanceM: number; walkMin: number;
 }
 export interface QuoteStore extends Store {
-    event: Event; eventLabel: string; unitPrice: number;
+    event: Event; eventLabel: string | null; unitPrice: number;
     applicableMethods: { type: MethodType; code: string }[];
     stockStatus: StockStatus;
 }

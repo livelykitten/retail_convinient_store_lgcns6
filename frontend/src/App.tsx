@@ -12,6 +12,7 @@ import { Home, Products } from './Products';
 import { addRecent, emptyWallet, readDestination, readRecent, readWallet, saveDestination, saveWallet } from './storage';
 import type { RecentItem } from './storage';
 import type { Coordinates, Destination, Product, QuoteResponse, QuoteStore, Sort, Store, Wallet } from './types';
+import { isBundleEvent } from './types';
 import { WalletView } from './Wallet';
 import { Icon, errorMessage, labels } from './ui';
 
@@ -173,7 +174,7 @@ export default function App() {
     const recordSheet = (manualRecord || (tab === 'map' && plan && arrival === 'record')) && <RecordSheet
         store={manualRecord || !plan ? null : { brand: plan.brand, storeId: plan.storeId, placeName: plan.placeName }} stores={storeChoices(nearbyStores)}
         initial={manualRecord || !plan ? { paid: null, items: [], telecom: !!telecomOption, card: cardOptions[0]?.code ?? '' } : {
-            paid: plan.pay, items: plan.event === 'NONE' ? [] : [{ name: plan.productName, event: plan.event, price: plan.listPrice }],
+            paid: plan.pay, items: isBundleEvent(plan.event) ? [{ name: plan.productName, event: plan.event, price: plan.listPrice }] : [],
             // 앱 계산값에 할인 금액이 잡힌 수단만 미리 고른다(도착 화면 「정가보다 이번에」와 같은 값이 되도록)
             telecom: plan.methods.some(method => method.kind === 'TELECOM' && method.amount > 0), card: plan.methods.find(method => method.kind === 'CARD' && method.amount > 0)?.code ?? ''
         }}
