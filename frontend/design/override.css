@@ -1,0 +1,81 @@
+/* 코드 구조를 바꾸지 않고 style.css 끝에 덧붙이는 판. 색·그림자·칸 구분만 기준 화면에 맞춘다.
+   배포본에 브라우저에서만 입혀 실제로 확인했다. */
+:root {
+  --color-bg: #FFFFFF; --color-surface: #F4F7FB; --color-line: #E8ECF3; --color-tag: #E6ECF5;
+  --color-text: #12203F; --color-sub: #55617A; --color-on-dark: #FFFFFF; --color-danger: #D92D20;
+  --color-canvas: #F2F5FA; --color-faint: #6A758C; --color-main: #0040A0; --color-way: #FFC400; --color-deal: #C4493F;
+  --shadow-rest: 0 0 0 .5px rgba(20,24,36,.06), 0 1px 2px rgba(20,24,36,.04);
+  --shadow-lift: 0 0 0 .5px rgba(20,24,36,.05), 0 3px 8px rgba(20,24,36,.05), 0 14px 30px rgba(20,24,36,.10);
+  --radius-s: 7px; --radius-m: 14px; --radius-l: 18px;
+  --shadow-sheet: 0 -1px 0 rgba(20,24,36,.04), 0 -10px 30px rgba(20,24,36,.13);
+  --shadow-float: var(--shadow-lift);
+}
+body, .app-shell, .app-content { background: var(--color-canvas); }
+.splash { background: var(--color-bg); }
+.fixture-banner { background: transparent; color: var(--color-faint); font-size: 11px; }
+
+/* 형광펜 제거, 할인 가격은 크기로 */
+.mark { background: none; padding: 0; }
+.price-strong { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+.price-list { font-size: 16px; }
+
+/* 버튼: 먹색 → 파랑 */
+.primary, .secondary, .danger { border-radius: var(--radius-m); min-height: 44px; font-size: 14px; font-weight: 600; }
+.primary { background: var(--color-main); box-shadow: none; }
+.primary:disabled { box-shadow: none; }
+.wallet-add .secondary { background: var(--color-bg); box-shadow: var(--shadow-rest); }
+
+/* 머리글 · 검색창 */
+.search-header { background: transparent; padding: 10px 14px; }
+.search-form { background: var(--color-bg); box-shadow: var(--shadow-lift); height: 44px; }
+.search-form:focus-within { outline: 0; }
+.result-summary { font-size: 12px; min-height: 32px; padding: 0 14px 6px; }
+.result-summary select { font-size: 12px; min-height: 32px; font-weight: 500; color: var(--color-text); }
+
+/* 상품: 줄 → 칸 */
+.product { margin: 0 12px 8px; background: var(--color-bg); border: 0; border-radius: 18px; box-shadow: var(--shadow-rest); overflow: hidden; }
+.product:has(.product-stores) { box-shadow: var(--shadow-lift); }
+.product-row { padding: 11px; min-height: 0; align-items: flex-start; }
+.product-image { width: 62px; height: 62px; border-radius: 13px; background: var(--color-bg); }
+.product-info > strong { font-size: 13.5px; line-height: 1.3; }
+.product-meta { font-size: 11.5px; color: var(--color-faint); }
+.product-meta .badge { background: var(--color-tag); color: var(--color-sub); border-radius: 5px; padding: 2px 5px; font-size: 11px; font-weight: 600; }
+.lowest-price small { font-size: 11px; color: var(--color-faint); }
+
+/* 펼침 */
+.product-stores { background: transparent; padding: 0 8px 8px; }
+.featured-card { background: var(--color-surface); box-shadow: none; border-radius: 14px; padding: 11px; gap: 9px; }
+.featured-card { position: relative; }
+.featured-card > .badge { background: transparent; color: var(--color-sub); padding: 0; font-size: 12px; font-weight: 600; }
+.featured-card .primary { position: absolute; right: 11px; top: 11px; width: auto; min-height: 34px; padding: 0 14px; border-radius: 10px; font-size: 13px; }
+.featured-price { align-items: center; }
+.featured-price .price-strong { font-size: 18px; }
+.featured-title strong { font-size: 13.5px; }
+.featured-title .badge { background: var(--color-tag); color: var(--color-sub); padding: 2px 5px; font-size: 11px; }
+.featured-walk { color: var(--color-sub); font-size: 12px; }
+.other-toggle { padding: 6px 4px 2px; }
+.store-row { padding: 10px 2px; }
+.store-details > strong { font-size: 13px; }
+
+/* 하단 탭: 현재 탭 파랑 */
+.bottom-nav { background: rgba(255,255,255,.96); border-top: 0; box-shadow: 0 -.5px 0 rgba(20,24,36,.1), 0 -6px 18px rgba(20,24,36,.05); }
+.bottom-nav button { color: var(--color-faint); font-size: 11px; }
+.bottom-nav button.active { color: var(--color-main); font-weight: 600; }
+.tab-dot { background: var(--color-way); box-shadow: 0 0 0 1.5px var(--color-bg); width: 8px; height: 8px; }
+
+/* 지도 위 요소 */
+.location-pill { box-shadow: var(--shadow-lift); }
+.locate-button { box-shadow: var(--shadow-lift); }
+.destination-card, .nearby-card { left: 0; right: 0; bottom: 0; border-radius: 24px 24px 0 0; box-shadow: var(--shadow-sheet); }
+.route-summary b, .destination-card .route-summary { color: var(--color-main); }
+
+/* 할인 수단 */
+.wallet-header { background: transparent; padding: 10px 14px 8px; }
+.wallet-header h1 { font-size: 19px; }
+.wallet-list { margin: 0 12px; padding: 0; background: var(--color-bg); border-radius: 18px; box-shadow: var(--shadow-rest); }
+.wallet-row { border-bottom: 1px solid var(--color-line); min-height: 56px; }
+.wallet-add { padding: 12px 0; }
+.kind.active, .choice.active, .chip.active, .direct-choice.active { border-color: var(--color-main); }
+.sheet { border-radius: 24px 24px 0 0; box-shadow: var(--shadow-sheet); }
+.sheet-heading h2 { font-size: 17px; }
+

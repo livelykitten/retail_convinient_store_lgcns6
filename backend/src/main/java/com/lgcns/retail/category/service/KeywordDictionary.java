@@ -4,11 +4,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * 검색어 → 상품군 키워드 사전 (FR-02).
+ * 상품군 이름은 docs/reference/erd.md 3-1의 목록과 같아야 한다. 다르면 quotes에서 상품을 못 찾는다.
+ */
 @Component
 public class KeywordDictionary {
 
-    // 카테고리별 매핑 키워드 목록
+    // 카테고리별 매핑 키워드 목록. 같은 길이로 맞으면 먼저 적힌 상품군이 이긴다
     private final Map<String, List<String>> categoryKeywords = new LinkedHashMap<>();
+
+    // 이 말이 들어 있으면 그 상품군으로 보지 않는다 (예: "콜라겐"은 콜라가 아님)
+    private final Map<String, List<String>> excludedWords = new HashMap<>();
 
     public KeywordDictionary() {
         initKeywords();
@@ -18,28 +25,39 @@ public class KeywordDictionary {
         // 우유 / 유제품
         categoryKeywords.put("MILK", Arrays.asList(
                 "우유", "바나나우유", "바나나맛우유", "초코우유", "딸기우유", "흰우유", "저지방우유",
-                "빙그레", "서울우유", "매일우유", "milk", "banana milk"));
+                "서울우유", "매일우유", "milk", "banana milk"));
 
-        // 커피 / 음료
+        // 커피
         categoryKeywords.put("COFFEE", Arrays.asList(
                 "커피", "카페라떼", "바리스타", "바리스타룰스", "아메리카노", "라떼", "에스프레소", "콜드브루",
-                "칸타타", "TOP", "조지아", "레쓰비", "맥심", "coffee", "latte"));
+                "칸타타", "티오피", "조지아", "레쓰비", "맥심", "coffee", "latte"));
 
-        // 탄산음료 / 콜라
+        // 콜라 (그 밖의 탄산음료는 SODA)
         categoryKeywords.put("COLA", Arrays.asList(
                 "콜라", "코카콜라", "코카-콜라", "코카 콜라", "펩시", "제로콜라", "제로 콜라", "펩시제로",
-                "사이다", "칠성사이다", "스프라이트", "환타", "웰치스", "탄산음료", "탄산",
-                "cola", "coca", "pepsi", "coke", "soda"));
+                "cola", "coca", "pepsi", "coke"));
+        excludedWords.put("COLA", List.of("콜라겐", "쇼콜라", "니콜라", "리콜라"));
+
+        // 탄산음료 (사이다 · 과일 탄산 · 탄산수). "콜라 탄산"처럼 같은 길이로 겹치면 위의 COLA가 이긴다
+        categoryKeywords.put("SODA", Arrays.asList(
+                "탄산음료", "탄산", "탄산수", "사이다", "칠성사이다", "스프라이트", "환타", "웰치스",
+                "밀키스", "마운틴듀", "데미소다", "트레비",
+                "soda", "cider", "sprite", "fanta"));
 
         // 라면
         categoryKeywords.put("RAMEN", Arrays.asList(
                 "라면", "컵라면", "봉지라면", "신라면", "진라면", "불닭", "불닭볶음면", "짜파게티", "삼양라면",
-                "너구리", "안성탕면", "육개장", "비빔면", "ramen", "noodle"));
+                "너구리", "안성탕면", "육개장", "비빔면", "큰사발", "팔도도시락", "ramen", "noodle"));
+
+        // 초콜릿
+        categoryKeywords.put("CHOCOLATE", Arrays.asList(
+                "초콜릿", "초콜렛", "초코", "가나초콜릿", "킨더", "허쉬", "킷캣", "페레로로쉐", "엠앤엠즈",
+                "chocolate", "choco"));
 
         // 스낵 / 과자
         categoryKeywords.put("SNACK", Arrays.asList(
-                "과자", "스낵", "포테토칩", "포카칩", "새우깡", "빼빼로", "초코파이", "꼬북칩", "홈런볼",
-                "snack", "chip", "cookie"));
+                "과자", "스낵", "포테토칩", "포카칩", "감자칩", "콘칩", "새우깡", "빼빼로", "초코파이", "꼬북칩",
+                "홈런볼", "카스테라", "snack", "chip", "cookie"));
 
         // 간편식 / 도시락 / 김밥
         categoryKeywords.put("LUNCHBOX", Arrays.asList(
@@ -48,8 +66,8 @@ public class KeywordDictionary {
 
         // 아이스크림
         categoryKeywords.put("ICECREAM", Arrays.asList(
-                "아이스크림", "하드", "콘", "빙수", "메로나", "월드콘", "누가바", "돼지바", "구레잇",
-                "icecream"));
+                "아이스크림", "하드", "빙수", "메로나", "월드콘", "구구콘", "누가바", "돼지바", "구구크러스터",
+                "icecream", "ice cream"));
 
         // 주류 / 맥주
         categoryKeywords.put("BEER", Arrays.asList(
@@ -58,35 +76,55 @@ public class KeywordDictionary {
     }
 
     /**
-     * 질의어(query)로 카테고리를 찾습니다.
+     * 검색어 안에 들어 있는 키워드 중 가장 긴 것의 상품군을 돌려준다.
+     * "초코우유"는 "초코"(CHOCOLATE)보다 긴 "초코우유"(MILK)가 이긴다.
+     * 검색어가 키워드의 일부일 뿐인 경우("코" ⊂ "코카콜라")는 맞는 것으로 보지 않는다.
      */
     public Optional<String> findCategory(String query) {
         if (query == null) {
             return Optional.empty();
         }
 
-        String normalized = query.trim().toLowerCase().replaceAll("\\s+", "");
+        String normalized = normalize(query);
         if (normalized.isEmpty()) {
             return Optional.empty();
         }
 
+        String bestCategory = null;
+        int bestLength = 0;
+
         for (Map.Entry<String, List<String>> entry : categoryKeywords.entrySet()) {
             String category = entry.getKey();
-            List<String> keywords = entry.getValue();
-
-            for (String kw : keywords) {
-                String normalizedKw = kw.toLowerCase().replaceAll("\\s+", "");
-                if (normalized.equals(normalizedKw) || normalized.contains(normalizedKw)
-                        || normalizedKw.contains(normalized)) {
-                    return Optional.of(category);
+            if (isExcluded(category, normalized)) {
+                continue;
+            }
+            for (String kw : entry.getValue()) {
+                String normalizedKw = normalize(kw);
+                if (normalized.contains(normalizedKw) && normalizedKw.length() > bestLength) {
+                    bestCategory = category;
+                    bestLength = normalizedKw.length();
                 }
             }
         }
 
-        return Optional.empty();
+        return Optional.ofNullable(bestCategory);
+    }
+
+    /** 사전에 있는 상품군인지 (AI 응답 검증용) */
+    public boolean isKnownCategory(String category) {
+        return category != null && categoryKeywords.containsKey(category);
     }
 
     public Map<String, List<String>> getAllKeywords() {
         return Collections.unmodifiableMap(categoryKeywords);
+    }
+
+    private boolean isExcluded(String category, String normalizedQuery) {
+        return excludedWords.getOrDefault(category, List.of()).stream()
+                .anyMatch(word -> normalizedQuery.contains(normalize(word)));
+    }
+
+    private static String normalize(String text) {
+        return text.trim().toLowerCase().replaceAll("\\s+", "");
     }
 }

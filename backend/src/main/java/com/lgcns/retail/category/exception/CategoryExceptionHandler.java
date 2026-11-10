@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
+/**
+ * category 모듈의 400 INVALID_PARAM 처리.
+ * 그 밖의 예외(500)는 공통 GlobalExceptionHandler(PR #8)가 처리한다. 여기서 Exception을 잡으면
+ * 내부 메시지가 응답에 나가고, 공통 처리와 겹쳐 어느 쪽이 처리할지 불분명해진다.
+ * PR #8 병합 후에는 common의 BusinessException(ErrorCode.INVALID_PARAM)으로 옮기고 이 클래스는 지운다.
+ */
 @RestControllerAdvice(basePackages = "com.lgcns.retail.category")
 public class CategoryExceptionHandler {
 
@@ -28,11 +34,4 @@ public class CategoryExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("INVALID_PARAM", "요청 파라미터가 유효하지 않습니다."));
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("INTERNAL_SERVER_ERROR", e.getMessage()));
-    }
 }
-
