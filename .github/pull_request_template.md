@@ -51,9 +51,9 @@ curl ...
 # 체크리스트 (완료 정의)
 
 - [ ] 요구사항명세서의 수용 기준을 만족함
-- [ ] 필드 이름 · enum이 `docs/reference/api-spec.md`와 같음
+- [ ] 필드 이름 · enum이 `docs/reference/api-spec.md`(`API명세최종.md` 사본)와 같음
 - [ ] 요청 · 응답 예시를 위 "확인 방법"에 붙임
-- [ ] 목업 값에 `estimated` · `mockRule` 등 플래그를 채움 (해당 시)
+- [ ] 응답 필드가 `API명세최종.md`(`docs/reference/api-spec.md`)에 있는 것만 씀
 - [ ] `cd backend && ./gradlew test` 통과
 - [ ] 담당 모듈 패키지 밖을 고치지 않음 (고쳤다면 메모에 이유)
 - [ ] 다른 모듈의 Repository · 엔티티를 직접 쓰지 않음

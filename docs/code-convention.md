@@ -145,9 +145,24 @@ public class StoreController {
 | 결제액 계산 | 검증 예시(류지범 손계산)를 모두 단위 테스트로. 단계별 경계값(`maxAmount`, `minPayAmount`, 전월 실적) | 함석원 |
 | 재고 더미 | 같은 `storeId` · `productId`는 항상 같은 값, 0 · 5 · 6 · 8 · 9 경계 | 노건우 |
 | 브랜드 판별 | `place_name` 4사 시작어, 그 밖의 편의점 제외 | 노건우 |
-| 정렬 | `finalPrice` → `distanceM`, `OUT` 맨 아래 | 함석원 |
+| 정렬 | `stores`: `unitPrice` → `distanceM` → `OUT` 맨 아래, `products`: `sort`(`DISTANCE` · `PRICE`) | 함석원 |
 | 검색어 → 상품군 | 키워드 사전으로 정답셋 실행, `q` 길이 검증 | 한예림 |
 | CSV 적재 | 적재 뒤 상품군별 4사 각 10개 이상 | 이서현 |
 | 컨트롤러 | `@WebMvcTest`로 경로 · 응답 필드 · 400 형식 확인 | 각 API 담당 |
 
 - 테스트 이름은 한국어로 써도 돼요. `@DisplayName("GS25 1+1 상품은 KT VIP 할인이 적용되지 않는다")`
+- `.env`에 키가 있어도 `@SpringBootTest`가 실제 외부 API를 부르지 않게, 그 테스트에서 키를 비워요. 예) `@SpringBootTest(properties = {"KAKAO_REST_API_KEY=", "claude.api.key="})`
+
+### 로컬에서 API를 직접 불러 볼 때 (curl)
+
+Windows(Git Bash · PowerShell)의 curl은 명령줄에 쓴 한글을 UTF-8이 아닌 CP949로 보낼 수 있어요. 그러면 서버가 한글을 읽지 못해서, 서버에 문제가 없는데도 400이나 500이 나와요. **한글이 들어가는 요청은 아래처럼 보내요.**
+
+| 요청 | 이렇게 | 이러지 말고 |
+| --- | --- | --- |
+| 본문(JSON) | UTF-8로 저장한 파일을 보내요: `curl -X POST localhost:8080/api/quotes -H 'Content-Type: application/json; charset=utf-8' --data-binary @cola.json` | `-d '{"q":"콜라", ...}'`처럼 명령줄에 한글 직접 쓰기 |
+| 쿼리 파라미터 | 퍼센트 인코딩해서 보내요: `curl 'localhost:8080/api/categories/resolve?q=%EC%BD%9C%EB%9D%BC'` (콜라) | `?q=콜라`, `--data-urlencode q=콜라` |
+
+- 본문 파일은 편집기에서 UTF-8(BOM 없음)로 저장해요.
+- 퍼센트 인코딩 값은 `python -c "import urllib.parse;print(urllib.parse.quote('콜라'))"`로 만들 수 있어요(한글을 쓴 `.py` 파일로 실행하면 확실해요).
+- Python으로 응답을 출력할 때 한글이 깨지면 `PYTHONIOENCODING=utf-8`을 붙여요.
+- 카카오 · TMAP 응답이 담긴 결과는 화면에서만 보고 파일로 저장하지 않아요.

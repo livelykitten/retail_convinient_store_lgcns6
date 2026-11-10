@@ -43,7 +43,7 @@
 | FR-12 | 위치(교육장 기본 + 허용 시 기기 위치) | 필수 | 프런트(민경완) | 노건우 (매장 좌표 `x` · `y`. 도보 시간은 프런트가 TMAP으로) |
 | FR-08 | 상품 AI 사전 분류 | 선택 | 한예림 | 이서현 (`category` 칸 갱신) |
 | FR-09 | PB 상품 표시 | 선택 | 이서현 | — |
-| NFR-01 | 목업 값 구분 표시 | 필수 | 함석원 | 이서현 (`estimated` · `dataMonth` · `source`) |
+| NFR-01 | 목업 값 구분 표시 | 필수 | 함석원 | 프런트 (재고 배지 옆 「예시 데이터」 고정 표시, `API명세최종.md` 5-3. 응답 플래그 없음) |
 | NFR-02 | 카카오 API 오류 처리 | 선택 | 노건우 | 함석원 (quotes에서 처리) |
 
 ## 스프린트
@@ -75,8 +75,8 @@
 | 스프린트 | 할 일 |
 | --- | --- |
 | 0 | **DB 설계(요구사항 기준)**: 명세 4-1 `product` · 4-2 `discount_rule`을 ERD · DDL(`schema.sql`)로. enum(brand · event · type · kind) · PK 규칙 · NULL 허용 · 인덱스(`product.category`, `discount_rule.brand`) · H2 호환 확인. FR마다 쓰는 칸을 대조해 빠진 칸이 없는지 점검([reference/erd.md](reference/erd.md)). **14:00(안)까지 이서현 · 한예림에게 공유**<br>계산 규칙(명세 2절)을 코드 없이 표로 다시 써 보고, 모호한 곳은 PM2(민경완)에게 질문. quotes · wallet-options 고정 응답 |
-| 1 | `POST /api/quotes`: 행사 → 통신사 → 결제 할인 → 적립 4단계, 브랜드마다 가장 가까운 매장 1곳, 적용 안 된 규칙도 `applied = false` · `reason`. `GET /api/wallet-options`. **류지범의 검증 예시 5건을 단위 테스트로** |
-| 2 | 할인 규칙표 실데이터 반영, 정렬(`finalPrice` → `distanceM`, 명세 2절) · `OUT` 맨 아래, `mockRule` · `estimated` · `dataMonth` (NFR-01) |
+| 1 | `POST /api/quotes`: 묶음 → 행사가 → 통신사 → 결제 할인 → 개당 가격 `unitPrice`, 브랜드마다 가장 가까운 매장 1곳, `applicableMethods`(`API명세최종.md` 4-2 · 5절). `GET /api/wallet-options`(4-1). **류지범의 검증 예시 5건을 단위 테스트로** |
+| 2 | 할인 규칙표 실데이터 반영, 정렬(`stores`: `unitPrice` → `distanceM` → `OUT` 맨 아래, `products`: `sort`) |
 
 **제공** `schema.sql` · ERD · `DiscountRuleService.findFor` · quotes 조립
 **완료 기준** 검증 예시 5건 모두 일치 (명세 기준, 2026-11-09 결정), 스키마 변경은 이서현 리뷰 뒤 반영
@@ -96,7 +96,7 @@
 
 | 스프린트 | 할 일 |
 | --- | --- |
-| 0 | `comparison_matrix_2026-11.csv` · `raw_pyony_category.json` → `product` 칸 변환 스크립트(`product_id` · `data_month` · `estimated`). 이서현의 적재기에 넘겨요 |
+| 0 | `comparison_matrix_2026-11.csv` · `raw_pyony_category.json` → `product_group` · `product` 칸 변환 스크립트([reference/erd.md](reference/erd.md)). 이서현의 적재기에 넘겨요 |
 | 1 | `GET /api/categories/resolve` 키워드 사전 버전(`method = KEYWORD`), `q` 1 ~ 30자 검증 |
 | 2 | AI 버전(검색 1번에 LLM 1번, 같은 검색어 재사용, 실패 시 키워드), 정답셋(상품군마다 검색어 10개, 오타 · 줄임말 · 영어) 정확도, FR-08 사전 분류(신뢰도 0.7 미만 미분류, 선택) |
 
@@ -117,9 +117,9 @@
 
 | # | 흐름 | 이렇게 해 봐요 | 이렇게 나오면 성공 | 관련 |
 | --- | --- | --- | --- | --- |
-| 1 | 검색 → 결과 목록 | 교육장 좌표로 "콜라" 검색 | 브랜드마다 가장 가까운 매장 1곳과 최종 결제액, 거리가 3초 안에 와요 | FR-02 · 03 · 04 · 05 |
-| 2 | 할인 내역 | 결제 수단 2개 이상 선택 후 검색 | 4단계 할인 내역이 오고, 적용 안 된 규칙도 `applied = false` · `reason`으로 와요 | FR-04 · 11 |
+| 1 | 검색 → 결과 목록 | 교육장 좌표로 "콜라" 검색 | 브랜드마다 가장 가까운 매장 1곳과 개당 가격 `unitPrice`, 거리 · `walkMin`이 3초 안에 와요. `storeCount` = `stores` 개수 | FR-02 · 03 · 04 · 05 |
+| 2 | 할인 수단 | 결제 수단 2개 이상 선택 후 검색 | 할인이 반영된 `unitPrice`와, 그 브랜드에서 쓸 수 있는 수단이 `applicableMethods`에 혜택 큰 순으로 와요 | FR-04 · 11 |
 | 3 | 재고 | 같은 검색을 두 번 | 같은 매장 · 상품의 재고가 같고, `OUT`은 맨 아래에 있어요 | FR-10 |
-| 4 | 목업 표시 | 결과 목록의 상품 · 규칙 확인 | 목업 값에 `estimated` · `dataMonth` · `mockRule`이 채워져요 | NFR-01 |
+| 4 | 목업 표시 | 결과 목록의 재고 배지 확인 | 재고 배지 옆에 「예시 데이터」가 늘 보여요 (프런트) | NFR-01 |
 | 5 | 잘못된 입력 | `q`를 비우거나 31자 이상으로 호출 | 400 `INVALID_PARAM`이 `{ code, message }` 형식으로 와요 | 공통 |
-| 6 | 카카오 오류 | 카카오 키를 틀리게 두고 quotes 호출 | 200으로 상품 목록이 오고, 매장 칸과 `stockStatus`가 null이에요 ([design.md 3장](design.md#매장-조회가-실패했을-때-7장-1번-결정)) | NFR-02 |
+| 6 | 카카오 오류 | 카카오 키를 틀리게 두고 quotes 호출 | 502 `KAKAO_ERROR`(한도 초과면 429 `KAKAO_RATE_LIMIT`)가 `{ code, message }`로 와요 ([design.md 3장](design.md#매장-조회가-실패했을-때)) | NFR-02 |
