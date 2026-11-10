@@ -1,16 +1,17 @@
 import { useState } from 'react';
+import { isBundleEvent } from './types';
 import type { RecentItem } from './storage';
 import type { Brand, Destination, MethodType, Product, QuoteResponse, QuoteStore, Sort, Store, Wallet } from './types';
 import { BrandIcon, Icon, Logo, Notice, Price, PriceLine, labels, logoUrl, won } from './ui';
 
-export const events = { NONE: '', ONE_PLUS_ONE: '1+1', TWO_PLUS_ONE: '2+1', THREE_PLUS_ONE: '3+1' };
+export const events = { NONE: '', OTHER: '', ONE_PLUS_ONE: '1+1', TWO_PLUS_ONE: '2+1', THREE_PLUS_ONE: '3+1' };
 const OUT_TEXT = '재고 없음 · 예시 데이터';
 /** 추가 화면 v3 7번: 재고는 적을 때(2개 이하)만 주황 점 + 「재고 적음」. 있음은 표시 없음, 개수는 보여 주지 않는다 */
 export function LowStock({ store }: { store: QuoteStore }) {
     return store.stockStatus === 'LOW' ? <span className="low-stock">재고 적음</span> : null;
 }
 /** 1+1 · 2+1 묶음 개수(「2개 사면」) */
-const bundleCount = { NONE: 1, ONE_PLUS_ONE: 2, TWO_PLUS_ONE: 3, THREE_PLUS_ONE: 4 };
+const bundleCount = { NONE: 1, OTHER: 1, ONE_PLUS_ONE: 2, TWO_PLUS_ONE: 3, THREE_PLUS_ONE: 4 };
 export const categories = [
     { label: '음료', icon: 'cup' }, { label: '라면', icon: 'ramen' }, { label: '삼각김밥', icon: 'riceball' },
     { label: '도시락', icon: 'bento' }, { label: '과자', icon: 'snack' }, { label: '커피', icon: 'coffee' }
@@ -67,7 +68,7 @@ function FeaturedCard({ product, store, label, isDestination, wallet, select }: 
         <div className="featured-title"><BrandIcon code={store.brand} /><div><strong>{store.placeName}</strong><small>도보 약 {store.walkMin}분 · {store.distanceM}m <LowStock store={store} /></small>{(store.stockStatus === 'OUT' || allOut) && <small className="diff out">{OUT_TEXT}</small>}</div>
             <button type="button" className="primary small">{isDestination ? '지도 보기' : '길찾기'}</button></div>
         <Methods store={store} wallet={wallet} />
-        {store.event !== 'NONE' && <p className="bundle-pay"><span>{bundleCount[store.event]}개 사면</span><b>결제 {won(store.unitPrice * bundleCount[store.event])}원</b></p>}
+        {isBundleEvent(store.event) && <p className="bundle-pay"><span>{bundleCount[store.event]}개 사면</span><b>결제 {won(store.unitPrice * bundleCount[store.event])}원</b></p>}
     </div>;
 }
 function OtherStores({ featured, others, choose }: { featured: QuoteStore; others: QuoteStore[]; choose: (store: QuoteStore) => void }) {
@@ -97,7 +98,7 @@ function ProductCard({ product, open, toggle, destination, wallet, choose }: {
         <button className="product-row pressable" aria-expanded={open} onClick={toggle}>
             <ProductImage imageUrl={product.imageUrl} productKey={product.productKey} className={open ? 'big' : ''} />
             <span className="product-info"><strong>{product.name}</strong>
-                <span className="product-meta">{product.event !== 'NONE' && <b className="event">{events[product.event]}</b>}<s>정가 {won(product.listPrice)}원</s></span>
+                <span className="product-meta">{isBundleEvent(product.event) && <b className="event">{events[product.event]}</b>}<s>정가 {won(product.listPrice)}원</s></span>
                 <PriceLine price={product.minUnitPrice} listPrice={product.listPrice} size={open ? 'strong' : 'list'} />
                 {!open && cheapest && <span className="where"><Logo code={cheapest.brand} /><span>{shortPlace(cheapest)} · 도보 {cheapest.walkMin}분</span><LowStock store={cheapest} /></span>}
             </span>
@@ -125,7 +126,7 @@ export function Home({ wallet, recent, nearby, search, openRecent, goWallet, goM
             <span className="logos">{codes.filter(code => logoUrl(code)).slice(0, 3).map(code => <img key={code} src={logoUrl(code)!} alt="" />)}</span><Icon name="icons/caret-right" size={14} /></button>
         {saved !== null && goLedger && <button className="wallet-summary saved-summary pressable" onClick={goLedger}><span>지금까지 아낀 돈</span><b>{won(saved)}원</b><Icon name="icons/caret-right" size={14} /></button>}
         {recent.length > 0 && <section className="near"><h3>최근 찾은 상품</h3><div className="recent-row">{recent.map(item => <button key={item.productKey} className="recent-card pressable" onClick={() => openRecent(item)}>
-            <span className="product-image wide">{item.event !== 'NONE' && <em>{events[item.event]}</em>}<ProductImageInner item={item} /></span>
+            <span className="product-image wide">{isBundleEvent(item.event) && <em>{events[item.event]}</em>}<ProductImageInner item={item} /></span>
             <span className="recent-name">{item.name}</span>
             <PriceLine price={item.unitPrice} listPrice={item.listPrice} size="small" unit={false} />
             <Logo code={item.brand} />

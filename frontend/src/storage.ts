@@ -45,7 +45,7 @@ export interface RecentItem {
     listPrice: number; unitPrice: number; brand: Brand; query: string;
 }
 const RECENT_KEY = 'pyeonri.recent';
-const events = ['NONE', 'ONE_PLUS_ONE', 'TWO_PLUS_ONE', 'THREE_PLUS_ONE'];
+const events = ['NONE', 'ONE_PLUS_ONE', 'TWO_PLUS_ONE', 'THREE_PLUS_ONE', 'OTHER'];
 export function readRecent(storage: Storage): RecentItem[] {
     try {
         const value: unknown = JSON.parse(storage.getItem(RECENT_KEY) ?? '[]');

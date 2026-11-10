@@ -3,7 +3,8 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import type { EventItem, Plan, Planned, Receipt } from './ledgerData';
 import { byParticle, objectParticle, reverse } from './ledgerData';
 import { events } from './Products';
-import type { Brand, Event, Store } from './types';
+import type { Brand, Store } from './types';
+import { isBundleEvent } from './types';
 import { BrandIcon, Icon, Sheet, labels, won } from './ui';
 
 /** 이번 결제에 바로 여는 할인 앱: 바코드(통신사 · 편의점 멤버십) → 간편결제 순 */
@@ -18,7 +19,7 @@ export function appButtonLabel(plan: Plan) {
 function Steps({ plan }: { plan: Plan }) {
     const ordered = [...plan.methods].sort((a, b) => rank(a.kind) - rank(b.kind));
     return <ul className="arrival-steps">
-        <li>{plan.event !== 'NONE'
+        <li>{isBundleEvent(plan.event)
             ? <><b>{plan.productName}</b> {plan.qty}개를 챙기세요 ({events[plan.event]} 행사)</>
             : <><b>{plan.productName}</b>{objectParticle(plan.productName)} 찾으세요</>}</li>
         {ordered.map(method => <li key={`${method.kind}-${method.code}`}>{stepText(method.kind, method.label)}{method.amount > 0 && <em> -{won(method.amount)}원</em>}</li>)}
@@ -53,7 +54,7 @@ export function ArrivalView({ plan, saved, bought, skip }: { plan: Plan; saved: 
     </section>;
 }
 
-interface Row { name: string; event: Exclude<Event, 'NONE'>; price: string }
+interface Row { name: string; event: EventItem['event']; price: string }
 type StoreChoice = { brand: Brand; storeId: string; placeName: string };
 const MAX_DIGITS = 7;
 

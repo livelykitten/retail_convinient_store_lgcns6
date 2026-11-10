@@ -1,7 +1,8 @@
 // 추가 화면 v3 「도착 → 가계부 · 재고 표시」(피그마 327:230). 프론트 전용 · 이 기기(localStorage)에만 저장한다.
 // 가계부 = 영수증 합계 + 1+1 · 2+1로 산 상품. 장바구니 없이 낸 돈으로 통신사 · 카드 할인을 거꾸로 계산한다(정한 것 11-10).
 // 아낀 돈 기준은 정가 대비(아직 정할 것의 현재안).
-import type { Brand, Event, MethodType, Wallet } from './types';
+import type { Brand, BundleEvent, Event, MethodType, Wallet } from './types';
+import { isBundleEvent } from './types';
 import { labels } from './ui';
 
 export type SaveKind = 'EVENT' | MethodType | 'OTHER';
@@ -51,7 +52,7 @@ export const TELECOM_OFF = 100;
 export const CARD_RATE = 0.1;
 
 /** N+1 묶음: 받는 개수 · 값 내는 개수 */
-export const bundle = (event: Event) => ({ NONE: [1, 1], ONE_PLUS_ONE: [2, 1], TWO_PLUS_ONE: [3, 2], THREE_PLUS_ONE: [4, 3] }[event] as [number, number]);
+export const bundle = (event: Event) => ({ NONE: [1, 1], OTHER: [1, 1], ONE_PLUS_ONE: [2, 1], TWO_PLUS_ONE: [3, 2], THREE_PLUS_ONE: [4, 3] }[event] as [number, number]);
 
 export function methodLabel(type: MethodType, code: string, wallet: Wallet, cardNames: Record<string, string> = {}) {
     if (type === 'TELECOM' || type === 'MEMBERSHIP') return `${labels[code] ?? code} 멤버십`;
@@ -78,11 +79,11 @@ export function makePlan(input: {
     const pay = input.unitPrice * qty;
     const saved = Math.max(0, input.listPrice * qty - pay);
     const gross = input.listPrice * paidQty;
-    const telecom = input.event === 'NONE' ? Math.floor(gross / TELECOM_STEP) * TELECOM_OFF : 0;
+    const telecom = !isBundleEvent(input.event) ? Math.floor(gross / TELECOM_STEP) * TELECOM_OFF : 0;
     const weights = input.methods.map(method => method.type === 'TELECOM' ? telecom : method.type === 'CARD' ? Math.round((gross - telecom) * CARD_RATE) : 0);
     const methodSave = Math.max(0, gross - pay);
     // 행사 상품에 붙은 할인은 통신사 몫으로 본다(API · 데모 가격은 행사 + 통신사를 겹쳐 계산, 가계부 거꾸로 계산과 같은 기준)
-    const eventTelecom = input.event !== 'NONE' && input.methods.some(method => method.type === 'TELECOM');
+    const eventTelecom = isBundleEvent(input.event) && input.methods.some(method => method.type === 'TELECOM');
     const amounts = eventTelecom ? input.methods.map(method => method.type === 'TELECOM' ? methodSave : 0)
         : split(methodSave, weights.some(value => value > 0) ? weights : input.methods.map(() => 1));
     const methods = input.methods.map((method, index) => ({ kind: method.type, code: method.code, label: methodLabel(method.type, method.code, wallet, cardNames), amount: amounts[index] }));
@@ -92,7 +93,7 @@ export function makePlan(input: {
 // ---------------------------------------------------------------------
 // 「가계부에 적기」: 낸 돈 합계 + 행사 상품으로 거꾸로 계산
 // ---------------------------------------------------------------------
-export interface EventItem { name: string; event: Exclude<Event, 'NONE'>; price: number }
+export interface EventItem { name: string; event: BundleEvent; price: number }
 export interface Receipt {
     paid: number; items: EventItem[];
     telecom: { code: string; label: string } | null;
