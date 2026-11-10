@@ -1,0 +1,154 @@
+{
+  "source": "https://new.7-elevenapp.co.kr/api/v1/open/search/goods",
+  "generated_at_utc": "2026-11-10T00:37:55.235770+00:00",
+  "note": "SEVEN-only. Not merged with existing product CSV. Promotions/prices unverified at physical stores.",
+  "pages_by_query": {
+    "콜라": 3,
+    "코카콜라": 2,
+    "펩시": 2,
+    "큰사발": 2,
+    "컵라면": 2,
+    "라면": 3,
+    "도시락": 2,
+    "삼각": 2,
+    "우유": 3,
+    "바나나우유": 2,
+    "커피": 3
+  },
+  "groups": 163,
+  "products": 163,
+  "by_category": {
+    "COFFEE": 8,
+    "COLA": 27,
+    "MILK": 50,
+    "RAMEN_BAG": 17,
+    "RAMEN_CUP": 61
+  },
+  "source_rows": 714,
+  "excluded_category": 474,
+  "invalid_rows": 37,
+  "unsupported_events": 37,
+  "duplicates": 40,
+  "rejected_examples": [
+    {
+      "itemCd": "8801056226459",
+      "reason": "unknown/non-representable event '1+0'; requires review"
+    },
+    {
+      "itemCd": "8801094017606",
+      "reason": "unknown/non-representable event '3+0'; requires review"
+    },
+    {
+      "itemCd": "8801094012403",
+      "reason": "unknown/non-representable event '2+0'; requires review"
+    },
+    {
+      "itemCd": "8801094083625",
+      "reason": "unknown/non-representable event '2+0'; requires review"
+    },
+    {
+      "itemCd": "8801094017606",
+      "reason": "unknown/non-representable event '3+0'; requires review"
+    },
+    {
+      "itemCd": "8801094012403",
+      "reason": "unknown/non-representable event '2+0'; requires review"
+    },
+    {
+      "itemCd": "8801094083625",
+      "reason": "unknown/non-representable event '2+0'; requires review"
+    },
+    {
+      "itemCd": "8801056226459",
+      "reason": "unknown/non-representable event '1+0'; requires review"
+    },
+    {
+      "itemCd": "8801118030550",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118032387",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118033551",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118030604",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827506632",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827506960",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118031427",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118024481",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118025884",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827507950",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827508520",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827508490",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118031366",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118031380",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118034923",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118027451",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827507691",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827507745",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118032103",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827507875",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8801118027352",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    },
+    {
+      "itemCd": "8809827507721",
+      "reason": "unknown/non-representable event '0+1'; requires review"
+    }
+  ]
+}
