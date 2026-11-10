@@ -13,6 +13,15 @@ import org.junit.jupiter.api.Test;
 /** 상품 한 줄의 event · listPrice · minUnitPrice를 정하는 대표 매장 (결정 2026-11-10) */
 class QuoteServiceRepresentativeTest {
 
+    @Test
+    @DisplayName("미확인 행사 OTHER 코드를 유지하고 행사 배지는 표시하지 않는다")
+    void otherHasNoPromotionLabel() {
+        StoreQuote quote = store("gs25", Brand.GS25, 36, Event.OTHER, 2000, StockStatus.IN_STOCK);
+
+        assertThat(quote.event()).isEqualTo(Event.OTHER);
+        assertThat(quote.eventLabel()).isNull();
+    }
+
     private static StoreQuote store(String id, Brand brand, int distanceM, Event event, int unitPrice,
                                     StockStatus stock) {
         return new StoreQuote(id, brand, id, 127.0, 37.5, distanceM, QuoteService.walkMin(distanceM),

@@ -1,0 +1,30 @@
+brand,source_code,source_name,normalized_name,category,list_price,event,raw_category,reason
+SEVEN,8809827508520,한도초과)고민할필요없는도시락,고민할필요없는도시락,LUNCHBOX,4900,OTHER,도시락//,same brand/product has conflicting price or event
+SEVEN,8809827508513,한도초과)고민할필요없는도시락,고민할필요없는도시락,LUNCHBOX,4900,OTHER,//,same brand/product has conflicting price or event
+SEVEN,8809827506311,한도초과)고민할필요없는도시락,고민할필요없는도시락,LUNCHBOX,4900,NONE,//,same brand/product has conflicting price or event
+EMART24,8800323760252,든든한제육&돈까스정식,든든한제육&돈까스정식,LUNCHBOX,5900,NONE,도시락/정찬도시락/,same brand/product has conflicting price or event
+EMART24,8809962585189,든든한제육&돈까스정식,든든한제육&돈까스정식,LUNCHBOX,5600,NONE,도시락/정찬도시락/,same brand/product has conflicting price or event
+GS25,8801056175900,롯데)펩시제로라임캔355ML,롯데 펩시제로라임캔 355ml,COLA,1500,OTHER,음료/탄산음료/탄산-중캔,same brand/product has conflicting price or event
+GS25,8801056175900,롯데)펩시제로라임캔355ML,롯데 펩시제로라임캔 355ml,COLA,2100,OTHER,음료/탄산음료/탄산-중캔,same brand/product has conflicting price or event
+CU,view-27502,삼)스팸마요삼각,스팸마요삼각,TRIANGLE_KIMBAP,1400,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26510,빅삼)스팸마요삼각,스팸마요삼각,TRIANGLE_KIMBAP,1900,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26497,빅삼)전주비빔불고기삼각,전주비빔불고기삼각,TRIANGLE_KIMBAP,1800,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26496,삼)전주비빔불고기삼각,전주비빔불고기삼각,TRIANGLE_KIMBAP,1400,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+GS25,2700038878524,더큰)전주비빔참치마요2편,전주비빔참치마요,TRIANGLE_KIMBAP,1800,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038878517,더큰)전주비빔참치마요1편,전주비빔참치마요,TRIANGLE_KIMBAP,1800,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,8809015471162,전주비빔참치마요,전주비빔참치마요,TRIANGLE_KIMBAP,1300,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+EMART24,8800323763406,영진)참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8800323763413,영진)참치김치삼각김밥2편,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8800398701068,대정)참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8800398701075,대정)참치김치삼각김밥2편,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8809650799201,참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1200,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8809962586858,대정)참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8809962586865,대정)참치김치삼각김밥2편,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+GS25,2700038880237,삼각)참치마요1편,참치마요,TRIANGLE_KIMBAP,1200,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038880244,삼각)참치마요2편,참치마요,TRIANGLE_KIMBAP,1200,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038878159,더큰)참치마요2편,참치마요,TRIANGLE_KIMBAP,1700,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038878142,더큰)참치마요1편,참치마요,TRIANGLE_KIMBAP,1700,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+CU,view-26412,삼)참치마요삼각,참치마요삼각,TRIANGLE_KIMBAP,1200,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26409,빅삼)참치마요삼각,참치마요삼각,TRIANGLE_KIMBAP,1700,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26414,빅삼)치킨마요삼각,치킨마요삼각,TRIANGLE_KIMBAP,1700,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-25777,삼)치킨마요삼각,치킨마요삼각,TRIANGLE_KIMBAP,1400,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event

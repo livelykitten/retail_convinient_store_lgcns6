@@ -1,0 +1,10 @@
+brand,source_code,source_name,normalized_name,category,list_price,event,raw_category,reason
+EMART24,8800323760252,든든한제육&돈까스정식,든든한제육&돈까스정식,LUNCHBOX,5900,NONE,도시락/정찬도시락/,same brand/product has conflicting price or event
+EMART24,8809962585189,든든한제육&돈까스정식,든든한제육&돈까스정식,LUNCHBOX,5600,NONE,도시락/정찬도시락/,same brand/product has conflicting price or event
+EMART24,8800323763406,영진)참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8800323763413,영진)참치김치삼각김밥2편,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8800398701068,대정)참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8800398701075,대정)참치김치삼각김밥2편,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8809650799201,참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1200,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8809962586858,대정)참치김치삼각김밥,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event
+EMART24,8809962586865,대정)참치김치삼각김밥2편,참치김치삼각김밥,TRIANGLE_KIMBAP,1300,NONE,주먹밥/일반삼각/,same brand/product has conflicting price or event

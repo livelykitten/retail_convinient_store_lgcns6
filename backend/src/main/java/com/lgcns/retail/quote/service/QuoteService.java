@@ -176,10 +176,10 @@ public class QuoteService {
         return (distanceM + WALK_METERS_PER_MINUTE - 1) / WALK_METERS_PER_MINUTE;
     }
 
-    /** 할인 유형 배지 문구. 행사 없음은 null */
+    /** 미확인 행사(OTHER)는 행사 중으로 단정하는 배지를 표시하지 않는다. */
     static String eventLabel(Event event) {
         return switch (event) {
-            case NONE -> null;
+            case NONE, OTHER -> null;
             case ONE_PLUS_ONE -> "1+1 행사";
             case TWO_PLUS_ONE -> "2+1 행사";
             case THREE_PLUS_ONE -> "3+1 행사";

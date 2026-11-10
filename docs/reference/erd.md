@@ -59,7 +59,7 @@ erDiagram
     varchar brand "CU · GS25 · SEVEN · EMART24"
     varchar source_name "원천 표기"
     int list_price "0 초과"
-    varchar event "NONE · ONE_PLUS_ONE · TWO_PLUS_ONE · THREE_PLUS_ONE"
+    varchar event "NONE · ONE_PLUS_ONE · TWO_PLUS_ONE · THREE_PLUS_ONE · OTHER"
   }
   card_product {
     varchar card_id PK "예) shinhan-deepdream-check"
@@ -133,7 +133,7 @@ erDiagram
 | `brand` | VARCHAR(10) | N | `CU` | `stores[].brand` | `CU` · `GS25` · `SEVEN` · `EMART24` |
 | `source_name` | VARCHAR(100) | N | `바나나맛우유240ml` | — | 원천 표기 그대로 (확인용) |
 | `list_price` | INT | N | `1500` | `listPrice` | 0 초과 |
-| `event` | VARCHAR(20) | N | `TWO_PLUS_ONE` | `stores[].event` | API 3절 `Event` 4값 |
+| `event` | VARCHAR(20) | N | `TWO_PLUS_ONE` | `stores[].event` | 기존 4값 + `OTHER`(2026-11-10 승인: 미확인·기타 행사, 행사 할인 미반영) |
 
 - **UNIQUE `(product_key, brand)`**: 한 묶음에 브랜드마다 상품은 1개예요. 그래서 매장(브랜드)마다 가격을 하나로 정할 수 있어요.
 
@@ -272,7 +272,7 @@ POST /api/quotes { q, x, y, radius, sort, wallet }
 | 정상 행 넣기: 묶음 2(우유 · 커피) · 상품 3 · 카드 1 · 규칙 6 (통신사 등급 · 등급 무관 · 카드 상품 · 카드사 공통 · 간편결제 · 멤버십 적립) | 성공. `MILK` → 묶음 → 브랜드별 상품 조인 조회도 확인 |
 | 같은 묶음 · 같은 브랜드 상품 2개 | `uk_product_key_brand`로 막힘 |
 | 없는 `product_key`를 가리키는 상품 | `fk_product_group`으로 막힘 |
-| API에 없는 행사 값 (`OTHER`) | `ck_product_event`로 막힘 |
+| 지원하지 않는 행사 값 | `ck_product_event`로 막힘. `OTHER`는 지원하며 `NONE`과 구별하고 행사 할인은 미반영 |
 | `product_key`에 대문자 · 공백 | `ck_product_group_key`로 막힘 |
 | 멤버십 `provider`가 적용 브랜드와 다름 | `ck_discount_rule_provider`로 막힘 |
 | 통신사 `grade` = `UNKNOWN` | `ck_discount_rule_grade`로 막힘 |

@@ -1,0 +1,346 @@
+brand,source_code,source_name,normalized_name,category,list_price,event,raw_category,reason
+EMART24,7610700009338,리콜라)무설탕크랜베리,리콜라 무설탕크랜베리,,,ONE_PLUS_ONE,캔디/기능성캔디/,unmapped category
+EMART24,7610700024249,리콜라)무설탕프레쉬민트40g,리콜라 무설탕프레쉬민트 40g,,,ONE_PLUS_ONE,캔디/일반캔디/,unmapped category
+EMART24,7610700027493,리콜라)무설탕애플민트40g,리콜라 무설탕애플민트 40g,,,ONE_PLUS_ONE,캔디/기능성캔디/,unmapped category
+EMART24,7610700607046,리콜라)무설탕레몬,리콜라 무설탕레몬,,,ONE_PLUS_ONE,캔디/기능성캔디/,unmapped category
+EMART24,4001686323366,하리보)해피콜라100g,하리보 해피콜라 100g,,,TWO_PLUS_ONE,젤리/캬라멜/수입젤리/,unmapped category
+EMART24,8691216096370,하리보)해피콜라향사우어80g,하리보 해피콜라향사우어 80g,,,TWO_PLUS_ONE,젤리/캬라멜/수입젤리/,unmapped category
+EMART24,8801062885428,롯데)짱셔요콜라50g,롯데 짱셔요콜라 50g,,,TWO_PLUS_ONE,젤리/캬라멜/국내젤리/,unmapped category
+EMART24,8802259032434,롯데)가나프리미엄쇼콜라립파이88g(16),롯데 가나프리미엄쇼콜라립파이 (16) 88g,,,TWO_PLUS_ONE,쿠키파이/파이/,unmapped category
+EMART24,8809948521255,비비랩)저분자콜라겐S10포,비비랩 저분자콜라겐S10포,,,OTHER,건강식품/기타건강식품/,unmapped category
+EMART24,8800260686677,샴페인)니콜라스뿌이야트그랑리져브브륏750ml(비비노),샴페인 니콜라스뿌이야트그랑리져브브륏 (비비노) 750ml,,,OTHER,와인/로제/스파클링와인/,unmapped category
+EMART24,1500000219185,더에센셜바이아리얼)콜라겐9세럼60ml(앱),더에센셜바이아리얼 콜라겐9세럼 (앱) 60ml,,,NONE,화장품/미니뷰티/,unmapped category
+EMART24,1500000219192,더에센셜바이아리얼)콜라겐9크림100ml(앱),더에센셜바이아리얼 콜라겐9크림 (앱) 100ml,,,NONE,화장품/미니뷰티/,unmapped category
+EMART24,4006894107500,람베르츠)차르트비터쇼콜라덴500g,람베르츠 차르트비터쇼콜라덴 500g,,,NONE,수입과자/수입쿠키파이/,unmapped category
+EMART24,4006894108606,람베르츠)폴밀히쇼콜라덴500g,람베르츠 폴밀히쇼콜라덴 500g,,,NONE,수입과자/수입쿠키파이/,unmapped category
+EMART24,4100250006701,히츨러)히치스콜라향수수깡젤리125g,히츨러 히치스콜라향수수깡젤리 125g,,,NONE,젤리/캬라멜/수입젤리/,unmapped category
+EMART24,4549660948551,반다이)캡슐박스(카드캡터체리×산리오콜라보2),반다이 캡슐박스(카드캡터체리×산리오콜라보2,,,NONE,완구/완구/인형/,unmapped category
+EMART24,4582769892042,반다이)캡슐토이(코카콜라브랜드미니어처키링),반다이 캡슐토이(코카콜라브랜드미니어처키링,,,NONE,완구/완구/인형/,unmapped category
+EMART24,6921211115076,농심)멘토스콜라맛,농심 멘토스콜라맛,,,NONE,캔디/일반캔디/,unmapped category
+EMART24,7610700008683,리콜라)무설탕글라시어민트40g,리콜라 무설탕글라시어민트 40g,,,NONE,캔디/기능성캔디/,unmapped category
+EMART24,850023554178,집랩스)일회용ZSTICK(아이스콜라),집랩스 일회용ZSTICK(아이스콜라,,,NONE,전자담배디바이스/액상형전자담배/,unmapped category
+EMART24,8800243390065,로가)플랜트콜라겐부스터제로500ml,로가 플랜트콜라겐부스터제로 500ml,,,NONE,스포츠/에너지/스포츠음료(중)/,unmapped category
+EMART24,8800281964839,SF)뺑오쇼콜라45g,SF 뺑오쇼콜라 45g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8800368660258,더에센셜바이아리얼)콜라겐9세럼60ml,더에센셜바이아리얼 콜라겐9세럼 60ml,,,NONE,화장품/미니뷰티/,unmapped category
+EMART24,8800368660265,더에센셜바이아리얼)콜라겐9크림100ml,더에센셜바이아리얼 콜라겐9크림 100ml,,,NONE,화장품/미니뷰티/,unmapped category
+EMART24,8801037097931,오레오)코카콜라맛80g(24)한정,오레오 코카콜라맛 (24)한정 80g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8801043068604,농심)데이플러스콜라겐펫500ml,농심 데이플러스콜라겐 500ml,,,NONE,스포츠/에너지/스포츠음료(중)/,unmapped category
+EMART24,8801062321773,롯데)왓따껌콜라맛23g,롯데 왓따껌콜라맛 23g,,,NONE,껌/어린이껌/,unmapped category
+EMART24,8801068926361,삼립)쇼콜라약과선물세트(9입),삼립 쇼콜라약과선물세트(9입,,,NONE,빵/선물세트/케익/,unmapped category
+EMART24,8801068944853,삼립)호빵맨딥쇼콜라파이70g,삼립 호빵맨딥쇼콜라파이 70g,,,NONE,빵/카스텔라/패스츄리/파이/,unmapped category
+EMART24,8801117001322,오리온)비쵸비말차쇼콜라125g(24)한정,오리온 비쵸비말차쇼콜라 (24)한정 125g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8801117549916,오리온)오뜨쇼콜라150g,오리온 오뜨쇼콜라 150g,,,NONE,쿠키파이/파이/,unmapped category
+EMART24,8802259020431,롯데)가나프리미엄랑드샤쇼콜라91g(12),롯데 가나프리미엄랑드샤쇼콜라 (12) 91g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8802259027355,롯데)가나프리미엄랑드샤말차쇼콜라91g(한정),롯데 가나프리미엄랑드샤말차쇼콜라 (한정) 91g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8803420907469,리콜라)아이유포토카드세트B타입,리콜라 아이유포토카드세트B타입,,,NONE,캔디/기능성캔디/,unmapped category
+EMART24,8803420907483,리콜라)아이유포토카드세트A타입,리콜라 아이유포토카드세트A타입,,,NONE,캔디/기능성캔디/,unmapped category
+EMART24,8804645005763,맥널티)이너피스피치콜라겐230ml,맥널티 이너피스피치콜라겐 230ml,,,NONE,파우치음료/에이드파우치/,unmapped category
+EMART24,8806002020440,광동)비타민500콜라겐100ml,광동 비타민500콜라겐 100ml,,,NONE,기능성음료/비타민음료/,unmapped category
+EMART24,8809004644324,몽뜨레쎄)트위젤콜라맛70g,몽뜨레쎄 트위젤콜라맛 70g,,,NONE,젤리/캬라멜/국내젤리/,unmapped category
+EMART24,8809234904533,훼밀리)스파이대작전젤리콜라레몬48g,훼밀리 스파이대작전젤리콜라레몬 48g,,,NONE,젤리/캬라멜/수입젤리/,unmapped category
+EMART24,8809432533757,휴온스엔)이너셋콜라겐곤약젤리복숭아150g,휴온스엔 이너셋콜라겐곤약젤리복숭아 150g,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809432533764,휴온스엔)이너셋콜라겐곤약젤리청포도150g,휴온스엔 이너셋콜라겐곤약젤리청포도 150g,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809432533771,휴온스엔)이너셋콜라겐곤약젤리사과150g,휴온스엔 이너셋콜라겐곤약젤리사과 150g,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809433716548,피크닉보냉백)코카콜라옐로우13L,피크닉보냉백 코카콜라옐로우 13L,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8809441828677,허쉬)퐁당쇼콜라케이크45g,허쉬 퐁당쇼콜라케이크 45g,,,NONE,쿠키파이/파이/,unmapped category
+EMART24,8809514641172,뉴트리원)비비랩저분자콜라겐(30포)(D),뉴트리원 비비랩저분자콜라겐(30포)(D,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809514642834,뉴트리원)석류콜라겐S 14포,뉴트리원 석류콜라겐S 14포,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809514649420,뉴트리원)인텐시브판토텐산 콜라겐T 30포,뉴트리원 인텐시브판토텐산 콜라겐T 30포,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809514649451,뉴트리원)인텐시브저분자콜라겐S 30포,뉴트리원 인텐시브저분자콜라겐S 30포,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809514649468,뉴트리원)인텐시브글루타치온콜라겐W 30포,뉴트리원 인텐시브글루타치온콜라겐W 30포,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809514649482,뉴트리원)인텐시브비오틴콜라겐V 30포,뉴트리원 인텐시브비오틴콜라겐V 30포,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809592641583,서주)젤리인젤리콜라사이다믹스40g,서주 젤리인젤리콜라사이다믹스 40g,,,NONE,젤리/캬라멜/국내젤리/,unmapped category
+EMART24,8809639571682,피크닉보냉백)코카콜라빈티지13L,피크닉보냉백 코카콜라빈티지 13L,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8809639587249,원형보냉백)코카콜라캔5L,원형보냉백 코카콜라캔 5L,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8809672284846,리더스)그린콜라겐스킨케어5종세트,리더스 그린콜라겐스킨케어5종세트,,,NONE,화장품/화장품세트/,unmapped category
+EMART24,8809685983132,티젠)콤부차콜라겐젤리피치20g,티젠 콤부차콜라겐젤리피치 20g,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809687440237,클래식픽)마시멜로쇼콜라케익(냉장),클래식픽 마시멜로쇼콜라케익(냉장,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8809714122976,유앤아이)말랑코코젤리(콜라맛)66ml,유앤아이 말랑코코젤리(콜라맛) 66ml,,,NONE,젤리/캬라멜/기타젤리/,unmapped category
+EMART24,8809731102067,SF)마블쇼콜라100g,SF 마블쇼콜라 100g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8809812840215,아임이)디아블로티라미슈마카다미아쇼콜라21g(W),아임이 디아블로티라미슈마카다미아쇼콜라 (W) 21g,,,NONE,초콜렛/볼초콜렛/,unmapped category
+EMART24,8809844302972,엠즈)허쉬모어딥쇼콜라,엠즈 허쉬모어딥쇼콜라,,,NONE,빵/선물세트/케익/,unmapped category
+EMART24,8809941821031,메디필)레드락토콜라겐클렌징폼100ml,메디필 레드락토콜라겐클렌징폼 100ml,,,NONE,화장품/클렌징용품/,unmapped category
+EMART24,8809948525581,뉴트리원)콜라겐탱글업 14포,뉴트리원 콜라겐탱글업 14포,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809948527554,뉴트리원)화이트콜라겐 30포,뉴트리원 화이트콜라겐 30포,,,NONE,건강식품/기타건강식품/,unmapped category
+EMART24,8809949523531,글로우업)콜라겐바쿠치올토너150ml,글로우업 콜라겐바쿠치올토너 150ml,,,NONE,화장품/스킨/보습로션/,unmapped category
+EMART24,8809949523548,글로우업)콜라겐바쿠치올세럼45ml,글로우업 콜라겐바쿠치올세럼 45ml,,,NONE,화장품/스킨/보습로션/,unmapped category
+EMART24,8809949523555,글로우업)콜라겐바쿠치올크림50ml,글로우업 콜라겐바쿠치올크림 50ml,,,NONE,화장품/스킨/보습로션/,unmapped category
+EMART24,8809949523579,글로우업)콜라겐바쿠치올아이앰플15ml,글로우업 콜라겐바쿠치올아이앰플 15ml,,,NONE,화장품/스킨/보습로션/,unmapped category
+EMART24,8801045146980,오뚜기)진라면볶음밥컵230g,오뚜기 진라면볶음밥컵 230g,,,TWO_PLUS_ONE,냉동편의식/냉동식사/,unmapped category
+EMART24,1500000016982,즉석라면)종이용기(라면조리기전용),즉석라면 종이용기(라면조리기전용,,,NONE,면식품/기타면류/,unmapped category
+EMART24,1500000220341,즉석라면)전자레인지전용용기,즉석라면 전자레인지전용용기,,,NONE,면식품/기타면류/,unmapped category
+EMART24,8801045027999,오뚜기)진라면스틱매운맛10입,오뚜기 진라면스틱매운맛10입,,,NONE,조미료/분말/양념류/,unmapped category
+EMART24,8801045762289,오뚜기)진라면스틱순한맛10입,오뚜기 진라면스틱순한맛10입,,,NONE,조미료/분말/양념류/,unmapped category
+EMART24,8801045768014,오뚜기)열라면프레첼50g(20),오뚜기 열라면프레첼 (20) 50g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8801073310704,삼양)별뽀빠이라면스낵72G(48),삼양 별뽀빠이라면스낵 (48) 72g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8801073312661,삼양)삼양라면스낵90g,삼양 라면스낵 90g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8801117001032,오리온)스윙칩바베큐갈비라면맛50g(20)한정,오리온 스윙칩바베큐갈비라면맛 (20)한정 50g,,,NONE,스낵/감자스낵/,unmapped category
+EMART24,8801117663209,오리온)고래밥짜장라면맛46g(30),오리온 고래밥짜장라면맛 (30) 46g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8809005784357,도너)미니분식만들기(라면),도너 미니분식만들기(라면,,,NONE,완구/기타완구/,unmapped category
+EMART24,8809486990247,짱구)라면스낵바베큐맛90g(16),짱구 라면스낵바베큐맛 (16) 90g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8809486990254,짱구)라면스낵와사비맛90g(16),짱구 라면스낵와사비맛 (16) 90g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8809639589168,릴팡)먼작귀이지스택라면기(예약),릴팡 먼작귀이지스택라면기(예약,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8809639592830,릴팡)케이팝데몬헌터스라면기그릇,릴팡 케이팝데몬헌터스라면기그릇,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8809695257087,팔도)왕라면스프(5g*20입),팔도 왕라면스프( *) 5g 20입,,,NONE,조미료/분말/양념류/,unmapped category
+EMART24,8809962585141,대정)라강정(라면&닭강정),대정 라강정(라면&닭강정,,,NONE,간편조리FF/간식/안주/,unmapped category
+EMART24,8809962588241,라면토핑)슬라이스햄청양(2편),라면토핑 슬라이스햄청양(,,,NONE,냉장식재/기타냉장식재/,unmapped category
+EMART24,8809962588258,라면토핑)볶음김치비엔나(2편),라면토핑 볶음김치비엔나(,,,NONE,냉장식재/기타냉장식재/,unmapped category
+EMART24,8809962588265,라면토핑)볼어묵볶음김치(2편),라면토핑 볼어묵볶음김치(,,,NONE,냉장식재/기타냉장식재/,unmapped category
+EMART24,8809962588272,라면토핑)다진마늘콩나물(2편),라면토핑 다진마늘콩나물(,,,NONE,냉장식재/기타냉장식재/,unmapped category
+EMART24,8809962588289,라면토핑)콩나물청양(2편),라면토핑 콩나물청양(,,,NONE,냉장식재/기타냉장식재/,unmapped category
+EMART24,8994834002595,게메즈에낙)라면스낵치킨맛30G,게메즈에낙 라면스낵치킨맛 30g,,,NONE,수입과자/수입스낵/,unmapped category
+EMART24,8994834005855,게메즈에낙)라면과자스파이시28g,게메즈에낙 라면과자스파이시 28g,,,NONE,수입과자/수입스낵/,unmapped category
+EMART24,8994834010125,게메즈에낙)라면스낵바베큐맛28g(24),게메즈에낙 라면스낵바베큐맛 (24) 28g,,,NONE,수입과자/수입스낵/,unmapped category
+EMART24,9555022306551,아임이)라면스낵250g10입(S)(10),아임이 라면스낵 (S)(10) 250g 10입,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,9555022313139,옐로우)라면스낵BBQ맛250g(S),옐로우 라면스낵BBQ맛 (S) 250g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8801654091947,아임이)바삭e김도시락김5g,아임이 바삭e김도시락김 5g,,,NONE,대용식/김류/,unmapped category
+EMART24,8801654092173,옐로우)도시락김5g,옐로우 도시락김 5g,,,NONE,대용식/김류/,unmapped category
+EMART24,8804179250349,나누담)3칸도시락(수저포크포함),나누담 3칸도시락(수저포크포함,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8809000348905,해촌)재래도시락김5g,해촌 재래도시락김 5g,,,NONE,대용식/김류/,unmapped category
+EMART24,8809639581445,릴팡)포켓몬숄더도시락가방(예약),릴팡 포켓몬숄더도시락가방(예약,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8809639582367,릴팡)포켓몬스터2단도시락조리개(예약),릴팡 포켓몬스터2단도시락조리개(예약,,,NONE,생활용품/주방/욕실용품/,unmapped category
+EMART24,8800359560000,에스엠)삼각카스테라딸기90G,에스엠 삼각카스테라딸기 90g,,,TWO_PLUS_ONE,빵/카스텔라/패스츄리/파이/,unmapped category
+EMART24,8800359560017,에스엠)삼각카스테라초코90G,에스엠 삼각카스테라초코 90g,,,TWO_PLUS_ONE,빵/카스텔라/패스츄리/파이/,unmapped category
+EMART24,8800359560024,에스엠)삼각카스테라치즈90G,에스엠 삼각카스테라치즈 90g,,,TWO_PLUS_ONE,빵/카스텔라/패스츄리/파이/,unmapped category
+EMART24,1500000213220,앱)성진)삼각살바로구이180g,성진)삼각살바로구이 180g,,,NONE,축산/정육/,unmapped category
+EMART24,8801067071215,모나미)삼각연필(B:6입),모나미 삼각연필(B:6입,,,NONE,문구/필기구/,unmapped category
+EMART24,8806379938775,미용)유광삼각똑딱핀4P,미용 유광삼각똑딱핀4P,,,NONE,화장품/미용소품/,unmapped category
+EMART24,8806379940334,26특)프라다 사피아노 삼각로고 남성 반지갑,26특 프라다 사피아노 삼각로고 남성 반지갑,,,NONE,의류잡화/패션용품/,unmapped category
+EMART24,8806379998274,미용)삼각똑딱핀4P,미용 삼각똑딱핀4P,,,NONE,의류잡화/패션용품/,unmapped category
+EMART24,8809609230342,바나다)블루투스삼각대셀카봉,바나다 블루투스삼각대셀카봉,,,NONE,디지털가전/기타디지털/가전/,unmapped category
+EMART24,8809612177443,DS)고양이삼각수직스크래쳐,DS 고양이삼각수직스크래쳐,,,NONE,생활문화/애완용품/,unmapped category
+EMART24,8809667131902,성진)삼각살바로구이180g,성진 삼각살바로구이 180g,,,NONE,축산/정육/,unmapped category
+EMART24,8809963482050,선우)스위트삼각뿔5구(25V),선우 스위트삼각뿔5구(25V,,,NONE,초콜렛/초콜렛행사(데이)/,unmapped category
+EMART24,8801068941661,삼립)피카츄순수우유푸딩140g(냉장),삼립 피카츄순수우유푸딩 (냉장) 140g,,,TWO_PLUS_ONE,디저트/디저트기타/,unmapped category
+EMART24,8809173129196,애견)우유향껌치킨100g,애견 우유향껌치킨 100g,,,TWO_PLUS_ONE,생활문화/애완용품/,unmapped category
+EMART24,1880225902674,롯데)빵빠레소프트스낵초코우유맛 12입 BOX (예약),롯데 빵빠레소프트스낵초코우유맛 12입 BOX (예약,,,NONE,스낵/옥수수스낵/,unmapped category
+EMART24,4902477170582,헤이와도)구운우유도넛쿠키58g,헤이와도 구운우유도넛쿠키 58g,,,NONE,수입과자/수입쿠키파이/,unmapped category
+EMART24,4902975050591,엔제이)훗카이도크리미우유케이크195g,엔제이 훗카이도크리미우유케이크 195g,,,NONE,빵/선물세트/케익/,unmapped category
+EMART24,6975953485546,키즈웰)우유에말아먹는식빵4입(한정),키즈웰 우유에말아먹는식빵4입(한정,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,6977247790206,시원)밀크와톡톡우유맛48g,시원 밀크와톡톡우유맛 48g,,,NONE,캔디/봉지캔디/,unmapped category
+EMART24,8800280534828,SAMG)프린세스딸기&소금우유크림맛팝콘40g(12),SAMG 프린세스딸기&소금우유크림맛팝콘 (12) 40g,,,NONE,스낵/옥수수스낵/,unmapped category
+EMART24,8801019319525,해태)홈런볼메론우유49g(30)한정,해태 홈런볼메론우유 (30)한정 49g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8801019320125,해태)샌드에이스우유크림51g(24)한정,해태 샌드에이스우유크림 (24)한정 51g,,,NONE,쿠키파이/크래커/,unmapped category
+EMART24,8801019320132,해태)메가홈런볼초코&소금우유300g(8)한정,해태 메가홈런볼초코&소금우유 (8)한정 300g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8801062013395,롯데)말랑카우딸기우유79g,롯데 말랑카우딸기우유 79g,,,NONE,캔디/봉지캔디/,unmapped category
+EMART24,8801062857883,롯데)파스퇴르우유모나카140ml,롯데 파스퇴르우유모나카 140ml,,,NONE,일반아이스크림/샌드(모나카)/,unmapped category
+EMART24,8801068086249,삼립)아침우유식빵330g,삼립 아침우유식빵 330g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068405545,삼립)순우유밀크요팡65g,삼립 순우유밀크요팡 65g,,,NONE,빵/카스텔라/패스츄리/파이/,unmapped category
+EMART24,8801068405569,삼립)순우유연유요팡80g,삼립 순우유연유요팡 80g,,,NONE,빵/카스텔라/패스츄리/파이/,unmapped category
+EMART24,8801068405576,삼립)순우유완듀팡110g,삼립 순우유완듀팡 110g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068405620,삼립)탕종달콤우유연유샌드95g,삼립 탕종달콤우유연유샌드 95g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068406290,삼립)촉촉한우유식빵330g,삼립 촉촉한우유식빵 330g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068927146,삼립)소금우유떡케이크(냉장),삼립 소금우유떡케이크(냉장,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8801068927399,삼립)타락우유호빵1입95g(냉장),삼립 타락우유호빵 (냉장) 95g 1입,,,NONE,빵/호빵/떡/전통한과/기타/,unmapped category
+EMART24,8801068929447,삼립)순우유통통팥팥팡110g,삼립 순우유통통팥팥팡 110g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068933840,삼립)미각제빵소우유카스테라롤128g,삼립 미각제빵소우유카스테라롤 128g,,,NONE,프리미엄빵/후레쉬베이커리/,unmapped category
+EMART24,8801068939415,삼립)순우유꿀고구마팡110g,삼립 순우유꿀고구마팡 110g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068940008,삼립)프로H우유한입샌드100g,삼립 프로H우유한입샌드 100g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068940299,삼립)미각제빵소우유크림브리오슈100g,삼립 미각제빵소우유크림브리오슈 100g,,,NONE,프리미엄빵/후레쉬베이커리/,unmapped category
+EMART24,8801068941210,삼립)순우유까망깨앙팡110g,삼립 순우유까망깨앙팡 110g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801068942200,삼립)포켓몬뮤츠우유치즈케익100g,삼립 포켓몬뮤츠우유치즈케익 100g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8801115224679,서울우유)초코우유맛원컵25g,서울우유 초코우유맛원컵 25g,,,NONE,커피차/원컵커피차류/,unmapped category
+EMART24,8801115499725,서울우유)서울우유맛원컵25g,서울우유 맛원컵 25g,,,NONE,커피차/원컵커피차류/,unmapped category
+EMART24,8801117479701,오리온)투유우유초콜릿60g,오리온 투유우유초콜릿 60g,,,NONE,초콜렛/판초콜렛/,unmapped category
+EMART24,8801204008586,청우)우유먹은공룡60g,청우 우유먹은공룡 60g,,,NONE,쿠키파이/크래커/,unmapped category
+EMART24,8801206003718,아임이)순수우유모나카125ml,아임이 순수우유모나카 125ml,,,NONE,일반아이스크림/샌드(모나카)/,unmapped category
+EMART24,8802259018377,롯데)빵빠레소프트스낵바닐라우유맛115g(12),롯데 빵빠레소프트스낵바닐라우유맛 (12) 115g,,,NONE,스낵/옥수수스낵/,unmapped category
+EMART24,8802259026747,롯데)빵빠레소프트스낵초코우유맛100g(12),롯데 빵빠레소프트스낵초코우유맛 (12) 100g,,,NONE,스낵/옥수수스낵/,unmapped category
+EMART24,8802259030782,롯데)롯샌파스퇴르순우유맛105g(30),롯데 롯샌파스퇴르순우유맛 (30) 105g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8802259032984,롯데)카스타드순우유맛메이플스토리(12)한정,롯데 카스타드순우유맛메이플스토리(12)한정,,,NONE,쿠키파이/파이/,unmapped category
+EMART24,8809081562559,청수당)말차우유원컵,청수당 말차우유원컵,,,NONE,커피차/원컵커피차류/,unmapped category
+EMART24,8809257335314,담터)자판기우유맛한잔원컵,담터 자판기우유맛한잔원컵,,,NONE,커피차/원컵커피차류/,unmapped category
+EMART24,8809322922043,대두)우유앙빵세트,대두 우유앙빵세트,,,NONE,빵/선물세트/케익/,unmapped category
+EMART24,8809494072089,성수310)우유사르르생크림빵130g(냉장),성수310 우유사르르생크림빵 (냉장) 130g,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8809597127013,키도)닭가슴살_본우유껌3P,키도 닭가슴살 본우유껌3P,,,NONE,생활문화/애완용품/,unmapped category
+EMART24,8809597127020,키도)닭가슴살_스틱우유껌4P,키도 닭가슴살 스틱우유껌4P,,,NONE,생활문화/애완용품/,unmapped category
+EMART24,8809713222257,빙그레)우유팥바70ml,빙그레 우유팥바 70ml,,,NONE,일반아이스크림/바/,unmapped category
+EMART24,8809720821047,에이스)전천당쑥쑥우유맛캔디30g,에이스 전천당쑥쑥우유맛캔디 30g,,,NONE,캔디/봉지캔디/,unmapped category
+EMART24,8809844303108,매일)저지우유식빵115g,매일 저지우유식빵 115g,,,NONE,빵/일반빵/단과자빵/,unmapped category
+EMART24,8809844303450,매일우유)우유모찌롤105g,매일우유 우유모찌롤 105g,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8809844303467,매일우유)초코모찌롤105g,매일우유 초코모찌롤 105g,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8809844304877,성수310)솔티우유크림소금빵95g(냉장),성수310 솔티우유크림소금빵 (냉장) 95g,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8809844304938,브레드이발소)우유크림도넛95g(냉장),브레드이발소 우유크림도넛 (냉장) 95g,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8809844304952,성수310)저당생크림롤우유80g(냉장),성수310 저당생크림롤우유 (냉장) 80g,,,NONE,디저트/디저트케익류/,unmapped category
+EMART24,8809903160123,제주성이시돌목장)우유젤라또파인트370ml,제주성이시돌목장 우유젤라또파인트 370ml,,,NONE,고급아이스크림/파인트/,unmapped category
+EMART24,8809903160383,제주성이시돌목장)우유젤라또파인트473ml,제주성이시돌목장 우유젤라또파인트 473ml,,,NONE,고급아이스크림/파인트/,unmapped category
+EMART24,8809903160420,제주성이시돌목장)우유젤라또미니컵100ml,제주성이시돌목장 우유젤라또미니컵 100ml,,,NONE,고급아이스크림/미니컵/,unmapped category
+EMART24,8996001305249,마요라)코코넛우유크림비스켓180g,마요라 코코넛우유크림비스켓 180g,,,NONE,수입과자/수입쿠키파이/,unmapped category
+EMART24,8801133005700,머거본)커피땅콩60g,머거본 커피땅콩 60g,,,TWO_PLUS_ONE,안주류/농산안주/,unmapped category
+EMART24,8802259032885,롯데)스카치캔디커피60g,롯데 스카치캔디커피 60g,,,TWO_PLUS_ONE,캔디/봉지캔디/,unmapped category
+EMART24,8996001321188,매크로)코피코커피맛32g,매크로 코피코커피맛 32g,,,TWO_PLUS_ONE,캔디/일반캔디/,unmapped category
+EMART24,8996001330470,매크로)코피코커피맛(슈가프리)32g,매크로 코피코커피맛(슈가프리) 32g,,,TWO_PLUS_ONE,캔디/일반캔디/,unmapped category
+EMART24,8801133011770,머거본)커피땅콩헤이즐넛향300g,머거본 커피땅콩헤이즐넛향 300g,,,OTHER,안주류/농산안주/,unmapped category
+EMART24,1500000198787,W)미민 cony logo twohole gloves 커피,W 미민 cony logo twohole gloves 커피,,,NONE,의류잡화/패션용품/,unmapped category
+EMART24,1500000198817,W)퍼니키친 레트로 다방 커피잔세트 그린,W 퍼니키친 레트로 다방 커피잔세트 그린,,,NONE,생활용품/기타생활용품/,unmapped category
+EMART24,1500000198824,W)퍼니키친 레트로 다방 커피잔세트 베이지,W 퍼니키친 레트로 다방 커피잔세트 베이지,,,NONE,생활용품/기타생활용품/,unmapped category
+EMART24,1500000198831,W)퍼니키친 레트로 다방 커피잔세트 화이트,W 퍼니키친 레트로 다방 커피잔세트 화이트,,,NONE,생활용품/기타생활용품/,unmapped category
+EMART24,5410381000448,트레핀)커피맛캔디175g,트레핀 커피맛캔디 175g,,,NONE,캔디/봉지캔디/,unmapped category
+EMART24,80936220,로아커)초콜릿크리스피커피50g(D),로아커 초콜릿크리스피커피 (D) 50g,,,NONE,수입과자/기타수입과자/,unmapped category
+EMART24,8800314660141,대경)에스프레소자일리톨커피캔디32g,대경 에스프레소자일리톨커피캔디 32g,,,NONE,캔디/기능성캔디/,unmapped category
+EMART24,8800314660240,대경)아메리카노자일리톨커피캔디32g,대경 아메리카노자일리톨커피캔디 32g,,,NONE,캔디/기능성캔디/,unmapped category
+EMART24,8801062007851,롯데)이지프로틴커피크런치바85ml,롯데 이지프로틴커피크런치바 85ml,,,NONE,일반아이스크림/바/,unmapped category
+EMART24,8801062318216,롯데)아라비카커피껌,롯데 아라비카커피껌,,,NONE,껌/스틱껌/,unmapped category
+EMART24,8801062861057,나뚜루)넛츠크림커피바,나뚜루 넛츠크림커피바,,,NONE,고급아이스크림/고급바/콘/샌드/,unmapped category
+EMART24,8801062861064,나뚜루)넛츠크림커피미니컵,나뚜루 넛츠크림커피미니컵,,,NONE,고급아이스크림/미니컵/,unmapped category
+EMART24,8801062861071,나뚜루)넛츠크림커피파인트,나뚜루 넛츠크림커피파인트,,,NONE,고급아이스크림/파인트/,unmapped category
+EMART24,8801104948999,빙그레)딥앤로우저당커피바90ml,빙그레 딥앤로우저당커피바 90ml,,,NONE,일반아이스크림/바/,unmapped category
+EMART24,8801104950145,빙그레)엔초디카페인커피85ml,빙그레 엔초디카페인커피 85ml,,,NONE,일반아이스크림/바/,unmapped category
+EMART24,8801111186087,크라운)쿠크다스커피128g,크라운 쿠크다스커피 128g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8801162648558,스타킹)비비안팬츠삭스(커피),스타킹 비비안팬츠삭스(커피,,,NONE,의류잡화/스타킹/,unmapped category
+EMART24,8801162648589,스타킹)비비안기본팬티(커피),스타킹 비비안기본팬티(커피,,,NONE,의류잡화/스타킹/,unmapped category
+EMART24,8801162648619,스타킹)비비안압박팬티(커피),스타킹 비비안압박팬티(커피,,,NONE,의류잡화/스타킹/,unmapped category
+EMART24,8801204205848,청우)쫀득초코칩커피90g,청우 쫀득초코칩커피 90g,,,NONE,쿠키파이/쿠키/,unmapped category
+EMART24,8802259028642,롯데)몽쉘코코넛&밀크커피맛136g하이브(한정),롯데 몽쉘코코넛&밀크커피맛 하이브(한정) 136g,,,NONE,쿠키파이/파이/,unmapped category
+EMART24,8808994264529,스타킹)비비안기본팬티N(커피),스타킹 비비안기본팬티N(커피,,,NONE,의류잡화/스타킹/,unmapped category
+EMART24,8809288633427,던킨)커피에너지바30g,던킨 커피에너지바 30g,,,NONE,초콜렛/바초콜렛/,unmapped category
+EMART24,8809606560404,프로티원)단백질쉐이크커피맛40g,프로티원 단백질쉐이크커피맛 40g,,,NONE,대용식/기타가공식품/,unmapped category
+EMART24,8809624621446,카브루)콜드브루커피비어캔500ml,카브루 콜드브루커피비어캔 500ml,,,NONE,맥주/국산캔맥주/,unmapped category
+EMART24,8809634870001,마이노멀)방탄커피오리지널230ml,마이노멀 방탄커피오리지널 230ml,,,NONE,젤리/캬라멜/기타젤리/,unmapped category
+EMART24,8809634870179,마이노멀)방탄커피시그니처230ml,마이노멀 방탄커피시그니처 230ml,,,NONE,젤리/캬라멜/기타젤리/,unmapped category
+EMART24,8809634870360,마이노멀)방탄커피디카페인230ml,마이노멀 방탄커피디카페인 230ml,,,NONE,젤리/캬라멜/기타젤리/,unmapped category
+EMART24,8809713221748,빙그레)누가바도코코넛커피70ml,빙그레 누가바도코코넛커피 70ml,,,NONE,일반아이스크림/바/,unmapped category
+EMART24,8809844302927,매일)커피거북이빵110g(냉장),매일 커피거북이빵 (냉장) 110g,,,NONE,디저트/디저트기타/,unmapped category
+EMART24,8809963485297,선우)커피젤리45g,선우 커피젤리 45g,,,NONE,젤리/캬라멜/수입젤리/,unmapped category
+EMART24,8801007833620,CJ)햇반참치마요덮밥,CJ 햇반참치마요덮밥,,,TWO_PLUS_ONE,대용식/즉석컵밥/,unmapped category
+EMART24,1500000210892,대정)스마일밀_NEW올바른참치마요김밥,대정 스마일밀 NEW올바른참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323760337,참치마요김치볶음밥계란말이,참치마요김치볶음밥계란말이,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8800323761228,영진)NEW올바른베이컨참치마요김밥,영진 NEW올바른베이컨참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323761235,영진)NEW올바른베이컨참치마요김밥2편,영진 NEW올바른베이컨참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323761280,영진)NEW올바른참치마요김밥,영진 NEW올바른참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323761297,영진)NEW올바른참치마요김밥2편,영진 NEW올바른참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323762126,영진)전주비빔참치마요햄말이주먹밥,영진 전주비빔참치마요햄말이주먹밥,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8800323762133,영진)전주비빔참치마요햄말이주먹밥2편,영진 전주비빔참치마요햄말이주먹밥,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8801045348179,오뚜기)참치마요주먹밥500g,오뚜기 참치마요주먹밥 500g,,,NONE,냉동편의식/냉동식사/,unmapped category
+EMART24,8801045631301,오뚜기)컵밥고추참치마요덮밥,오뚜기 컵밥고추참치마요덮밥,,,NONE,대용식/즉석컵밥/,unmapped category
+EMART24,8801045892641,오뚜기)컵밥참치마요덮밥,오뚜기 컵밥참치마요덮밥,,,NONE,대용식/즉석컵밥/,unmapped category
+EMART24,8801068931693,삼립)참치마요듬뿍샌드위치,삼립 참치마요듬뿍샌드위치,,,NONE,샌드위치/일반샌드위치/,unmapped category
+EMART24,8801068938142,삼립)매콤치킨참치마요샐러드2편,삼립 매콤치킨참치마요샐러드,,,NONE,샐러드/즉석샐러드/,unmapped category
+EMART24,8809650794015,베이컨참치마요김밥,베이컨참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809705477634,스테이씨_참치마요햄말이주먹밥,스테이씨 참치마요햄말이주먹밥,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8809909951077,탭스)와그작날치알참치마요김밥2편,탭스 와그작날치알참치마요김밥,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8809962581846,고소한참치마요김밥,고소한참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962584823,스테이씨_참치마요김치볶음밥계란말이,스테이씨 참치마요김치볶음밥계란말이,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8809962586902,손종원 셰프_스리라차참치마요,손종원 셰프 스리라차참치마요,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962587831,대정)NEW올바른베이컨참치마요김밥,대정 NEW올바른베이컨참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962587848,대정)NEW올바른베이컨참치마요김밥2편,대정 NEW올바른베이컨참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962587893,대정)NEW올바른참치마요김밥,대정 NEW올바른참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962587909,대정)NEW올바른참치마요김밥2편,대정 NEW올바른참치마요김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962589033,대정)전주비빔참치마요햄말이주먹밥,대정 전주비빔참치마요햄말이주먹밥,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8809962589040,대정)전주비빔참치마요햄말이주먹밥2편,대정 전주비빔참치마요햄말이주먹밥,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8801007611679,CJ)햇반철판제육덮밥,CJ 햇반철판제육덮밥,,,TWO_PLUS_ONE,대용식/즉석컵밥/,unmapped category
+EMART24,8800323762775,영진)올바른고추장제육김밥,영진 올바른고추장제육김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323762782,영진)올바른고추장제육김밥2편,영진 올바른고추장제육김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323763079,영진)제우스_제육&우삼겹반반김밥,영진 제우스 제육&우삼겹반반김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8800323763086,영진)제우스_제육&우삼겹반반김밥2편,영진 제우스 제육&우삼겹반반김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8800398700238,대정)제우스_제육&우삼겹반반김밥,대정 제우스 제육&우삼겹반반김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8800398700245,대정)제우스_제육&우삼겹반반김밥2편,대정 제우스 제육&우삼겹반반김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8800398700306,대정)제우스_고추장제육볶음면2편,대정 제우스 고추장제육볶음면,,,NONE,간편조리FF/조리면/,unmapped category
+EMART24,8800398700955,대정)중량UP_고추장제육볶음면2편,대정 중량UP 고추장제육볶음면,,,NONE,간편조리FF/조리면/,unmapped category
+EMART24,8809148792110,KG)제육볶음250g(냉동),KG 제육볶음 (냉동) 250g,,,NONE,축산/정육/,unmapped category
+EMART24,8809366358327,쿠캣)직화고추장제육볶음180g,쿠캣 직화고추장제육볶음 180g,,,NONE,냉동편의식/냉동안주류/,unmapped category
+EMART24,8809366358334,쿠캣)직화간장제육볶음180g,쿠캣 직화간장제육볶음 180g,,,NONE,냉동편의식/냉동안주류/,unmapped category
+EMART24,8809396243969,리니지클래식)직화제육덮밥354g,리니지클래식 직화제육덮밥 354g,,,NONE,냉장식재/냉장식사/,unmapped category
+EMART24,8809396244157,제우스)마요직화제육덮밥,제우스 마요직화제육덮밥,,,NONE,냉장식재/냉장식사/,unmapped category
+EMART24,8809650792936,제육&치즈불고기김밥,제육&치즈불고기김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8809705477290,영진)매콤제육김밥,영진 매콤제육김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809705477306,영진)매콤제육김밥2편,영진 매콤제육김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809705479492,스테이씨_매콤제육햄말이주먹밥,스테이씨 매콤제육햄말이주먹밥,,,NONE,주먹밥/기타주먹밥/,unmapped category
+EMART24,8809750542929,최지형셰프)리북방제육비빔면315g,최지형셰프 리북방제육비빔면 315g,,,NONE,냉동식재/냉동밀키트/,unmapped category
+EMART24,8809778498406,하림)더미식제육볶음200g,하림 더미식제육볶음 200g,,,NONE,냉동편의식/냉동안주류/,unmapped category
+EMART24,8809962580887,이지쿡)매콤제육불고기171g,이지쿡 매콤제육불고기 171g,,,NONE,간편조리FF/간편조리/델리/,unmapped category
+EMART24,8809962582508,辛고추장제육김밥,辛고추장제육김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962585271,고추장제육김밥&유부초밥,고추장제육김밥&유부초밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8809962585523,반반고기안주(제육&불고기),반반고기안주(제육&불고기,,,NONE,간편조리FF/간식/안주/,unmapped category
+EMART24,8809962589989,대정)올바른고추장제육김밥,대정 올바른고추장제육김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962589996,대정)올바른고추장제육김밥2편,대정 올바른고추장제육김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8801392090530,CJ)맥스봉매콤불고기핫바65g,CJ 맥스봉매콤불고기핫바 65g,,,ONE_PLUS_ONE,냉장편의식/후랑크/핫바/,unmapped category
+EMART24,8801392187094,CJ)NEW비비고육즙불고기찐만두6구,CJ NEW비비고육즙불고기찐만두6구,,,ONE_PLUS_ONE,냉동식재/냉동만두/,unmapped category
+EMART24,8802266500810,오뗄)불고기맛후랑크65g,오뗄 불고기맛후랑크 65g,,,ONE_PLUS_ONE,냉장편의식/후랑크/핫바/,unmapped category
+EMART24,8801007928906,CJ)비비고육즙불고기찐만두168g,CJ 비비고육즙불고기찐만두 168g,,,TWO_PLUS_ONE,냉동식재/냉동만두/,unmapped category
+EMART24,8801045750095,오뚜기)불고기피자396g,오뚜기 불고기피자 396g,,,TWO_PLUS_ONE,냉동편의식/냉동치킨/피자/,unmapped category
+EMART24,8801045751245,오뚜기)UNO불고기피자180g,오뚜기 UNO불고기피자 180g,,,TWO_PLUS_ONE,냉동편의식/냉동치킨/피자/,unmapped category
+EMART24,8801066066120,사조)불고기피자80g,사조 불고기피자 80g,,,TWO_PLUS_ONE,냉장편의식/기타냉장편의식/,unmapped category
+EMART24,8801068945270,삼립)뉴불고기치즈부리또115g,삼립 뉴불고기치즈부리또 115g,,,TWO_PLUS_ONE,냉장편의식/기타냉장편의식/,unmapped category
+EMART24,8801007176369,CJ)소불고기양념500g,CJ 소불고기양념 500g,,,OTHER,조미료/분말/양념류/,unmapped category
+EMART24,8801007176376,CJ)매콤한돼지불고기양념500g,CJ 매콤한돼지불고기양념 500g,,,OTHER,조미료/분말/양념류/,unmapped category
+EMART24,1500000210632,앱)KG)양념소불고기400g,KG)양념소불고기 400g,,,NONE,축산/정육/,unmapped category
+EMART24,1500000210649,앱)KG)간장돼지불고기600g,KG)간장돼지불고기 600g,,,NONE,축산/정육/,unmapped category
+EMART24,1500000210854,대정)스마일밀_불고기치즈버거,대정 스마일밀 불고기치즈버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,1500000213169,앱)성진)1등급한우정육불고기,성진)1등급한우정육불고기,,,NONE,축산/정육/,unmapped category
+EMART24,1500000214081,(앱)영천)버섯불고기전골재료670g,(앱)영천)버섯불고기전골재료 670g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,1500000214272,26추)한우양념불고기세트,26추 한우양념불고기세트,,,NONE,신선선물세트/축산선물세트/,unmapped category
+EMART24,1500000219468,(앱)영천)불고기월남쌈775g,(앱)영천)불고기월남쌈 775g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,1500000219475,(앱)영천)간장연탄불고기715g,(앱)영천)간장연탄불고기 715g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,1500000219482,(앱)영천)고추장연탄불고기715g,(앱)영천)고추장연탄불고기 715g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,2500000364891,KG)양념닭다리살불고기800g,KG 양념닭다리살불고기 800g,,,NONE,축산/정육/,unmapped category
+EMART24,2507281032198,KG)양념소불고기400g,KG 양념소불고기 400g,,,NONE,축산/정육/,unmapped category
+EMART24,2507281072781,KG)간장돼지불고기600g,KG 간장돼지불고기 600g,,,NONE,축산/정육/,unmapped category
+EMART24,8800281964419,SF)불고기치즈버거157g,SF 불고기치즈버거 157g,,,NONE,냉동편의식/냉동식사/,unmapped category
+EMART24,8800323761983,영진)올바른참치&유부불고기김밥2편,영진 올바른참치&유부불고기김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8800323761990,영진)올바른참치&유부불고기김밥,영진 올바른참치&유부불고기김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8800323763154,영진)박은영_짬뽕짜장불고기김밥,영진 박은영 짬뽕짜장불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800323763161,영진)박은영_짬뽕짜장불고기김밥2편,영진 박은영 짬뽕짜장불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800398700412,대정)박은영_짬뽕짜장불고기김밥,대정 박은영 짬뽕짜장불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8800398700429,대정)박은영_짬뽕짜장불고기김밥2편,대정 박은영 짬뽕짜장불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8801007608112,CJ)햇반직화불고기덮밥,CJ 햇반직화불고기덮밥,,,NONE,대용식/즉석컵밥/,unmapped category
+EMART24,8801045387802,오뚜기)뿌셔뿌셔불고기맛팝콘45g(12),오뚜기 뿌셔뿌셔불고기맛팝콘 (12) 45g,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8801045560038,오뚜기)뿌셔뿌셔불고기맛(24),오뚜기 뿌셔뿌셔불고기맛(24,,,NONE,스낵/일반스낵/,unmapped category
+EMART24,8801047171270,양반비빔드밥불고기비빔밥,양반비빔드밥불고기비빔밥,,,NONE,대용식/즉석컵밥/,unmapped category
+EMART24,8801052730684,청정원)돼지불고기양념280g,청정원 돼지불고기양념 280g,,,NONE,조미료/분말/양념류/,unmapped category
+EMART24,8801068929478,삼립)맥앤치즈불고기버거,삼립 맥앤치즈불고기버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801068932164,삼립)불고기치즈부리또115g,삼립 불고기치즈부리또 115g,,,NONE,냉장편의식/기타냉장편의식/,unmapped category
+EMART24,8801068932652,시티델리_직화그릴불고기어니언버거,시티델리 직화그릴불고기어니언버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801068933512,자이언트X3_어니언불고기버거,자이언트X3 어니언불고기버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801068935684,삼립)자이언트X3_불고기치즈버거,삼립 자이언트X3 불고기치즈버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801068942415,삼립)망나뇽불고기피자110g(2편),삼립 망나뇽불고기피자 () 110g,,,NONE,냉장편의식/기타냉장편의식/,unmapped category
+EMART24,8801068942996,삼립)더블불고기사라다버거2편,삼립 더블불고기사라다버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801068943009,삼립)더블불고기사라다버거,삼립 더블불고기사라다버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801068943016,삼립)더블불고기베이컨버거2편,삼립 더블불고기베이컨버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801068943023,삼립)더블불고기베이컨버거,삼립 더블불고기베이컨버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8801114163634,지구식단)직화불고기만두180g,지구식단 직화불고기만두 180g,,,NONE,냉동식재/냉동만두/,unmapped category
+EMART24,8801392116636,CJ)비비고직화식돼지불고기400g,CJ 비비고직화식돼지불고기 400g,,,NONE,냉동편의식/냉동식사/,unmapped category
+EMART24,8801392181269,CJ)비비고육즙불고기찐만두112g,CJ 비비고육즙불고기찐만두 112g,,,NONE,냉동식재/냉동만두/,unmapped category
+EMART24,8803622102471,한양)숏바디버터불고기40g,한양 숏바디버터불고기 40g,,,NONE,안주류/수산안주/,unmapped category
+EMART24,8809128032472,영천)불고기월남쌈775g,영천 불고기월남쌈 775g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,8809128037231,영천)버섯불고기전골재료670g,영천 버섯불고기전골재료 670g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,8809128038535,영천)간장연탄불고기715g,영천 간장연탄불고기 715g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,8809128038832,영천)고추장연탄불고기715g,영천 고추장연탄불고기 715g,,,NONE,과일/채소/채소/,unmapped category
+EMART24,8809148792103,KG)양념소불고기250g(냉동),KG 양념소불고기 (냉동) 250g,,,NONE,축산/정육/,unmapped category
+EMART24,8809148792127,KG)간장돼지불고기250g(냉동),KG 간장돼지불고기 (냉동) 250g,,,NONE,축산/정육/,unmapped category
+EMART24,8809287900704,라쿠치나)비프불고기피자80g,라쿠치나 비프불고기피자 80g,,,NONE,간편조리FF/간식/안주/,unmapped category
+EMART24,8809558845895,03프레시지)광양식소불고기261g,03프레시지 광양식소불고기 261g,,,NONE,냉동식재/냉동밀키트/,unmapped category
+EMART24,8809565381768,그린)불고기새우버거,그린 불고기새우버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809565382062,그린)빅더블불고기치즈버거,그린 빅더블불고기치즈버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809565382130,그린)한돈불고기버거,그린 한돈불고기버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809565382253,그린)불고기버거,그린 불고기버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809565382772,그린)중량UP_불고기버거2편(중단),그린 중량UP 불고기버거2편(중단,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809565382796,그린)더빅불고기버거2편,그린 더빅불고기버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809565382819,그린)더빅클래식불고기버거2편,그린 더빅클래식불고기버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809565382826,그린)더빅더블불고기치즈버거2편,그린 더빅더블불고기치즈버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809650793605,숯불맛소불고기김밥,숯불맛소불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809650799584,불고기전주비빔김밥,불고기전주비빔김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809667131629,성진)1등급한우정육불고기300g,성진 1등급한우정육불고기 300g,,,NONE,축산/정육/,unmapped category
+EMART24,8809667131667,성진)한우양념불고기300g,성진 한우양념불고기 300g,,,NONE,축산/정육/,unmapped category
+EMART24,8809679627943,랩)어니언불고기샐러드랩200g,랩 어니언불고기샐러드랩 200g,,,NONE,샐러드/즉석샐러드/,unmapped category
+EMART24,8809679628544,스윗)불고기타코랩105g,스윗 불고기타코랩 105g,,,NONE,샐러드/즉석샐러드/,unmapped category
+EMART24,8809705477795,영진)유부불고기김밥,영진 유부불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962583437,불향가득불고기김밥,불향가득불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962585219,대정)소불고기파스타샐러드,대정 소불고기파스타샐러드,,,NONE,샐러드/즉석샐러드/,unmapped category
+EMART24,8809962585233,뉴오삼불고기김밥,뉴오삼불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962585448,상상_2200김밥(불고기김밥),상상 2200김밥(불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962585486,산청_불고기부추김밥,산청 불고기부추김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962585547,참치&유부불고기김밥,참치&유부불고기김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8809962586025,참깨소불고기메밀면볼,참깨소불고기메밀면볼,,,NONE,샐러드/즉석샐러드/,unmapped category
+EMART24,8809962587121,올바른불향가득불고기김밥,올바른불향가득불고기김밥,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962587152,대정)불고기피자94g2편,대정 불고기피자 94g,,,NONE,즉석조리/오븐쿡/,unmapped category
+EMART24,8809962588388,대정)NEW올바른불향가득불고기김밥(리뉴얼),대정 NEW올바른불향가득불고기김밥(리뉴얼,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962588395,대정)NEW올바른불향가득불고기김밥2편(리뉴얼),대정 NEW올바른불향가득불고기김밥2편(리뉴얼,,,NONE,김밥/줄김밥/,unmapped category
+EMART24,8809962588708,대정)올바른참치&유부불고기김밥2편,대정 올바른참치&유부불고기김밥,,,NONE,김밥/용기김밥/초밥/,unmapped category
+EMART24,8809962589293,대정)더빅핫불고기치즈버거,대정 더빅핫불고기치즈버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809962589309,대정)더빅핫불고기치즈버거2편,대정 더빅핫불고기치즈버거,,,NONE,햄버거/햄버거/,unmapped category
+EMART24,8809962589682,대정)고단백_불고기샐러드파스타2편,대정 고단백 불고기샐러드파스타,,,NONE,샐러드/즉석샐러드/,unmapped category
+EMART24,8809982170068,스마일팜)제주한돈고추장불고기600g,스마일팜 제주한돈고추장불고기 600g,,,NONE,축산/정육/,unmapped category
+EMART24,8809982170075,스마일팜)제주한돈간장불고기600g,스마일팜 제주한돈간장불고기 600g,,,NONE,축산/정육/,unmapped category
+EMART24,8809982170532,신선)간장불고기600g,신선 간장불고기 600g,,,NONE,축산/정육/,unmapped category
+EMART24,8809982170549,신선)고추장불고기600g,신선 고추장불고기 600g,,,NONE,축산/정육/,unmapped category

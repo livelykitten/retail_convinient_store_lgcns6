@@ -45,7 +45,7 @@ CREATE TABLE product (
     brand       VARCHAR(10)  NOT NULL,           -- CU · GS25 · SEVEN · EMART24
     source_name VARCHAR(100) NOT NULL,           -- 원천 표기 그대로 (화면 표시는 product_group.name)
     list_price  INT          NOT NULL,           -- 정가(원)
-    event       VARCHAR(20)  NOT NULL,           -- NONE · ONE_PLUS_ONE · TWO_PLUS_ONE · THREE_PLUS_ONE
+    event       VARCHAR(20)  NOT NULL,           -- NONE · ONE_PLUS_ONE · TWO_PLUS_ONE · THREE_PLUS_ONE · OTHER(할인 미반영)
 
     CONSTRAINT pk_product PRIMARY KEY (product_id),
     CONSTRAINT fk_product_group FOREIGN KEY (product_key) REFERENCES product_group (product_key),
@@ -54,7 +54,7 @@ CREATE TABLE product (
     CONSTRAINT ck_product_brand      CHECK (brand IN ('CU', 'GS25', 'SEVEN', 'EMART24')),
     CONSTRAINT ck_product_id_prefix  CHECK (product_id LIKE LOWER(brand) || '-%'),
     CONSTRAINT ck_product_list_price CHECK (list_price > 0),
-    CONSTRAINT ck_product_event      CHECK (event IN ('NONE', 'ONE_PLUS_ONE', 'TWO_PLUS_ONE', 'THREE_PLUS_ONE'))
+    CONSTRAINT ck_product_event      CHECK (event IN ('NONE', 'ONE_PLUS_ONE', 'TWO_PLUS_ONE', 'THREE_PLUS_ONE', 'OTHER'))
 );
 
 -- ---------------------------------------------------------------------

@@ -1,0 +1,24 @@
+brand,source_code,source_name,normalized_name,category,list_price,event,raw_category,reason
+SEVEN,8809827508520,한도초과)고민할필요없는도시락,고민할필요없는도시락,LUNCHBOX,4900,OTHER,도시락//,same brand/product has conflicting price or event
+SEVEN,8809827508513,한도초과)고민할필요없는도시락,고민할필요없는도시락,LUNCHBOX,4900,OTHER,//,same brand/product has conflicting price or event
+SEVEN,8809827506311,한도초과)고민할필요없는도시락,고민할필요없는도시락,LUNCHBOX,4900,NONE,//,same brand/product has conflicting price or event
+GS25,8801056175900,롯데)펩시제로라임캔355ML,롯데 펩시제로라임캔 355ml,COLA,1500,OTHER,음료/탄산음료/탄산-중캔,same brand/product has conflicting price or event
+GS25,8801056175900,롯데)펩시제로라임캔355ML,롯데 펩시제로라임캔 355ml,COLA,2100,OTHER,음료/탄산음료/탄산-중캔,same brand/product has conflicting price or event
+SEVEN,8801121771396,매일)바리스타쇼콜라모카325ml,매일 바리스타쇼콜라모카 325ml,COFFEE,3500,TWO_PLUS_ONE,커피음료//,"same normalized name, conflicting category/size/unit"
+GS25,8801121771396,매일)바리스타쇼콜라모카325ML,매일 바리스타쇼콜라모카 325ml,MILK,3500,OTHER,유제품/우유/냉장커피,"same normalized name, conflicting category/size/unit"
+EMART24,8801121771396,매일)바리스타쇼콜라모카325ml,매일 바리스타쇼콜라모카 325ml,COFFEE,3500,TWO_PLUS_ONE,냉장커피/냉장커피(컵/대)/,"same normalized name, conflicting category/size/unit"
+CU,view-27502,삼)스팸마요삼각,스팸마요삼각,TRIANGLE_KIMBAP,1400,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26510,빅삼)스팸마요삼각,스팸마요삼각,TRIANGLE_KIMBAP,1900,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26497,빅삼)전주비빔불고기삼각,전주비빔불고기삼각,TRIANGLE_KIMBAP,1800,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26496,삼)전주비빔불고기삼각,전주비빔불고기삼각,TRIANGLE_KIMBAP,1400,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+GS25,2700038878524,더큰)전주비빔참치마요2편,전주비빔참치마요,TRIANGLE_KIMBAP,1800,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038878517,더큰)전주비빔참치마요1편,전주비빔참치마요,TRIANGLE_KIMBAP,1800,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,8809015471162,전주비빔참치마요,전주비빔참치마요,TRIANGLE_KIMBAP,1300,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038880237,삼각)참치마요1편,참치마요,TRIANGLE_KIMBAP,1200,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038880244,삼각)참치마요2편,참치마요,TRIANGLE_KIMBAP,1200,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038878159,더큰)참치마요2편,참치마요,TRIANGLE_KIMBAP,1700,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+GS25,2700038878142,더큰)참치마요1편,참치마요,TRIANGLE_KIMBAP,1700,OTHER,FreshFood/주먹밥/삼각김밥,same brand/product has conflicting price or event
+CU,view-26412,삼)참치마요삼각,참치마요삼각,TRIANGLE_KIMBAP,1200,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26409,빅삼)참치마요삼각,참치마요삼각,TRIANGLE_KIMBAP,1700,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-26414,빅삼)치킨마요삼각,치킨마요삼각,TRIANGLE_KIMBAP,1700,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event
+CU,view-25777,삼)치킨마요삼각,치킨마요삼각,TRIANGLE_KIMBAP,1400,NONE,메뉴:10/소분류:2/,same brand/product has conflicting price or event

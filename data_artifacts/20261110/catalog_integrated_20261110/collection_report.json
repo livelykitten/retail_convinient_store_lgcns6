@@ -1,0 +1,81 @@
+{
+  "generated_at_utc": "2026-11-10T02:13:46.907231+00:00",
+  "source": "live",
+  "endpoints": {
+    "SEVEN": "https://new.7-elevenapp.co.kr/api/v1/open/search/goods",
+    "GS25": "https://b2c-apigw.woodongs.com/search/v3/totalSearch",
+    "EMART24": "https://everse.emart24.co.kr/stock/stock/search",
+    "CU": "https://cu.bgfretail.com/product/productAjax.do"
+  },
+  "scope": "Search sampling, not complete catalogs; no store inventory collected",
+  "brands": {
+    "SEVEN": {
+      "status": "success",
+      "received": 833,
+      "duplicate": 113,
+      "errors": [],
+      "truncated": [],
+      "pages": 34,
+      "unique_source_rows": 720,
+      "exported": 254,
+      "excluded": 1,
+      "unmapped": 433,
+      "conflict_rows": 4,
+      "unverified_event_rows": 0
+    },
+    "GS25": {
+      "status": "success",
+      "received": 1532,
+      "duplicate": 358,
+      "errors": [],
+      "truncated": [],
+      "pages": 55,
+      "unique_source_rows": 1208,
+      "exported": 761,
+      "excluded": 0,
+      "unmapped": 413,
+      "conflict_rows": 10,
+      "unverified_event_rows": 769
+    },
+    "EMART24": {
+      "status": "partial",
+      "received": 20,
+      "duplicate": 0,
+      "errors": [
+        "EMART24 required price/event fields missing"
+      ],
+      "truncated": [],
+      "pages": 2,
+      "unique_source_rows": 20,
+      "exported": 12,
+      "excluded": 0,
+      "unmapped": 7,
+      "conflict_rows": 1,
+      "unverified_event_rows": 0
+    },
+    "CU": {
+      "status": "success",
+      "received": 2700,
+      "duplicate": 0,
+      "errors": [],
+      "truncated": [],
+      "pages": 73,
+      "unique_source_rows": 2700,
+      "exported": 254,
+      "excluded": 0,
+      "unmapped": 2438,
+      "conflict_rows": 8,
+      "unverified_event_rows": 0
+    }
+  },
+  "groups": 1159,
+  "products": 1281,
+  "normalization_changes": 72,
+  "notes": [
+    "OTHER is not NONE; no promotion discount is calculated.",
+    "GS25 without a matching oneplus entry is OTHER (unverified promotion).",
+    "CU SKU uses view(id); image barcode is not required.",
+    "Reference categories are matched by normalized name, never barcode alone."
+  ],
+  "validation": "passed: columns, lengths, enums, PK, FK, UNIQUE and actual schema CHECKs"
+}

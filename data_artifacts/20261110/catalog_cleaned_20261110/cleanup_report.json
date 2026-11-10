@@ -1,0 +1,316 @@
+{
+  "generated_at_utc": "2026-11-10T02:35:57.245169+00:00",
+  "source_directory": "C:\\Users\\user\\retail_convinient_store_lgcns6\\catalog_verified_20261110",
+  "output_directory": "C:\\Users\\user\\retail_convinient_store_lgcns6\\catalog_cleaned_20261110",
+  "original_sha256": {
+    "product_group.csv": "f67b0772b11df8d3e11ad2ae09bad32ea40a57d25237e792d18f032397344cfe",
+    "products.csv": "59aad57c632f89d03c3f44a4e5dc9b2222286bd4d747489dc007b4743089a813"
+  },
+  "before": {
+    "product_groups": 1555,
+    "products": 1792,
+    "by_brand": {
+      "CU": 255,
+      "EMART24": 473,
+      "GS25": 809,
+      "SEVEN": 255
+    },
+    "by_category_groups": {
+      "COFFEE": 316,
+      "COLA": 123,
+      "LUNCHBOX": 156,
+      "MILK": 326,
+      "RAMEN_BAG": 176,
+      "RAMEN_CUP": 316,
+      "TRIANGLE_KIMBAP": 142
+    },
+    "by_category_products": {
+      "COFFEE": 326,
+      "COLA": 149,
+      "LUNCHBOX": 157,
+      "MILK": 413,
+      "RAMEN_BAG": 204,
+      "RAMEN_CUP": 398,
+      "TRIANGLE_KIMBAP": 145
+    },
+    "by_event": {
+      "NONE": 739,
+      "ONE_PLUS_ONE": 100,
+      "OTHER": 838,
+      "THREE_PLUS_ONE": 2,
+      "TWO_PLUS_ONE": 113
+    },
+    "by_brand_category": {
+      "CU": {
+        "COFFEE": 30,
+        "COLA": 18,
+        "LUNCHBOX": 46,
+        "MILK": 61,
+        "RAMEN_BAG": 8,
+        "RAMEN_CUP": 65,
+        "TRIANGLE_KIMBAP": 27
+      },
+      "EMART24": {
+        "COFFEE": 67,
+        "COLA": 44,
+        "LUNCHBOX": 52,
+        "MILK": 73,
+        "RAMEN_BAG": 58,
+        "RAMEN_CUP": 106,
+        "TRIANGLE_KIMBAP": 73
+      },
+      "GS25": {
+        "COFFEE": 218,
+        "COLA": 56,
+        "LUNCHBOX": 37,
+        "MILK": 217,
+        "RAMEN_BAG": 103,
+        "RAMEN_CUP": 152,
+        "TRIANGLE_KIMBAP": 26
+      },
+      "SEVEN": {
+        "COFFEE": 11,
+        "COLA": 31,
+        "LUNCHBOX": 22,
+        "MILK": 62,
+        "RAMEN_BAG": 35,
+        "RAMEN_CUP": 75,
+        "TRIANGLE_KIMBAP": 19
+      }
+    }
+  },
+  "after": {
+    "product_groups": 1330,
+    "products": 1565,
+    "by_brand": {
+      "CU": 253,
+      "EMART24": 426,
+      "GS25": 639,
+      "SEVEN": 247
+    },
+    "by_category_groups": {
+      "COFFEE": 237,
+      "COLA": 112,
+      "LUNCHBOX": 151,
+      "MILK": 301,
+      "RAMEN_BAG": 94,
+      "RAMEN_CUP": 295,
+      "TRIANGLE_KIMBAP": 140
+    },
+    "by_category_products": {
+      "COFFEE": 247,
+      "COLA": 138,
+      "LUNCHBOX": 152,
+      "MILK": 387,
+      "RAMEN_BAG": 121,
+      "RAMEN_CUP": 377,
+      "TRIANGLE_KIMBAP": 143
+    },
+    "by_event": {
+      "NONE": 688,
+      "ONE_PLUS_ONE": 97,
+      "OTHER": 667,
+      "THREE_PLUS_ONE": 2,
+      "TWO_PLUS_ONE": 111
+    },
+    "by_brand_category": {
+      "CU": {
+        "COFFEE": 30,
+        "COLA": 18,
+        "LUNCHBOX": 46,
+        "MILK": 59,
+        "RAMEN_BAG": 8,
+        "RAMEN_CUP": 65,
+        "TRIANGLE_KIMBAP": 27
+      },
+      "EMART24": {
+        "COFFEE": 42,
+        "COLA": 40,
+        "LUNCHBOX": 51,
+        "MILK": 70,
+        "RAMEN_BAG": 46,
+        "RAMEN_CUP": 104,
+        "TRIANGLE_KIMBAP": 73
+      },
+      "GS25": {
+        "COFFEE": 164,
+        "COLA": 49,
+        "LUNCHBOX": 33,
+        "MILK": 198,
+        "RAMEN_BAG": 37,
+        "RAMEN_CUP": 133,
+        "TRIANGLE_KIMBAP": 25
+      },
+      "SEVEN": {
+        "COFFEE": 11,
+        "COLA": 31,
+        "LUNCHBOX": 22,
+        "MILK": 60,
+        "RAMEN_BAG": 30,
+        "RAMEN_CUP": 75,
+        "TRIANGLE_KIMBAP": 18
+      }
+    }
+  },
+  "removed": {
+    "product_groups": 225,
+    "products": 227,
+    "by_reason_groups": {
+      "MISCLASSIFIED": 12,
+      "MULTIPACK": 218
+    },
+    "note": "오분류이면서 다입 묶음인 경우 사유별 건수에 중복 집계",
+    "report": "removed_products.csv"
+  },
+  "review": {
+    "product_groups": 18,
+    "products": 18,
+    "report": "review_needed.csv"
+  },
+  "changes": {
+    "by_brand": {
+      "CU": {
+        "before": 255,
+        "after": 253,
+        "removed": 2
+      },
+      "EMART24": {
+        "before": 473,
+        "after": 426,
+        "removed": 47
+      },
+      "GS25": {
+        "before": 809,
+        "after": 639,
+        "removed": 170
+      },
+      "SEVEN": {
+        "before": 255,
+        "after": 247,
+        "removed": 8
+      }
+    },
+    "by_category": {
+      "COFFEE": {
+        "groups_before": 316,
+        "groups_after": 237,
+        "products_before": 326,
+        "products_after": 247
+      },
+      "COLA": {
+        "groups_before": 123,
+        "groups_after": 112,
+        "products_before": 149,
+        "products_after": 138
+      },
+      "LUNCHBOX": {
+        "groups_before": 156,
+        "groups_after": 151,
+        "products_before": 157,
+        "products_after": 152
+      },
+      "MILK": {
+        "groups_before": 326,
+        "groups_after": 301,
+        "products_before": 413,
+        "products_after": 387
+      },
+      "RAMEN_BAG": {
+        "groups_before": 176,
+        "groups_after": 94,
+        "products_before": 204,
+        "products_after": 121
+      },
+      "RAMEN_CUP": {
+        "groups_before": 316,
+        "groups_after": 295,
+        "products_before": 398,
+        "products_after": 377
+      },
+      "TRIANGLE_KIMBAP": {
+        "groups_before": 142,
+        "groups_after": 140,
+        "products_before": 145,
+        "products_after": 143
+      }
+    }
+  },
+  "validation": {
+    "foreign_keys": true,
+    "unique_product_key": true,
+    "unique_product_id": true,
+    "unique_product_key_brand": true,
+    "positive_prices": true,
+    "allowed_events": true,
+    "no_empty_groups": true,
+    "original_csv_preserved_sha256": true,
+    "existing_code_and_tracked_files_unchanged": true,
+    "retained_values_unchanged": true,
+    "review_rows_retained": true,
+    "removed_products_and_groups_synchronized": true,
+    "csv_roundtrip": true,
+    "h2_original_schema_load": {
+      "status": "passed",
+      "engine": "H2 2.4.240",
+      "groups": 1330,
+      "products": 1565,
+      "orphan_products": 0,
+      "empty_groups": 0,
+      "persistent_database_modified": false
+    },
+    "source_csv_hash_rechecked_after_h2": true
+  },
+  "allowed_events": [
+    "NONE",
+    "ONE_PLUS_ONE",
+    "OTHER",
+    "THREE_PLUS_ONE",
+    "TWO_PLUS_ONE"
+  ],
+  "policy": {
+    "event": "OTHER kept unchanged; no removal decision depends on event or brand; GS25 unverified promotions are retained unless independently excluded as misclassified/multipack",
+    "other_ui_warning": "OTHER에는 미확인 행사도 포함되므로 화면에서 기타 행사 중이라고 단정하면 안 됩니다. 프론트엔드는 수정하지 않았습니다.",
+    "multipack": "Explicit N입 / *N / ×N and coffee NT quantities >=2 are excluded. Ambiguous box/X2/container numbers are retained for review.",
+    "modified_fields": "No retained field values were changed; only complete groups and their linked product rows were filtered.",
+    "network_calls": 0
+  },
+  "notes": [
+    "Uncertain names are retained, not silently reclassified.",
+    "Reason counts overlap when a misclassified item is also a multipack."
+  ],
+  "other_by_brand": {
+    "CU": {
+      "before": 0,
+      "after": 0
+    },
+    "EMART24": {
+      "before": 13,
+      "after": 10
+    },
+    "GS25": {
+      "before": 782,
+      "after": 614
+    },
+    "SEVEN": {
+      "before": 43,
+      "after": 43
+    }
+  },
+  "retained_counterexamples": [
+    {
+      "product_key": "p-2d1a71eee8419bc0221c88d735d03b22",
+      "name": "더본 빽라면용기 110g",
+      "note": "용기·뚜껑 또는 숫자를 포함하지만 해당 표현만으로 비식품·묶음으로 판단하지 않음"
+    },
+    {
+      "product_key": "p-558bb6adba4183aa5fd869f6187713ba",
+      "name": "팔도 왕뚜껑큰컵",
+      "note": "용기·뚜껑 또는 숫자를 포함하지만 해당 표현만으로 비식품·묶음으로 판단하지 않음"
+    },
+    {
+      "product_key": "p-8afa147294d1ac6351d78a4e2906545e",
+      "name": "더블X2참치마요",
+      "note": "용기·뚜껑 또는 숫자를 포함하지만 해당 표현만으로 비식품·묶음으로 판단하지 않음"
+    }
+  ]
+}

@@ -36,6 +36,32 @@ out/
 ### VS Code ###
 .vscode/
 
+### Frontend (React / Vite) ###
+/frontend/node_modules/
+/frontend/dist/
+/frontend/coverage/
+/frontend/.vite/
+/frontend/.eslintcache
+/frontend/*.tsbuildinfo
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+.vercel/
+
+### Local environment variables ###
+.env
+.env.*
+!.env.example
+!.env.sample
+!/frontend/.env.demo
 # Environment variables
 .env
 *.env
+
+### Python collectors ###
+__pycache__/
+*.py[cod]
+
+### Large collector response snapshots (CSV reports remain versioned) ###
+/data_artifacts/**/raw_responses.jsonl

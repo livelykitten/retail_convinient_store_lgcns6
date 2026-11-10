@@ -1,0 +1,109 @@
+{
+  "generated_at_utc": "2026-11-10T02:20:08.628818+00:00",
+  "source": "offline",
+  "endpoints": {
+    "SEVEN": "https://new.7-elevenapp.co.kr/api/v1/open/search/goods",
+    "GS25": "https://b2c-apigw.woodongs.com/search/v3/totalSearch",
+    "EMART24": "https://everse.emart24.co.kr/stock/stock/search",
+    "CU": "https://cu.bgfretail.com/product/productAjax.do"
+  },
+  "scope": "Search sampling, not complete catalogs; no store inventory collected",
+  "source_response_files": [
+    "C:\\Users\\user\\retail_convinient_store_lgcns6\\catalog_integrated_20261110\\raw_responses.jsonl",
+    "C:\\Users\\user\\retail_convinient_store_lgcns6\\catalog_emart_recovery_20261110\\raw_responses.jsonl"
+  ],
+  "brands": {
+    "SEVEN": {
+      "status": "offline_replay",
+      "received": 833,
+      "duplicate": 113,
+      "errors": [],
+      "truncated": [],
+      "pages": 34,
+      "promotion_rows": 0,
+      "unique_source_rows": 720,
+      "exported": 255,
+      "excluded": 1,
+      "unmapped": 433,
+      "conflict_rows": 3,
+      "unverified_event_rows": 0
+    },
+    "GS25": {
+      "status": "offline_replay",
+      "received": 1532,
+      "duplicate": 358,
+      "errors": [],
+      "truncated": [],
+      "pages": 55,
+      "promotion_rows": 34,
+      "unique_source_rows": 1208,
+      "exported": 815,
+      "excluded": 0,
+      "unmapped": 360,
+      "conflict_rows": 9,
+      "unverified_event_rows": 821
+    },
+    "EMART24": {
+      "status": "offline_replay",
+      "received": 1104,
+      "duplicate": 152,
+      "errors": [],
+      "truncated": [],
+      "pages": 131,
+      "promotion_rows": 0,
+      "unique_source_rows": 952,
+      "exported": 473,
+      "excluded": 2,
+      "unmapped": 345,
+      "conflict_rows": 9,
+      "unverified_event_rows": 0
+    },
+    "CU": {
+      "status": "offline_replay",
+      "received": 2700,
+      "duplicate": 0,
+      "errors": [],
+      "truncated": [],
+      "pages": 73,
+      "promotion_rows": 0,
+      "unique_source_rows": 2700,
+      "exported": 255,
+      "excluded": 0,
+      "unmapped": 2437,
+      "conflict_rows": 8,
+      "unverified_event_rows": 0
+    }
+  },
+  "groups": 1561,
+  "products": 1798,
+  "normalization_changes": 256,
+  "notes": [
+    "OTHER is not NONE; no promotion discount is calculated.",
+    "GS25 without a matching oneplus entry is OTHER (unverified promotion).",
+    "CU SKU uses view(id); image barcode is not required.",
+    "Reference categories are matched by normalized name, never barcode alone."
+  ],
+  "validation": "passed: columns, lengths, enums, PK, FK, UNIQUE and actual schema CHECKs",
+  "h2_validation": {
+    "status": "passed",
+    "engine": "H2 2.4.240",
+    "method": "original schema.sql + CSVREAD into product_group/product; all constraints enabled",
+    "groups_loaded": 1561,
+    "products_loaded": 1798,
+    "by_brand": {
+      "CU": 255,
+      "GS25": 815,
+      "SEVEN": 255,
+      "EMART24": 473
+    }
+  },
+  "backend_test": {
+    "status": "blocked_by_existing_compile_error",
+    "command": "backend/gradlew.bat test",
+    "reason": "RouteNotFoundException.java references missing ErrorCode.ROUTE_NOT_FOUND; unrelated code was not changed"
+  },
+  "live_collection_runs": [
+    "catalog_integrated_20261110/collection_report.json",
+    "catalog_emart_recovery_20261110/collection_report.json"
+  ]
+}
